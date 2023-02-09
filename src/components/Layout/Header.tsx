@@ -10,12 +10,10 @@ const Header = () => {
   return (
     <Box sx={{ padding: '1rem' }}>
       <Box sx={{ marginBottom: '10px', alignItems: 'center', display: 'flex', flex: '1' }}>
-        <a style={{ display: 'flex', textDecoration: 'none' }} href={window.location.origin}>
-          <img src={LogoHeader} alt="logo" />
-          <Typography fontWeight={900} marginLeft={1} variant="h6" color="text.primary">
-            | Private Sale
-          </Typography>
-        </a>
+        <img src={LogoHeader} alt="logo" />
+        <Typography fontWeight={900} marginLeft={1} variant="h6" color="text.primary">
+          | Private Sale
+        </Typography>
         {location.pathname === '/' ? null : (
           <Box
             sx={{
