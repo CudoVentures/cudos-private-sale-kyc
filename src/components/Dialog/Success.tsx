@@ -15,22 +15,7 @@ const Success = () => {
   const {
     success,
     message,
-    msgType,
   } = useSelector((state: RootState) => state.modalState)
-
-  const contentComponentHandler = (msgType: string): JSX.Element => {
-
-    let contentComponent: JSX.Element = (<div></div>)
-    
-    switch (msgType) {
-
-      //TODO: Handle various msgType successes
-
-      default:
-        return contentComponent
-    }
-
-  }
 
   const handleModalClose = () => {
     dispatch(updateModalState({ ...initialModalState }))
@@ -70,7 +55,6 @@ const Success = () => {
             {message}
           </Typography>
         </Box>
-        {contentComponentHandler(msgType!)}
         <Button
           variant="contained"
           color="primary"
