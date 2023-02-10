@@ -2,20 +2,24 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { CHAIN_DETAILS } from 'utils/constants'
 
 export const initialRegistrationState: PrivateSaleFields = {
+    connectedAddress: '',
     firstName: '',
     lastName: '',
     amountToSpend: '',
     email: '',
-    nftCount: 0,
-    externalWaller: ''
+    nftCount: '',
+    externalWallet: '',
+    nftTiers: []
 }
 export interface PrivateSaleFields {
+    connectedAddress: string
     firstName: string,
     lastName: string,
     amountToSpend: string,
     email: string,
-    nftCount: number,
-    externalWaller: string,
+    nftCount: string,
+    nftTiers: number[],
+    externalWallet: string,
 }
 
 export interface userState {
