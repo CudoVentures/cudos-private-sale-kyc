@@ -25,7 +25,7 @@ import {
 const UserInfo = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { address, accountName, connectedLedger } = useSelector((state: RootState) => state.userState)
+  const userState = useSelector((state: RootState) => state.userState)
 
   const [open, setOpen] = useState(false)
 
@@ -46,15 +46,15 @@ const UserInfo = () => {
               <Avatar
                 style={styles.avatarStyling}
                 src={
-                  connectedLedger === LEDGERS.KEPLR ? KeplrLogo :
-                    connectedLedger === LEDGERS.COSMOSTATION ? CosmostationLogo :
+                  userState.connectedLedger === LEDGERS.KEPLR ? KeplrLogo :
+                  userState.connectedLedger === LEDGERS.COSMOSTATION ? CosmostationLogo :
                       WalletIcon
                 }
                 alt="Wallet Logo"
               />
             </Box>
             <Typography>
-              {`Hi, ${accountName}`}
+              {`Hi, ${userState.accountName}`}
             </Typography>
             <Box style={{ marginLeft: '15px' }}>
               <img
@@ -78,10 +78,10 @@ const UserInfo = () => {
           <Box style={{ marginTop: '40px' }}>
             <Box sx={styles.userAddressHolder}>
               <Typography marginBottom={2} color="text.secondary" fontSize={13}>
-                {formatAddress(address!, 20)}
+                {formatAddress(userState.address!, 20)}
               </Typography>
             </Box>
-            <CopyAndFollowComponent address={address!} />
+            <CopyAndFollowComponent address={userState.registrationState?.connectedAddress!} />
             <Box margin={'20px 0px 40px 0px'} style={styles.disconnectBtnHolder}>
               <Button
                 variant="contained"

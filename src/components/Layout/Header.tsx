@@ -11,7 +11,7 @@ const Header = () => {
     <Box sx={{ padding: '1rem' }}>
       <Box sx={{ marginBottom: '10px', alignItems: 'center', display: 'flex', flex: '1' }}>
         <img src={LogoHeader} alt="logo" />
-        <Typography fontWeight={900} marginLeft={1} variant="h6" color="text.primary">
+        <Typography fontWeight={900} marginLeft={1} marginTop={0.5} variant="h6" color="text.primary">
           | Private Sale
         </Typography>
         {location.pathname === '/' ? null : (

@@ -62,7 +62,7 @@ export const styles = {
     float: 'right',
     fontSize: '14px',
     height: 'max-content',
-    minWidth: '224px',
+    minWidth: '100%',
     fontWeight: '500',
     display: 'flex',
     borderRadius: '0px 0px 20px 20px',
@@ -105,7 +105,7 @@ export const StyledNetwork = styled(Box)(({ theme }) => ({
 }))
 
 export const StyledUser = styled(Box)(({ theme }) => ({
-  minWidth: 'max-content',
+  minWidth: '224px',
   maxHeight: '48px',
   borderRadius: '55px',
   height: '35px',

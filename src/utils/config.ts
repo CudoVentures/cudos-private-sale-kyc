@@ -1,19 +1,23 @@
 import { connectCosmostationLedger } from "ledgers/CosmostationLedger"
 import { connectKeplrLedger } from "ledgers/KeplrLedger"
-import { userState } from "store/user"
+import { initialRegistrationState, userState } from "store/user"
 
 import { LEDGERS } from "./constants"
-import { getConnectedUserAddressAndName} from "./helpers"
+import { getConnectedUserAddressAndName } from "./helpers"
 
 export const connectUser = async (chosenNetwork: string, ledgerType: string): Promise<userState> => {
 
     const { address, accountName } = await getConnectedUserAddressAndName(chosenNetwork, ledgerType)
 
     const connectedUser: userState = {
-        accountName: accountName,
         address: address,
+        accountName: accountName,
         connectedLedger: ledgerType,
         chosenNetwork: chosenNetwork,
+        registrationState: {
+            ...initialRegistrationState,
+            connectedAddress: address
+        }
     }
 
     return connectedUser

@@ -21,7 +21,7 @@ const ConnectWallet = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const { address, chosenNetwork } = useSelector((state: RootState) => state.userState)
+  const userState = useSelector((state: RootState) => state.userState)
   const [loading, setLoading] = useState(new Map())
 
   const connect = async (chosenNetwork: string, ledgerType: string) => {
@@ -45,7 +45,7 @@ const ConnectWallet = () => {
     }
   }
 
-  return address ?
+  return userState.registrationState?.connectedAddress ?
     (<Navigate to="/welcome" state={{ from: location }} replace />)
     :
     (
@@ -76,7 +76,7 @@ const ConnectWallet = () => {
                 loading={loading.get(LEDGERS.KEPLR)}
                 variant="contained"
                 color="primary"
-                onClick={() => connect(chosenNetwork!, LEDGERS.KEPLR)}
+                onClick={() => connect(userState.chosenNetwork!, LEDGERS.KEPLR)}
                 sx={styles.connectButton}
               >
                 <img
@@ -92,7 +92,7 @@ const ConnectWallet = () => {
                 loading={loading.get(LEDGERS.COSMOSTATION)}
                 variant="contained"
                 color="primary"
-                onClick={() => connect(chosenNetwork!, LEDGERS.COSMOSTATION)}
+                onClick={() => connect(userState.chosenNetwork!, LEDGERS.COSMOSTATION)}
                 sx={styles.connectButton}
               >
                 <img

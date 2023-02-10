@@ -1,6 +1,6 @@
 import { connectLedgerByType } from "./config"
 import { CHAIN_DETAILS } from "./constants"
-import { isValidCudosAddress } from "./validation"
+import { isValidCudosAddress } from "components/FormField/validation";
 
 export const getConnectedUserAddressAndName = async (chosenNetwork: string, ledgerType: string): Promise<{ address: string; accountName: string; }> => {
 
