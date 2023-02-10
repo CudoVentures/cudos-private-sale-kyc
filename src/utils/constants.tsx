@@ -9,6 +9,7 @@ import { ReactComponent as MediumIcon } from 'assets/vectors/medium.svg'
 import { ReactComponent as YouTubeIcon } from 'assets/vectors/youtube.svg'
 import { ReactComponent as FacebookIcon } from 'assets/vectors/facebook.svg'
 import { ReactComponent as SpotifyIcon } from 'assets/vectors/spotify.svg'
+import { SUPPORTED_WALLET } from "cudosjs"
 
 // CONFIGURATIONS
 export const CHAIN_DETAILS = {
@@ -91,8 +92,8 @@ export const DENOM_TO_ALIAS = {
 }
 
 export const LEDGERS = {
-    KEPLR: 'Keplr',
-    COSMOSTATION: 'Cosmostation'
+    KEPLR: SUPPORTED_WALLET.Keplr,
+    COSMOSTATION: SUPPORTED_WALLET.Cosmostation
 }
 
 export const FOOTER = {

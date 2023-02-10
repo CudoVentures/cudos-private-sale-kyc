@@ -15,6 +15,7 @@ import Header from 'components/Layout/Header'
 import { connectUser } from 'utils/config'
 import { useState } from 'react'
 import { LEDGERS, MODAL_MSGS } from 'utils/constants'
+import { SUPPORTED_WALLET } from 'cudosjs'
 
 const ConnectWallet = () => {
 
@@ -24,7 +25,7 @@ const ConnectWallet = () => {
   const userState = useSelector((state: RootState) => state.userState)
   const [loading, setLoading] = useState(new Map())
 
-  const connect = async (chosenNetwork: string, ledgerType: string) => {
+  const connect = async (chosenNetwork: string, ledgerType: SUPPORTED_WALLET) => {
 
     try {
       setLoading(new Map(loading.set(ledgerType, true)))

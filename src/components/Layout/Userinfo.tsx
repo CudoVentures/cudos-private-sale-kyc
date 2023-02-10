@@ -1,3 +1,5 @@
+import { signOut } from 'firebase/auth'
+import { auth } from 'utils/firebase'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -29,11 +31,12 @@ const UserInfo = () => {
 
   const [open, setOpen] = useState(false)
 
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
     sessionStorage.clear()
     localStorage.clear()
     dispatch(updateUser({ ...initialUserState }))
     dispatch(updateModalState({ ...initialModalState }))
+    await signOut(auth)
     navigate("/")
   }
 
@@ -47,7 +50,7 @@ const UserInfo = () => {
                 style={styles.avatarStyling}
                 src={
                   userState.connectedLedger === LEDGERS.KEPLR ? KeplrLogo :
-                  userState.connectedLedger === LEDGERS.COSMOSTATION ? CosmostationLogo :
+                    userState.connectedLedger === LEDGERS.COSMOSTATION ? CosmostationLogo :
                       WalletIcon
                 }
                 alt="Wallet Logo"

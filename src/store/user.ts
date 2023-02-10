@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { SUPPORTED_WALLET } from 'cudosjs'
 import { CHAIN_DETAILS } from 'utils/constants'
 
 export const initialRegistrationState: PrivateSaleFields = {
@@ -25,7 +26,7 @@ export interface PrivateSaleFields {
 export interface userState {
     address?: string
     accountName?: string
-    connectedLedger?: string
+    connectedLedger?: SUPPORTED_WALLET
     chosenNetwork?: string
     registrationState?: PrivateSaleFields
 }
@@ -33,7 +34,7 @@ export interface userState {
 export const initialState: userState = {
     address: '',
     accountName: '',
-    connectedLedger: '',
+    connectedLedger: undefined,
     chosenNetwork: CHAIN_DETAILS.DEFAULT_NETWORK,
     registrationState: initialRegistrationState
 }

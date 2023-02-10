@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -11,44 +11,67 @@ import { initialRegistrationState, PrivateSaleFields, updateUser } from 'store/u
 
 import { styles } from './styles'
 import { updateModalState } from 'store/modals'
+import { authenticateWithFirebase, saveData } from 'utils/firebase'
+import { CHAIN_DETAILS } from 'utils/constants'
 
 const Welcome = () => {
 
   const dispatch = useDispatch()
   const userState = useSelector((state: RootState) => state.userState)
 
+  const cleanUp = () => {
+    dispatch(updateUser({
+      registrationState: {
+        ...initialRegistrationState,
+        connectedAddress: userState.address || ''
+      }
+    }))
+  }
 
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const collectedData: PrivateSaleFields = {
       ...userState.registrationState!,
-      amountToSpend: sanitizeString(userState.registrationState?.amountToSpend!),
+      amountToSpend: `USD ${userState.registrationState?.amountToSpend!}.00`,
       nftCount: sanitizeString(userState.registrationState?.nftCount!)
     }
-    //TODO: Implement Onfido below
-    dispatch(updateModalState({
-      success: true,
-      message: <Box>
-        {Object.entries(collectedData).map(([key, value], idx) => {
-          return (<Box key={idx} gap={3} display='flex'>
-            <Typography fontWeight={900} color={'white'}>{key}:</Typography>
-            <Typography>{value}</Typography>
-          </Box>)
-        })}
-      </Box>
-    }))
+    try {
+      dispatch(updateModalState({
+        loading: true,
+        loadingType: true,
+      }))
+      const { success } = await authenticateWithFirebase(
+        collectedData.connectedAddress,
+        CHAIN_DETAILS.FIREBASE.COLLECTION,
+        userState.connectedLedger!
+      )
+      if (!success) {
+        throw new Error('Failed to authenticate with Firebase')
+      }
+      await saveData(userState.registrationState?.connectedAddress!, collectedData)
+
+      //TODO: Implement Onfido here
+
+      dispatch(updateModalState({
+        loading: false,
+        loadingType: false,
+        success: true,
+        message: "Entry submitted"
+      }))
+      cleanUp()
+
+    } catch (error) {
+      console.error((error as Error).message)
+      dispatch(updateModalState({
+        loading: false,
+        loadingType: false,
+        failure: true,
+        message: 'Something went wrong'
+      }))
+    }
   }
 
   // CLEAN-UP
   useEffect(() => {
-    const cleanUp = () => {
-      dispatch(updateUser({
-        registrationState: {
-          ...initialRegistrationState,
-          connectedAddress: userState.address || ''
-        }
-      }))
-    }
     cleanUp()
     return () => cleanUp()
     //eslint-disable-next-line

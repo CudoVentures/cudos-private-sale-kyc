@@ -60,7 +60,8 @@ const Success = () => {
           color="primary"
           sx={() => ({
             width: '50%',
-            fontWeight: 700
+            fontWeight: 700,
+            marginTop: '20px'
           })}
           onClick={handleModalClose}
         >
