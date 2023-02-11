@@ -1,7 +1,7 @@
 import { CHAIN_DETAILS } from "./constants";
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore/lite';
+import { getFirestore, doc, setDoc } from 'firebase/firestore/lite';
 import axios from "axios";
 import { PrivateSaleFields } from "store/user";
 import { signArbitrary } from "./helpers";
@@ -41,17 +41,8 @@ export const authenticate = async (address: string, collection: string, connecte
 export const saveData = async (address: string, data: PrivateSaleFields): Promise<void> => {
     try {
         const dataDoc = doc(firestore, CHAIN_DETAILS.FIREBASE.COLLECTION, address);
-        return setDoc(dataDoc, { data });
+        return setDoc(dataDoc, { ...data }, { merge: true });
     } catch {
         throw new Error("Error while saving data to Firebase")
-    }
-};
-
-const getData = async (address: string): Promise<any> => {
-    try {
-        const data = await getDoc(doc(firestore, CHAIN_DETAILS.FIREBASE.COLLECTION, address));
-        return data.data() || {}
-    } catch {
-        throw new Error("Error while getting data from Firebase")
     }
 };
