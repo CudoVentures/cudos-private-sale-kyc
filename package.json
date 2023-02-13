@@ -3,8 +3,7 @@
     "scripts": {
         "build": "npm run build --workspaces --if-present",
         "dev": "npm run dev --workspace=packages/server & npm start --workspace=packages/ui",
-        "start": "npm start --workspace=packages/server & npm start --workspace=packages/ui",
-        "prettier": "npx prettier --write ."
+        "start": "npm start --workspace=packages/server & npm start --workspace=packages/ui"
     },
     "workspaces": [
         "packages/server",
@@ -16,7 +15,6 @@
     },
     "devDependencies": {
         "@types/node": "^16.18.11",
-        "prettier": "2.8.3",
         "typescript": "^4.9.4"
     }
 }
