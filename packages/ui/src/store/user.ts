@@ -10,7 +10,9 @@ export const initialRegistrationState: PrivateSaleFields = {
     email: '',
     nftCount: '',
     externalWallet: '',
-    nftTiers: []
+    nftTiers: [],
+    kycCompleted: false,
+    kycApplicantId: undefined,
 }
 export interface PrivateSaleFields {
     connectedAddress: string
@@ -21,6 +23,8 @@ export interface PrivateSaleFields {
     nftCount: string,
     nftTiers: number[],
     externalWallet: string,
+    kycCompleted: boolean,
+    kycApplicantId: string | undefined,
 }
 
 export interface userState {
