@@ -2,7 +2,7 @@ import express, { Response } from "express";
 import cors from "cors";
 import compression from "compression";
 import * as dotenv from "dotenv";
-import { ApplicantRequest, AuthRequest } from "./types";
+import { ApplicantRequest, AuthRequest, CreateCheckRequest } from "./types";
 import { Onfido, Region } from "@onfido/api";
 
 dotenv.config();
@@ -42,6 +42,19 @@ app.post("/authenticate", async (req: AuthRequest, res: Response) => {
     try {
         const token = await onfido.sdkToken.generate(req.body);
         res.status(200).json({ token });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json(err);
+    }
+});
+
+app.post("/create-check", async (req: CreateCheckRequest, res: Response) => {
+    try {
+        await onfido.check.create({
+            applicantId: req.body.applicantId,
+            reportNames: ['document'],
+        });
+        return res.status(200);
     } catch (err) {
         console.error(err);
         res.status(500).json(err);

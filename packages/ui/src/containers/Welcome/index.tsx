@@ -84,8 +84,17 @@ const Welcome = () => {
         },
         onComplete: function(data) {
           onfido.setOptions({isModalOpen: false})
+
           collectedData.kycCompleted = true
           saveData(userState.registrationState?.connectedAddress!, collectedData)
+
+          axios.post(
+            CHAIN_DETAILS.KYC_CREATE_CHECK_URL,
+            {
+              applicantId: collectedData.kycApplicantId
+            }
+          );
+
           dispatch(updateModalState({
             success: true,
             message: "Entry submitted",
