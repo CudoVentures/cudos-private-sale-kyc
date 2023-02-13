@@ -32,11 +32,13 @@ export const styles = {
     padding: '10px 20px 10px 20px'
   },
   keplrLogo: {
-    marginRight: '10px'
+    marginRight: '10px',
+    width: '10%'
   },
   cosmostationLogo: {
     marginRight: '10px',
-    height: '25px'
+    height: '25px',
+    width: '10%'
   },
   infoIcon: {
     display: 'flex',

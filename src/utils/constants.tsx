@@ -9,14 +9,28 @@ import { ReactComponent as MediumIcon } from 'assets/vectors/medium.svg'
 import { ReactComponent as YouTubeIcon } from 'assets/vectors/youtube.svg'
 import { ReactComponent as FacebookIcon } from 'assets/vectors/facebook.svg'
 import { ReactComponent as SpotifyIcon } from 'assets/vectors/spotify.svg'
+import { SUPPORTED_WALLET } from "cudosjs"
+import { FOOTER_LOGO } from "components/FooterLogo"
 
 // CONFIGURATIONS
+export const APP_DETAILS = {
+    fadeTimeOut: 1500
+}
+
 export const CHAIN_DETAILS = {
     ADMIN_TOKEN_DENOM: 'cudosAdmin',
     NATIVE_TOKEN_DENOM: 'acudos',
     CURRENCY_DISPLAY_NAME: 'CUDOS',
     DEFAULT_NETWORK: import.meta.env.VITE_APP_DEFAULT_NETWORK || process.env.VITE_APP_DEFAULT_NETWORK || "",
     GAS_PRICE: import.meta.env.VITE_APP_GAS_PRICE || process.env.VITE_APP_GAS_PRICE || "",
+    FIREBASE: {
+        AUTH_VERIFY_URL: import.meta.env.VITE_APP_FIREBASE_AUTH_VERIFY_URL || process.env.VITE_APP_FIREBASE_AUTH_VERIFY_URL || "",
+        AUTH_NONCE_URL: import.meta.env.VITE_APP_FIREBASE_AUTH_NONCE_URL || process.env.VITE_APP_FIREBASE_AUTH_NONCE_URL || "",
+        COLLECTION: import.meta.env.VITE_APP_FIREBASE_COLLECTION || process.env.VITE_APP_FIREBASE_COLLECTION || "",
+        DOMAIN: import.meta.env.VITE_APP_FIREBASE_DOMAIN || process.env.VITE_APP_FIREBASE_DOMAIN || "",
+        PROJECT_ID: import.meta.env.VITE_APP_FIREBASE_PROJECT_ID || process.env.VITE_APP_FIREBASE_PROJECT_ID || "",
+        API_KEY: import.meta.env.VITE_APP_FIREBASE_API_KEY || process.env.VITE_APP_FIREBASE_API_KEY || ""
+    },
     RPC_ADDRESS: {
         LOCAL: import.meta.env.VITE_APP_LOCAL_RPC || process.env.VITE_APP_LOCAL_RPC || "",
         PRIVATE: import.meta.env.VITE_APP_PRIVATE_RPC || process.env.VITE_APP_PRIVATE_RPC || "",
@@ -83,16 +97,17 @@ export const DENOM_TO_ALIAS = {
 }
 
 export const LEDGERS = {
-    KEPLR: 'Keplr',
-    COSMOSTATION: 'Cosmostation'
+    KEPLR: SUPPORTED_WALLET.Keplr,
+    COSMOSTATION: SUPPORTED_WALLET.Cosmostation
 }
 
 export const FOOTER = {
     LEFT_LINKS: [
+        { text: <FOOTER_LOGO />, url: 'https://www.cudos.org' },
         { text: 'Terms & Conditions', url: 'https://www.cudos.org/terms-and-conditions/' },
         { text: 'Privacy Policy', url: 'https://www.cudos.org/privacy-policy' },
         { text: 'cudos.org', url: 'https://www.cudos.org/' },
-        { text: `License © 2018 - ${moment().year()}`, url: 'https://www.cudos.org/' }
+        { text: `License © 2018 - ${moment().year()}`, url: 'https://www.cudos.org/' },
     ],
     RIGHT_LINKS: [
         { icon: <TwitterIcon />, url: 'https://twitter.com/CUDOS_' },

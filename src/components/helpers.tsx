@@ -1,16 +1,17 @@
-import { Box, Tooltip } from "@mui/material"
+import { Box, Link, Tooltip } from "@mui/material"
 import { useState } from "react"
 import { EXPLORER_ADDRESS_DETAILS } from "api/endpoints"
 import copy from "copy-to-clipboard"
 import LinkIcon from 'assets/vectors/link-icon.svg'
 import CopyIcon from 'assets/vectors/copy-icon.svg'
-import { styles } from "./styles"
 import { useSelector } from "react-redux"
 import { RootState } from "store"
+import { themeStyles } from "./Layout/styles"
+import { COLORS_DARK_THEME } from "theme/colors"
 
 export const CopyAndFollowComponent = ({ address }: { address: string }): JSX.Element => {
 
-    const { chosenNetwork } = useSelector((state: RootState) => state.userState)
+    const { connectedLedger } = useSelector((state: RootState) => state.userState)
     const [copied, setCopied] = useState<boolean>(false)
 
     const handleCopy = (value: string) => {
@@ -23,26 +24,35 @@ export const CopyAndFollowComponent = ({ address }: { address: string }): JSX.El
     }
 
     return (
-        <Box style={styles.centerFlexLinear}>
-            <Tooltip
-                onClick={() => handleCopy(address)}
-                title={copied ? 'Copied' : 'Copy to clipboard'}
-            >
-                <img
-                    style={styles.icons}
-                    src={CopyIcon}
-                    alt="Copy"
-                />
-            </Tooltip>
-            <Tooltip title="Check address on explorer">
-                <a href={EXPLORER_ADDRESS_DETAILS(chosenNetwork!, address)} rel="noreferrer" target='_blank'>
-                    <img
-                        style={{ paddingTop: '5px', ...styles.icons }}
-                        src={LinkIcon}
-                        alt="Link"
-                    />
-                </a>
-            </Tooltip>
+        <Box gap={1} style={themeStyles.centerFlexLinear}>
+            <Box sx={themeStyles.iconHolder}>
+                <Tooltip
+                    title={copied ? 'Copied' : 'Copy to clipboard'}
+                >
+                    <Box sx={{ cursor: 'pointer' }} onClick={() => handleCopy(address)}>
+                        <img
+                            style={{ width: '24px', height: '24px', color: COLORS_DARK_THEME.PRIMARY_BLUE }}
+                            src={CopyIcon}
+                            alt="Copy"
+                        />
+                    </Box>
+                </Tooltip>
+            </Box>
+            <Box sx={themeStyles.iconHolder}>
+                <Tooltip title="Check address on explorer">
+                    <Link
+                        href={EXPLORER_ADDRESS_DETAILS(connectedLedger!, address)}
+                        rel="noreferrer"
+                        target='Checking address on explorer'
+                    >
+                        <img
+                            style={{ height: '24px' }}
+                            src={LinkIcon}
+                            alt="Link"
+                        />
+                    </Link>
+                </Tooltip>
+            </Box>
         </Box>
     )
 }

@@ -39,12 +39,11 @@ const Failure = () => {
         <CancelRoundedIcon onClick={handleModalClose} />
         <Box
           width='400px'
-          minHeight='200px'
+          minHeight='max-content'
           display="block"
           flexDirection="column"
           alignItems="center"
           textAlign="center"
-          gap={1}
         >
           <Typography
             style={{ margin: '20px 0 20px 0' }}
@@ -64,8 +63,9 @@ const Failure = () => {
           variant="contained"
           color="primary"
           sx={() => ({
-            width: '50%',
-            fontWeight: 700
+            width: '100%',
+            fontWeight: 700,
+            marginTop: '20px'
           })}
           onClick={handleModalClose}
         >

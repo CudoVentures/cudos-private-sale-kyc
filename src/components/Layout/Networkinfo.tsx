@@ -12,7 +12,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { updateUser } from 'store/user'
 import { connectUser } from 'utils/config'
 import { useEffect } from 'react'
-import { updateModalState } from 'store/modals'
 
 const NetworkInfo = () => {
 
@@ -31,21 +30,11 @@ const NetworkInfo = () => {
   useEffect(() => {
     const reconnect = async () => {
       try {
-        dispatch(updateModalState({
-          loading: true,
-          loadingType: true
-        }))
         const reconnectedUser = await connectUser(chosenNetwork!, connectedLedger!)
         dispatch(updateUser(reconnectedUser))
 
       } catch (error) {
         console.error((error as Error).message)
-
-      } finally {
-        dispatch(updateModalState({
-          loading: false,
-          loadingType: false
-        }))
       }
     }
 

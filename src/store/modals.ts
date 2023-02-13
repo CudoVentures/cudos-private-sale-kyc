@@ -1,22 +1,26 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export interface modalState {
-    title?: string
-    message?: string | JSX.Element
-    loading?: boolean
-    loadingType?: boolean
-    success?: boolean
-    failure?: boolean
+  title?: string
+  message?: string | JSX.Element
+  loading?: boolean
+  loadingType?: boolean
+  success?: boolean
+  failure?: boolean
+  data?: any
+  selectWallet?: boolean,
 
 }
 
 export const initialState: modalState = {
-    title: '',
-    message: '',
-    loading: false,
-    success: false,
-    loadingType: false,
-    failure: false,
+  title: '',
+  message: '',
+  loading: false,
+  success: false,
+  loadingType: false,
+  failure: false,
+  data: undefined,
+  selectWallet: false,
 }
 
 export const modalStateSlice = createSlice({

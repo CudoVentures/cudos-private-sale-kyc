@@ -1,6 +1,28 @@
+import { StdSignature, SUPPORTED_WALLET } from "cudosjs"
 import { connectLedgerByType } from "./config"
 import { CHAIN_DETAILS } from "./constants"
 import { isValidCudosAddress } from "components/FormField/validation";
+
+export const signArbitrary = async (
+  walletType: SUPPORTED_WALLET,
+  signingAddress: string,
+  message: string
+):
+  Promise<{ signature: StdSignature }> => {
+  const chainId = CHAIN_DETAILS.CHAIN_ID[CHAIN_DETAILS.DEFAULT_NETWORK]
+  let signature: StdSignature = {
+    pub_key: { type: '', value: '' },
+    signature: ""
+  }
+  if (walletType === SUPPORTED_WALLET.Keplr) {
+    signature = await window.keplr!.signArbitrary(chainId, signingAddress, message)
+  }
+
+  if (walletType === SUPPORTED_WALLET.Cosmostation) {
+    signature = await window.cosmostation.providers.keplr.signArbitrary(chainId, signingAddress, message)
+  }
+  return { signature }
+}
 
 export const getConnectedUserAddressAndName = async (chosenNetwork: string, ledgerType: string): Promise<{ address: string; accountName: string; }> => {
 

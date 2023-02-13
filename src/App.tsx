@@ -1,11 +1,10 @@
-import theme from 'theme'
-import { RootState } from 'store'
-import Layout from 'components/Layout'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { SUPPORTED_WALLET } from 'cudosjs'
 import { ThemeProvider } from '@mui/material/styles'
 import { useDispatch, useSelector } from 'react-redux'
-import { CssBaseline, Container } from '@mui/material'
-import RequireLedger from 'components/RequireLedger'
-import ConnectWallet from 'containers/ConnectWallet'
+import { CssBaseline } from '@mui/material'
+import { RootState } from 'store'
+import Layout from 'components/Layout'
 import { useCallback, useEffect } from 'react'
 import { updateUser } from 'store/user'
 import { connectUser } from 'utils/config'
@@ -13,8 +12,9 @@ import { updateModalState } from 'store/modals'
 import Welcome from 'containers/Welcome'
 import { LEDGERS } from 'utils/constants'
 import { initialState as initialModalState } from 'store/modals'
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import ConnectWallet from 'containers/ConnectWallet'
 
+import theme from 'theme'
 import '@fontsource/poppins'
 
 const App = () => {
@@ -23,7 +23,7 @@ const App = () => {
   const { chosenNetwork } = useSelector((state: RootState) => state.userState)
   const dispatch = useDispatch()
 
-  const connectAccount = useCallback(async (ledgerType: string) => {
+  const connectAccount = useCallback(async (ledgerType: SUPPORTED_WALLET) => {
 
     try {
       dispatch(updateModalState({
@@ -69,26 +69,18 @@ const App = () => {
   }, [])
 
   return (
-    <Container maxWidth='xl' style={{ display: 'contents', height: '100vh', width: '100vw', overflow: 'auto' }}>
-      <ThemeProvider theme={theme![themeColor!]}>
-        <CssBaseline />
-        {location.pathname !== '/' ? null : (
-          <Routes>
-            <Route path="/" element={<ConnectWallet />} />
-          </Routes>
-        )}
-        {location.pathname === '/' ? null : (
-          <Layout>
-            <Routes>
-              <Route element={<RequireLedger />}>
-                <Route path="welcome" element={<Welcome />} />
-              </Route>
-              <Route path="*" element={<Navigate to="/" state={{ from: location }} />} />
-            </Routes>
-          </Layout>
-        )}
-      </ThemeProvider>
-    </Container>
+    <ThemeProvider theme={theme![themeColor!]}>
+      <CssBaseline />
+      <Layout>
+        <Routes location={location} key={location.pathname}>
+          <Route path={'/'} element={<ConnectWallet />} />
+          <Route path={'welcome'} element={<Welcome />}
+          />
+          <Route path="*" element={<Navigate to={'/'} state={{ from: location }} />} />
+        </Routes>
+      </Layout>
+    </ThemeProvider>
+
   )
 }
 

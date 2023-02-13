@@ -1,37 +1,29 @@
 import { Box, Grid, Typography } from '@mui/material'
-import { COLORS_DARK_THEME } from 'theme/colors'
 import { FOOTER } from 'utils/constants'
-import { styles } from './styles'
+import { footerStyles } from './styles'
 
 const Footer = () => {
   return (
-    <Box sx={styles.footerContainer} gap={6}>
-      <Box display="flex">
-        {FOOTER.LEFT_LINKS.map((link) => (
+    <Box
+      id='footer'
+      sx={footerStyles.holder}
+      gap={1}
+    >
+      <Box gap={3} display="flex" alignItems={'center'} >
+        {FOOTER.LEFT_LINKS.map((link, idx) => (
           <Grid
             item
-            key={link.text}
-            sx={({ palette }) => ({
-              padding: `0 0.5rem`,
-              '&:not(:last-child)': {
-                borderRight: `1px solid ${palette.text.secondary}`
-              },
-              cursor: 'pointer'
-            })}
-            onClick={() => window.open(link.url, '_blank')?.focus()}
+            key={idx}
+            sx={footerStyles.leftItem}
+            onClick={() => window.open(link.url, `${link.text}`)?.focus()}
           >
-            <Typography
-              sx={{
-                "&:hover": {
-                  color: COLORS_DARK_THEME.PRIMARY_BLUE
-                }
-              }}
-              color="text.secondary"
-              fontSize="0.8rem"
-              fontWeight={500}
-            >
-              {link.text}
-            </Typography>
+            {idx === 0 ? link.text :
+              <Typography
+                sx={footerStyles.typography}
+                fontSize={"0.8rem"}
+              >
+                {link.text}
+              </Typography>}
           </Grid>
         ))}
       </Box>
@@ -44,14 +36,8 @@ const Footer = () => {
         {FOOTER.RIGHT_LINKS.map((link) => (
           <Grid
             key={link.url}
-            onClick={() => window.open(link.url, '_blank')?.focus()}
-            sx={({ palette }) => ({
-              cursor: 'pointer',
-              color: palette.text.secondary,
-              '&:hover': {
-                color: palette.primary.main
-              }
-            })}
+            onClick={() => window.open(link.url, link.url)?.focus()}
+            sx={footerStyles.rightItem}
           >
             {link.icon}
           </Grid>
