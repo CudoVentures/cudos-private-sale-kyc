@@ -41,7 +41,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <Box
                     minHeight={`${windowSize.height}px`}
                     id='contentWrapper'
-                    marginTop={10}
+                    marginTop={15}
                     sx={layoutStyles.contentWrapper}>
                     {children}
                     {location.pathname === '/' ? null : <Footer />}
