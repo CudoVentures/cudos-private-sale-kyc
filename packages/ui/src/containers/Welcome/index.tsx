@@ -14,6 +14,8 @@ import { updateModalState } from 'store/modals'
 import { authenticateWithFirebase, saveData } from 'utils/firebase'
 import { APP_DETAILS, CHAIN_DETAILS } from 'utils/constants'
 import { Navigate, useLocation } from 'react-router-dom'
+import * as Onfido from 'onfido-sdk-ui'
+import axios from 'axios'
 
 const Welcome = () => {
 
@@ -50,18 +52,48 @@ const Welcome = () => {
       if (!success) {
         throw new Error('Failed to authenticate with Firebase')
       }
-      await saveData(userState.registrationState?.connectedAddress!, collectedData)
 
-      //TODO: Implement Onfido here
+      const registerRes = await axios.post(
+        CHAIN_DETAILS.KYC_REGISTER_APPLICANT_URL,
+        {
+          firstName: collectedData.firstName,
+          lastName: collectedData.lastName,
+        }
+      );
+
+      collectedData.kycApplicantId = registerRes.data.applicantId as string
+      await saveData(userState.registrationState?.connectedAddress!, collectedData)
 
       dispatch(updateModalState({
         loading: false,
         loadingType: false,
-        success: true,
-        message: "Entry submitted",
-        data: collectedData
       }))
-      cleanUp()
+    
+      const onfido = Onfido.init({
+        token: registerRes.data.token,
+        useModal: true,
+        isModalOpen: true,
+        region: 'US',
+        steps: ['welcome', 'document'],
+        onModalRequestClose: function() {
+          onfido.setOptions({isModalOpen: false})
+          dispatch(updateModalState({
+            failure: true,
+            message: 'KYC not completed'
+          }))
+        },
+        onComplete: function(data) {
+          onfido.setOptions({isModalOpen: false})
+          collectedData.kycCompleted = true
+          saveData(userState.registrationState?.connectedAddress!, collectedData)
+          dispatch(updateModalState({
+            success: true,
+            message: "Entry submitted",
+            data: collectedData
+          }))
+          cleanUp()
+        }
+      })
 
     } catch (error) {
       console.error((error as Error).message)
@@ -129,6 +161,7 @@ const Welcome = () => {
           >
             Submit
           </Button>
+          <div id='onfido-mount'></div>
         </Box>
       </Box>
     </Fade>
