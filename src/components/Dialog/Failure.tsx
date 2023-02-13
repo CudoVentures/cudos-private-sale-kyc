@@ -63,7 +63,7 @@ const Failure = () => {
           variant="contained"
           color="primary"
           sx={() => ({
-            width: '50%',
+            width: '100%',
             fontWeight: 700,
             marginTop: '20px'
           })}

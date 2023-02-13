@@ -10,8 +10,13 @@ import { ReactComponent as YouTubeIcon } from 'assets/vectors/youtube.svg'
 import { ReactComponent as FacebookIcon } from 'assets/vectors/facebook.svg'
 import { ReactComponent as SpotifyIcon } from 'assets/vectors/spotify.svg'
 import { SUPPORTED_WALLET } from "cudosjs"
+import { FOOTER_LOGO } from "components/FooterLogo"
 
 // CONFIGURATIONS
+export const APP_DETAILS = {
+    fadeTimeOut: 1500
+}
+
 export const CHAIN_DETAILS = {
     ADMIN_TOKEN_DENOM: 'cudosAdmin',
     NATIVE_TOKEN_DENOM: 'acudos',
@@ -98,10 +103,11 @@ export const LEDGERS = {
 
 export const FOOTER = {
     LEFT_LINKS: [
+        { text: <FOOTER_LOGO />, url: 'https://www.cudos.org' },
         { text: 'Terms & Conditions', url: 'https://www.cudos.org/terms-and-conditions/' },
         { text: 'Privacy Policy', url: 'https://www.cudos.org/privacy-policy' },
         { text: 'cudos.org', url: 'https://www.cudos.org/' },
-        { text: `License © 2018 - ${moment().year()}`, url: 'https://www.cudos.org/' }
+        { text: `License © 2018 - ${moment().year()}`, url: 'https://www.cudos.org/' },
     ],
     RIGHT_LINKS: [
         { icon: <TwitterIcon />, url: 'https://twitter.com/CUDOS_' },
