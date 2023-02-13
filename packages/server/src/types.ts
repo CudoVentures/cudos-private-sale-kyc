@@ -1,4 +1,4 @@
-import { ApplicantRequest as OnfidoApplicantRequest, SdkTokenRequest } from "@onfido/api";
+import { ApplicantRequest as OnfidoApplicantRequest, CheckRequest, SdkTokenRequest } from "@onfido/api";
 import { Request } from "express";
 
 export interface ApplicantRequest extends Request {
@@ -7,4 +7,8 @@ export interface ApplicantRequest extends Request {
 
 export interface AuthRequest extends Request {
     body: SdkTokenRequest;
+}
+
+export interface CreateCheckRequest extends Request {
+    body: CheckRequest;
 }
