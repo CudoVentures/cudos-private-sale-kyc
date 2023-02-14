@@ -146,7 +146,7 @@ const CreationField = ({
                     </Tooltip> :
                     <Fragment>
                         <Box sx={styles.tierTitle}>
-                            <Typography fontWeight={600} marginTop={-3.5}>Choose for each Tier</Typography>
+                            <Typography fontWeight={600} marginTop={-3.5}>Choose for the Tiers of interest</Typography>
                             <Tooltip placement='right' followCursor
                                 PopperProps={validationStyles.tierTooltipPopper}
                                 componentsProps={validationStyles.tierTooltipProps}
