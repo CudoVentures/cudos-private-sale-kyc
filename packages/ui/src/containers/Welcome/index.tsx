@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Dialog from 'components/Dialog'
 import CreationField from 'components/FormField'
 import { FormField } from 'components/FormField/types'
-import { isValidSubmit, sanitizeString } from 'components/FormField/validation'
+import { isValidSubmit } from 'components/FormField/validation'
 import { RootState } from 'store'
 import { initialRegistrationState, PrivateSaleFields, updateUser } from 'store/user'
 
@@ -41,7 +41,7 @@ const Welcome = () => {
     const collectedData: PrivateSaleFields = {
       ...userState.registrationState!,
       amountToSpend: `USD ${userState.registrationState?.amountToSpend!}.00`,
-      nftCount: sanitizeString(userState.registrationState?.nftCount!)
+      nftCount: Object.values(userState.registrationState?.nftTiers!).reduce((acc, { qty }) => acc + qty, 0).toString()
     }
     try {
       dispatch(updateModalState({
@@ -119,23 +119,6 @@ const Welcome = () => {
     }
   }
 
-  const uniqueTierItems = (tiers: string[]) => {
-    const map = new Map<string, { qty: number, signleCost: string }>()
-    tiers.forEach((element) => {
-      const splitted = element.split('-')
-      const name = splitted[0]
-      const price = splitted.pop() || ''
-      const existingValue = map.get(name);
-      if (existingValue) {
-        existingValue.qty += 1
-        existingValue.signleCost = price
-      } else {
-        map.set(name, { qty: 1, signleCost: price })
-      }
-    })
-    return map
-  }
-
   // CLEAN-UP
   useEffect(() => {
     setLoaded(true)
@@ -146,8 +129,8 @@ const Welcome = () => {
 
   useEffect(() => {
     let amount = 0
-    userState.registrationState?.nftTiers.forEach((tier) => {
-      amount += Number(tier.split("$").pop())
+    Array.from(Object.values(userState.registrationState?.nftTiers!)).forEach((value) => {
+      amount += (value.cost * value.qty)
     })
     setTotalSum(amount)
     dispatch(updateUser({
@@ -191,14 +174,13 @@ const Welcome = () => {
           <CreationField
             type={FormField.nftCount}
             text={'NFT Count'}
-            placeholder={'The number of NFTs to be purchased'}
           />
           <CreationField
             type={FormField.externalWallet}
             text={'External Wallet Address'}
             placeholder={'The address you will be paying from'}
           />
-          {userState.registrationState?.nftTiers.length ? <Box display={'flex'} width={'100%'} flexDirection={'row'} justifyContent={'space-between'}>
+          {Object.values(userState.registrationState?.nftTiers!).find((value) => value.qty > 0) ? <Box display={'flex'} width={'100%'} flexDirection={'row'} justifyContent={'space-between'}>
             <Typography fontWeight={900}>Amount to be paid</Typography>
             <Tooltip placement='right-end' followCursor
               PopperProps={validationStyles.tierTooltipPopper}
@@ -211,14 +193,14 @@ const Welcome = () => {
                     {`Your selection`}
                   </Typography>
                   <Divider />
-                  {Array.from(uniqueTierItems(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
+                  {Array.from(Object.entries(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
                     return (
                       <Box gap={2} key={idx} display='flex' justifyContent={'space-between'} >
                         <Typography color={'text.primary'} fontWeight={900}>
                           {name}
                         </Typography>
                         <Typography fontWeight={900}>
-                          {`${props.qty} x ${props.signleCost}`}
+                          {`${props.qty} x ${props.cost}`}
                         </Typography>
                       </Box>
                     )

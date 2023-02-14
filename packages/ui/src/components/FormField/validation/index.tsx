@@ -1,5 +1,5 @@
 import { bech32 } from "bech32"
-import { PrivateSaleFields } from "store/user"
+import { NftTier, PrivateSaleFields } from "store/user"
 import isEmail from "validator/lib/isEmail"
 
 import { FormField, FormFieldErrors } from "../types"
@@ -72,6 +72,14 @@ export const isValidExternalWallet = (count: number): { isValid: boolean, toolti
     return { isValid: true, tooltip: '' }
 }
 
+export const isValidTiers = (tiers: Record<string, NftTier>) => {
+    const any = Object.values(tiers).find((value) => value.qty > 0)
+    if (any) {
+        return true
+    }
+    return false
+}
+
 export const getFieldisValid = (fieldType: FormField, value: any): { isValid: boolean, tooltip: string } => {
     switch (fieldType) {
         case FormField.connectedAddress:
@@ -104,8 +112,9 @@ export const isValidSubmit = (registrationState?: PrivateSaleFields): boolean =>
         getFieldisValid(FormField.amountToSpend, registrationState?.amountToSpend) &&
         registrationState.email &&
         getFieldisValid(FormField.email, registrationState?.email) &&
-        registrationState.nftCount &&
-        getFieldisValid(FormField.nftCount, registrationState?.nftCount) &&
+        isValidTiers(registrationState.nftTiers) &&
+        // registrationState.nftTiers &&
+        // getFieldisValid(FormField.nftCount, registrationState?.nftCount) &&
         registrationState.externalWallet &&
         getFieldisValid(FormField.externalWallet, registrationState?.externalWallet)
     ) { return true }

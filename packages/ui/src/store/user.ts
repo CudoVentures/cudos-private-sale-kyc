@@ -2,6 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { SUPPORTED_WALLET } from 'cudosjs'
 import { CHAIN_DETAILS } from 'utils/constants'
 
+export interface NftTier {
+    qty: number,
+    cost: number
+}
+
 export const initialRegistrationState: PrivateSaleFields = {
     connectedAddress: '',
     firstName: '',
@@ -10,7 +15,7 @@ export const initialRegistrationState: PrivateSaleFields = {
     email: '',
     nftCount: '',
     externalWallet: '',
-    nftTiers: [],
+    nftTiers: {},
     kycCompleted: false,
     kycApplicantId: undefined,
 }
@@ -21,7 +26,7 @@ export interface PrivateSaleFields {
     amountToSpend: string,
     email: string,
     nftCount: string,
-    nftTiers: string[],
+    nftTiers: Record<string, NftTier>,
     externalWallet: string,
     kycCompleted: boolean,
     kycApplicantId: string | undefined,

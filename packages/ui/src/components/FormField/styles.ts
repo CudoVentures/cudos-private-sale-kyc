@@ -26,6 +26,14 @@ export const styles = {
     borderRadius: '8px',
     width: '100%',
     background: COLORS_DARK_THEME.PRIMARY_STEEL_GRAY
+  },
+  tierInput: {
+    border: '0.1px solid transparent',
+    marginTop: '10px',
+    padding: '16px 20px',
+    borderRadius: '8px',
+    width: '50%',
+    background: COLORS_DARK_THEME.PRIMARY_STEEL_GRAY
   }
 }
 
