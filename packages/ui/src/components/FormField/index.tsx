@@ -185,7 +185,7 @@ const CreationField = ({
                             </Tooltip>
                         </Box>
                         {tiers.map((tier, index) => (
-                            <Box gap={3} display='flex'>
+                            <Box key={index} gap={3} display='flex'>
                                 <Input
                                     disabled
                                     disableUnderline
