@@ -180,7 +180,13 @@ const Welcome = () => {
             text={'External Wallet Address'}
             placeholder={'The address you will be paying from'}
           />
-          {Object.values(userState.registrationState?.nftTiers!).find((value) => value.qty > 0) ? <Box display={'flex'} width={'100%'} flexDirection={'row'} justifyContent={'space-between'}>
+
+          <Box
+            display={'flex'}
+            visibility={Object.values(userState.registrationState?.nftTiers!).find((value) => value.qty > 0) ? 'visible' : 'hidden'}
+            width={'100%'} flexDirection={'row'}
+            justifyContent={'space-between'}
+          >
             <Typography fontWeight={900}>Amount to be paid</Typography>
             <Tooltip placement='right-end' followCursor
               PopperProps={validationStyles.tierTooltipPopper}
@@ -219,7 +225,7 @@ const Welcome = () => {
                 <InfoIcon style={{ marginLeft: '10px' }} />
               </Box>
             </Tooltip>
-          </Box> : null}
+          </Box>
           <Button
             disabled={!isValidSubmit(userState.registrationState)}
             variant="contained"
