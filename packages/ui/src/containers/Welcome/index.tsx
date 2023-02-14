@@ -194,7 +194,7 @@ const Welcome = () => {
                   </Typography>
                   <Divider />
                   {Array.from(Object.entries(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
-                    return (
+                    return props.qty <= 0 ? null : (
                       <Box gap={2} key={idx} display='flex' justifyContent={'space-between'} >
                         <Typography color={'text.primary'} fontWeight={900}>
                           {name}
