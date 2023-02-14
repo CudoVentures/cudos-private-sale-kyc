@@ -20,7 +20,7 @@ enum NftTier {
 
 const tiers = Array.from(Object.values(NftTier))
 
-const TIER_PRICES = {
+export const TIER_PRICES = {
     [NftTier.Opal]: {
         Private: 127.5,
         Public: 150

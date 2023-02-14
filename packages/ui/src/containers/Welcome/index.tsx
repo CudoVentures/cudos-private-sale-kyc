@@ -1,4 +1,4 @@
-import { Box, Button, Fade, Typography } from '@mui/material'
+import { Box, Button, Divider, Fade, Tooltip, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -17,6 +17,8 @@ import { Navigate, useLocation } from 'react-router-dom'
 import * as Onfido from 'onfido-sdk-ui'
 import axios from 'axios'
 import { COLORS_DARK_THEME } from 'theme/colors'
+import { validationStyles } from 'components/FormField/styles'
+import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 
 const Welcome = () => {
 
@@ -117,6 +119,23 @@ const Welcome = () => {
     }
   }
 
+  const uniqueTierItems = (tiers: string[]) => {
+    const map = new Map<string, { qty: number, signleCost: string }>()
+    tiers.forEach((element) => {
+      const splitted = element.split('-')
+      const name = splitted[0]
+      const price = splitted.pop() || ''
+      const existingValue = map.get(name);
+      if (existingValue) {
+        existingValue.qty += 1
+        existingValue.signleCost = price
+      } else {
+        map.set(name, { qty: 1, signleCost: price })
+      }
+    })
+    return map
+  }
+
   // CLEAN-UP
   useEffect(() => {
     setLoaded(true)
@@ -179,7 +198,46 @@ const Welcome = () => {
             text={'External Wallet Address'}
             placeholder={'The address you will be paying from'}
           />
-          <Typography alignSelf={'flex-start'} color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>Total to be paid: ${totalSum.toLocaleString()}</Typography>
+          {userState.registrationState?.nftTiers.length ? <Box display={'flex'} width={'100%'} flexDirection={'row'} justifyContent={'space-between'}>
+            <Typography fontWeight={900}>Amount to be paid</Typography>
+            <Tooltip placement='right-end' followCursor
+              PopperProps={validationStyles.tierTooltipPopper}
+              componentsProps={validationStyles.tierTooltipProps}
+              title={
+                <Box
+                  gap={2} sx={{ display: "flex", flexDirection: 'column' }}
+                >
+                  <Typography color={'text.primary'} fontWeight={900}>
+                    {`Your selection`}
+                  </Typography>
+                  <Divider />
+                  {Array.from(uniqueTierItems(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
+                    return (
+                      <Box gap={2} key={idx} display='flex' justifyContent={'space-between'} >
+                        <Typography color={'text.primary'} fontWeight={900}>
+                          {name}
+                        </Typography>
+                        <Typography fontWeight={900}>
+                          {`${props.qty} x ${props.signleCost}`}
+                        </Typography>
+                      </Box>
+                    )
+                  })}
+                  <Typography alignSelf={'flex-end'} color={'text.primary'} fontWeight={900}>
+                    {`Total`}
+                  </Typography>
+                  <Divider />
+                  <Typography alignSelf={'flex-end'} fontWeight={900}>
+                    ${totalSum.toLocaleString()}
+                  </Typography>
+                </Box>
+              }>
+              <Box sx={{ cursor: 'pointer' }} display={'flex'}>
+                <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>${totalSum.toLocaleString()}</Typography>
+                <InfoIcon style={{ marginLeft: '10px' }} />
+              </Box>
+            </Tooltip>
+          </Box> : null}
           <Button
             disabled={!isValidSubmit(userState.registrationState)}
             variant="contained"
