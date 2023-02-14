@@ -82,7 +82,14 @@ const CreationField = ({
     const [tooltip, setTooltip] = useState<string>('')
     const user = useSelector((state: RootState) => state.userState)
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        if (['e', 'E', '+', '-', ',', '.'].includes(event.key)) {
+            event!.preventDefault()
+        }
+    }
+
     const handleTierChange = (index: number, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+
         const newTiers = { ...user.registrationState?.nftTiers! }
 
         const tier = event.target.name
@@ -192,6 +199,8 @@ const CreationField = ({
                                     sx={styles.tierInput}
                                     value={user.registrationState?.nftTiers[tier]?.qty || ''}
                                     name={tier}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={event => { event.preventDefault() }}
                                     onChange={(e) => handleTierChange(index, e)}
                                 />
                             </Box>
