@@ -8,8 +8,40 @@ import { FormField } from './types';
 import { getFieldisValid, sanitizeString } from './validation';
 import { updateUser } from 'store/user';
 import { COLORS_DARK_THEME } from 'theme/colors';
+import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 
-const NftTiers = Array.from({ length: 5 }, (_, i) => i + 1)
+enum NftTier {
+    Opal = 'Opal',
+    Ruby = 'Ruby',
+    Emerald = 'Emerald',
+    Diamond = 'Diamond',
+    BlueDiamond = 'Blue Diamond'
+}
+
+const tiers = Array.from(Object.values(NftTier))
+
+const TIER_PRICES = {
+    [NftTier.Opal]: {
+        Private: 127.5,
+        Public: 150
+    },
+    [NftTier.Ruby]: {
+        Private: 255,
+        Public: 300
+    },
+    [NftTier.Emerald]: {
+        Private: 850,
+        Public: 1000
+    },
+    [NftTier.Diamond]: {
+        Private: 2550,
+        Public: 3000
+    },
+    [NftTier.BlueDiamond]: {
+        Private: 4250,
+        Public: 5000
+    }
+}
 
 const StartAdornment = ({ text }: { text: string }) => {
     return (
@@ -50,9 +82,9 @@ const CreationField = ({
     const [tooltip, setTooltip] = useState<string>('')
     const user = useSelector((state: RootState) => state.userState)
 
-    const handleTierChange = (index: number, event: SelectChangeEvent<number>) => {
-        const newTiers = [...user.registrationState?.nftTiers!];
-        newTiers[index] = Number(event.target.value);
+    const handleTierChange = (index: number, event: SelectChangeEvent<string>) => {
+        const newTiers = [...user.registrationState?.nftTiers!]
+        newTiers[index] = event.target.value
         dispatch(updateUser({
             registrationState: {
                 ...user.registrationState!,
@@ -84,7 +116,7 @@ const CreationField = ({
             registrationState: {
                 ...user.registrationState!,
                 [type]: isAmount ? (value as number).toLocaleString() : value,
-                nftTiers: type === FormField.nftCount ? Array(Number(value <= 20 ? value : 20)).fill(1) : user.registrationState?.nftTiers!
+                nftTiers: type === FormField.nftCount ? Array(Number(value <= 20 ? value : 20)).fill(`${NftTier.Opal} - $${TIER_PRICES.Opal.Private}`) : user.registrationState?.nftTiers!
             }
         }))
     }
@@ -120,30 +152,59 @@ const CreationField = ({
                 {type !== FormField.nftCount ? null :
                     Number(sanitizeString(user.registrationState?.nftCount!)) < 1 ? null :
                         <Fragment>
-                            <Box display='flex'>
+                            <Box sx={styles.tierTitle}>
                                 <Typography fontWeight={600} marginTop={3.5}>Choose Tiers for each NFT</Typography>
+                                <Tooltip placement='right' followCursor
+                                    PopperProps={validationStyles.tierTooltipPopper}
+                                    componentsProps={validationStyles.tierTooltipProps}
+                                    title={
+                                        <Box
+                                            gap={2} sx={{ display: "flex", flexDirection: 'column' }}
+                                        >
+                                            {Object.keys(TIER_PRICES).map((key, idx) => {
+                                                return (
+                                                    <Box key={idx}>
+                                                        <Typography color={'text.primary'} fontWeight={900}>
+                                                            {key}
+                                                        </Typography>
+
+                                                        <Typography fontWeight={900}>
+                                                            {`Private sale price: $${TIER_PRICES[key].Private.toLocaleString()}`}
+                                                        </Typography>
+                                                        <Typography fontSize={14}>
+                                                            {`Public sale price: $${TIER_PRICES[key].Public.toLocaleString()}`}
+                                                        </Typography>
+                                                    </Box>
+                                                )
+                                            })}
+                                        </Box>
+                                    }>
+                                    <Box>
+                                        <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
+                                    </Box>
+                                </Tooltip>
                             </Box>
-                            {user.registrationState?.nftTiers!.map((tier, index) => (
+                            {user.registrationState?.nftTiers!.map((_, index) => (
                                 <Select
                                     key={index}
                                     disableUnderline
                                     displayEmpty
+                                    renderValue={() => user.registrationState?.nftTiers[index].split('-')[0].trim()}
                                     variant='standard'
                                     sx={styles.defaultDropDown}
                                     value={user.registrationState?.nftTiers[index]}
                                     onChange={(e) => handleTierChange(index, e)}
                                 >
-                                    {NftTiers.map((tier, idx) => {
+                                    {tiers.map((tier, idx) => {
                                         return (
                                             <MenuItem
                                                 key={idx}
-                                                value={tier}
+                                                value={`${tier} - $${TIER_PRICES[tier].Private}`}
                                             >
                                                 {tier}
                                             </MenuItem>
                                         )
                                     })}
-
                                 </Select>
                             ))}
                         </Fragment>

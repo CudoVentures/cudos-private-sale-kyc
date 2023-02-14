@@ -1,4 +1,4 @@
-import { Box, Button, Fade } from '@mui/material'
+import { Box, Button, Fade, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -16,6 +16,7 @@ import { APP_DETAILS, CHAIN_DETAILS } from 'utils/constants'
 import { Navigate, useLocation } from 'react-router-dom'
 import * as Onfido from 'onfido-sdk-ui'
 import axios from 'axios'
+import { COLORS_DARK_THEME } from 'theme/colors'
 
 const Welcome = () => {
 
@@ -23,6 +24,7 @@ const Welcome = () => {
   const dispatch = useDispatch()
   const userState = useSelector((state: RootState) => state.userState)
   const [loaded, setLoaded] = useState<boolean>(false)
+  const [totalSum, setTotalSum] = useState<number>(0)
 
   const cleanUp = () => {
     dispatch(updateUser({
@@ -68,22 +70,22 @@ const Welcome = () => {
         loading: false,
         loadingType: false,
       }))
-    
+
       const onfido = Onfido.init({
         token: registerRes.data.token,
         useModal: true,
         isModalOpen: true,
         region: 'US',
         steps: ['welcome', 'document'],
-        onModalRequestClose: function() {
-          onfido.setOptions({isModalOpen: false})
+        onModalRequestClose: function () {
+          onfido.setOptions({ isModalOpen: false })
           dispatch(updateModalState({
             failure: true,
             message: 'KYC not completed'
           }))
         },
-        onComplete: function(data) {
-          onfido.setOptions({isModalOpen: false})
+        onComplete: function (data) {
+          onfido.setOptions({ isModalOpen: false })
 
           collectedData.kycCompleted = true
           saveData(userState.registrationState?.connectedAddress!, collectedData)
@@ -123,6 +125,21 @@ const Welcome = () => {
     //eslint-disable-next-line
   }, [])
 
+  useEffect(() => {
+    let amount = 0
+    userState.registrationState?.nftTiers.forEach((tier) => {
+      amount += Number(tier.split("$").pop())
+    })
+    setTotalSum(amount)
+    dispatch(updateUser({
+      registrationState: {
+        ...userState.registrationState!,
+        [FormField.amountToSpend]: amount.toLocaleString()
+      }
+    }))
+    //eslint-disable-next-line
+  }, [userState.registrationState?.nftTiers])
+
   return !userState.address ? <Navigate to="/" state={{ from: location }} replace /> : (
     <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut}>
       <Box style={styles.contentHolder}>
@@ -143,10 +160,10 @@ const Welcome = () => {
             text={'Last Name'}
             placeholder={'Doe'}
           />
-          <CreationField
+          {/* <CreationField
             type={FormField.amountToSpend}
             text={'Amount to be spend'}
-          />
+          /> */}
           <CreationField
             type={FormField.email}
             text={'Email'}
@@ -162,6 +179,7 @@ const Welcome = () => {
             text={'External Wallet Address'}
             placeholder={'The address you will be paying from'}
           />
+          <Typography alignSelf={'flex-start'} color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>Total to be paid: ${totalSum.toLocaleString()}</Typography>
           <Button
             disabled={!isValidSubmit(userState.registrationState)}
             variant="contained"

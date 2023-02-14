@@ -21,7 +21,7 @@ export interface PrivateSaleFields {
     amountToSpend: string,
     email: string,
     nftCount: string,
-    nftTiers: number[],
+    nftTiers: string[],
     externalWallet: string,
     kycCompleted: boolean,
     kycApplicantId: string | undefined,
