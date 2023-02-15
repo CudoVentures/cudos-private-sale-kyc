@@ -9,6 +9,10 @@ export interface AuthRequest extends Request {
     body: SdkTokenRequest;
 }
 
-export interface CreateCheckRequest extends Request {
-    body: CheckRequest;
+export interface WorkflowRunRequest extends Request {
+    body: {
+        applicantId: string,
+        address: string,
+        amount: number
+    }
 }

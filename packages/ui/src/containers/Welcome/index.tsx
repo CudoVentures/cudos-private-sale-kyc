@@ -64,7 +64,6 @@ const Welcome = () => {
           lastName: collectedData.lastName,
         }
       );
-
       collectedData.kycApplicantId = registerRes.data.applicantId as string
       await saveData(userState.registrationState?.connectedAddress!, collectedData)
 
@@ -85,26 +84,45 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
+          onfido.tearDown()
         },
-        onComplete: function (data) {
-          onfido.setOptions({ isModalOpen: false })
+        onError: function(error) {
+          console.error(error.message)
+          dispatch(updateModalState({
+            failure: true,
+            message: 'KYC not completed'
+          }))
+          onfido.tearDown()
+        },
+        onUserExit: function() {
+          dispatch(updateModalState({
+            failure: true,
+            message: 'KYC not completed'
+          }))
+          onfido.tearDown();
+        },
 
+        onComplete: function(data) {
+          onfido.setOptions({isModalOpen: false})
           collectedData.kycCompleted = true
           saveData(userState.registrationState?.connectedAddress!, collectedData)
 
           axios.post(
-            CHAIN_DETAILS.KYC_CREATE_CHECK_URL,
+            CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
             {
-              applicantId: collectedData.kycApplicantId
+              applicantId: collectedData.kycApplicantId,
+              address: collectedData.connectedAddress,
+              amount: Number(userState.registrationState?.amountToSpend!.replace(/,/g, ''))
             }
-          );
-
+          )
           dispatch(updateModalState({
             success: true,
             message: "Entry submitted",
             data: collectedData
           }))
           cleanUp()
+
+          onfido.tearDown()
         }
       })
 
