@@ -2,13 +2,14 @@ import express, { Response } from "express";
 import cors from "cors";
 import compression from "compression";
 import * as dotenv from "dotenv";
-import { ApplicantRequest, AuthRequest, CreateCheckRequest } from "./types";
+import { ApplicantRequest, AuthRequest, WorkflowRunRequest } from "./types";
 import { Onfido, Region } from "@onfido/api";
 
 dotenv.config();
 const PORT = process.env.PORT || 8881;
 const ONFIDO_API_TOKEN = process.env.ONFIDO_API_TOKEN || "";
 const ONFIDO_REGION = process.env.ONFIDO_REGION || "EU";
+const ONFIDO_WORKFLOW_ID = process.env.ONFIDO_WORKFLOW_ID || "";
 
 const onfido = new Onfido({
     apiToken: ONFIDO_API_TOKEN,
@@ -48,11 +49,15 @@ app.post("/authenticate", async (req: AuthRequest, res: Response) => {
     }
 });
 
-app.post("/create-check", async (req: CreateCheckRequest, res: Response) => {
+app.post("/create-workflow-run", async (req: WorkflowRunRequest, res: Response) => {
     try {
-        await onfido.check.create({
+        await onfido.workflowRun.create({
             applicantId: req.body.applicantId,
-            reportNames: ['document'],
+            workflowId: ONFIDO_WORKFLOW_ID,
+            customData: {
+                address: req.body.address,
+                balance: req.body.amount
+            },
         });
         return res.status(200);
     } catch (err) {
