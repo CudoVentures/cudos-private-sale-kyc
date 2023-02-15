@@ -53,27 +53,39 @@ const Welcome = () => {
         throw new Error('Failed to authenticate with Firebase')
       }
 
-      const registerRes = await axios.post(
+      const kycRegisterRes = await axios.post(
         CHAIN_DETAILS.KYC_REGISTER_APPLICANT_URL,
         {
           firstName: collectedData.firstName,
           lastName: collectedData.lastName,
         }
-      );
-      collectedData.kycApplicantId = registerRes.data.applicantId as string
+      )
+    
+      const kycWorkflowRunRes = await axios.post(
+        CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
+        {
+          applicantId: kycRegisterRes.data.applicantId,
+          address: collectedData.connectedAddress,
+          amount: Number(userState.registrationState?.amountToSpend!.replace(/,/g, ''))
+        }
+      )
+
+      collectedData.kycApplicantId = kycRegisterRes.data.applicantId as string
+      collectedData.kycWorkflowRunId = kycWorkflowRunRes.data.id as string
       await saveData(userState.registrationState?.connectedAddress!, collectedData)
 
       dispatch(updateModalState({
         loading: false,
         loadingType: false,
       }))
-    
+
       const onfido = Onfido.init({
-        token: registerRes.data.token,
+        token: kycRegisterRes.data.token,
         useModal: true,
         isModalOpen: true,
         region: 'US',
         steps: ['welcome', 'document'],
+        workflowRunId: kycWorkflowRunRes.data.id,
         onModalRequestClose: function() {
           onfido.setOptions({isModalOpen: false})
           dispatch(updateModalState({
@@ -95,21 +107,13 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
-          onfido.tearDown();
+          onfido.tearDown()
         },
         onComplete: function(data) {
           onfido.setOptions({isModalOpen: false})
           collectedData.kycCompleted = true
           saveData(userState.registrationState?.connectedAddress!, collectedData)
 
-          axios.post(
-            CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
-            {
-              applicantId: collectedData.kycApplicantId,
-              address: collectedData.connectedAddress,
-              amount: Number(userState.registrationState?.amountToSpend!.replace(/,/g, ''))
-            }
-          )
           dispatch(updateModalState({
             success: true,
             message: "Entry submitted",

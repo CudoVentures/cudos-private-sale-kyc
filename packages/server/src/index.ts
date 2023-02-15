@@ -51,7 +51,7 @@ app.post("/authenticate", async (req: AuthRequest, res: Response) => {
 
 app.post("/create-workflow-run", async (req: WorkflowRunRequest, res: Response) => {
     try {
-        await onfido.workflowRun.create({
+        const workflowRun = await onfido.workflowRun.create({
             applicantId: req.body.applicantId,
             workflowId: ONFIDO_WORKFLOW_ID,
             customData: {
@@ -59,7 +59,7 @@ app.post("/create-workflow-run", async (req: WorkflowRunRequest, res: Response) 
                 balance: req.body.amount
             },
         });
-        return res.status(200);
+        return res.status(200).json(workflowRun);
     } catch (err) {
         console.error(err);
         res.status(500).json(err);
