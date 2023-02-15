@@ -1,15 +1,47 @@
 import React, { Fragment, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Input, InputAdornment, MenuItem, Select, SelectChangeEvent, Tooltip, Typography } from '@mui/material'
+import { Box, Input, InputAdornment, Tooltip, Typography } from '@mui/material'
 
 import { styles, validationStyles } from './styles'
 import { RootState } from 'store';
 import { FormField } from './types';
-import { getFieldisValid, sanitizeString } from './validation';
+import { getFieldisValid } from './validation';
 import { updateUser } from 'store/user';
 import { COLORS_DARK_THEME } from 'theme/colors';
+import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 
-const NftTiers = Array.from({ length: 5 }, (_, i) => i + 1)
+enum NftTier {
+    Opal = 'Opal',
+    Ruby = 'Ruby',
+    Emerald = 'Emerald',
+    Diamond = 'Diamond',
+    BlueDiamond = 'Blue Diamond'
+}
+
+const tiers = Array.from(Object.values(NftTier))
+
+export const TIER_PRICES = {
+    [NftTier.Opal]: {
+        Private: 127.5,
+        Public: 150
+    },
+    [NftTier.Ruby]: {
+        Private: 255,
+        Public: 300
+    },
+    [NftTier.Emerald]: {
+        Private: 850,
+        Public: 1000
+    },
+    [NftTier.Diamond]: {
+        Private: 2550,
+        Public: 3000
+    },
+    [NftTier.BlueDiamond]: {
+        Private: 4250,
+        Public: 5000
+    }
+}
 
 const StartAdornment = ({ text }: { text: string }) => {
     return (
@@ -50,9 +82,23 @@ const CreationField = ({
     const [tooltip, setTooltip] = useState<string>('')
     const user = useSelector((state: RootState) => state.userState)
 
-    const handleTierChange = (index: number, event: SelectChangeEvent<number>) => {
-        const newTiers = [...user.registrationState?.nftTiers!];
-        newTiers[index] = Number(event.target.value);
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        if (['e', 'E', '+', '-', ',', '.'].includes(event.key)) {
+            event!.preventDefault()
+        }
+    }
+
+    const handleTierChange = (index: number, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+
+        const newTiers = { ...user.registrationState?.nftTiers! }
+
+        const tier = event.target.name
+        const quantity = event.target.value
+        const price = TIER_PRICES[tier].Private
+        newTiers[tier] = {
+            qty: Number(quantity),
+            cost: price
+        }
         dispatch(updateUser({
             registrationState: {
                 ...user.registrationState!,
@@ -62,20 +108,8 @@ const CreationField = ({
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const isAmount =
-            type === FormField.amountToSpend ||
-            type === FormField.nftCount
 
         let value: string | number = e.target.value as string
-
-        if (isAmount && value.length > 0) {
-            const validNumber = Number(sanitizeString(value))
-            if ((!validNumber || value.length > 15)) {
-                e!.preventDefault()
-                return
-            }
-            value = validNumber
-        }
 
         const { isValid, tooltip } = getFieldisValid(type, value)
         setIsValid(isValid)
@@ -83,8 +117,7 @@ const CreationField = ({
         dispatch(updateUser({
             registrationState: {
                 ...user.registrationState!,
-                [type]: isAmount ? (value as number).toLocaleString() : value,
-                nftTiers: type === FormField.nftCount ? Array(Number(value <= 20 ? value : 20)).fill(1) : user.registrationState?.nftTiers!
+                [type]: value
             }
         }))
     }
@@ -99,55 +132,80 @@ const CreationField = ({
                 {text}
             </Typography>
             <Fragment>
-                <Tooltip
-                    placement='bottom-start'
-                    PopperProps={validationStyles.tooltipPopper}
-                    componentsProps={validationStyles.tooltipProps}
-                    open={!isValid}
-                    title={tooltip}
-                >
-                    <Input
-                        disabled={isDisabled}
-                        startAdornment={getStartAdornment(type)}
-                        placeholder={placeholder ? placeholder : undefined}
-                        disableUnderline
-                        type='text'
-                        sx={isValid ? styles.input : validationStyles.invalidInput}
-                        value={user.registrationState![type]}
-                        onChange={handleChange}
-                    />
-                </Tooltip>
-                {type !== FormField.nftCount ? null :
-                    Number(sanitizeString(user.registrationState?.nftCount!)) < 1 ? null :
-                        <Fragment>
-                            <Box display='flex'>
-                                <Typography fontWeight={600} marginTop={3.5}>Choose Tiers for each NFT</Typography>
-                            </Box>
-                            {user.registrationState?.nftTiers!.map((tier, index) => (
-                                <Select
-                                    key={index}
-                                    disableUnderline
-                                    displayEmpty
-                                    variant='standard'
-                                    sx={styles.defaultDropDown}
-                                    value={user.registrationState?.nftTiers[index]}
-                                    onChange={(e) => handleTierChange(index, e)}
-                                >
-                                    {NftTiers.map((tier, idx) => {
-                                        return (
-                                            <MenuItem
-                                                key={idx}
-                                                value={tier}
-                                            >
-                                                {tier}
-                                            </MenuItem>
-                                        )
-                                    })}
+                {type !== FormField.nftCount ?
+                    <Tooltip
+                        placement='bottom-start'
+                        PopperProps={validationStyles.tooltipPopper}
+                        componentsProps={validationStyles.tooltipProps}
+                        open={!isValid}
+                        title={tooltip}
+                    >
+                        <Input
+                            disabled={isDisabled}
+                            startAdornment={getStartAdornment(type)}
+                            placeholder={placeholder ? placeholder : undefined}
+                            disableUnderline
+                            type='text'
+                            sx={isValid ? styles.input : validationStyles.invalidInput}
+                            value={user.registrationState![type]}
+                            onChange={handleChange}
+                        />
+                    </Tooltip> :
+                    <Fragment>
+                        <Box sx={styles.tierTitle}>
+                            <Typography fontWeight={600} marginTop={-3.5}>Choose tiers of interest</Typography>
+                            <Tooltip placement='right' followCursor
+                                PopperProps={validationStyles.tierTooltipPopper}
+                                componentsProps={validationStyles.tierTooltipProps}
+                                title={
+                                    <Box
+                                        gap={2} sx={{ display: "flex", flexDirection: 'column' }}
+                                    >
+                                        {Object.keys(TIER_PRICES).map((key, idx) => {
+                                            return (
+                                                <Box key={idx}>
+                                                    <Typography color={'text.primary'} fontWeight={900}>
+                                                        {key}
+                                                    </Typography>
 
-                                </Select>
-                            ))}
-                        </Fragment>
-                }
+                                                    <Typography fontWeight={900}>
+                                                        {`Private sale price: $${TIER_PRICES[key].Private.toLocaleString()}`}
+                                                    </Typography>
+                                                    <Typography fontSize={14}>
+                                                        {`Public sale price: $${TIER_PRICES[key].Public.toLocaleString()}`}
+                                                    </Typography>
+                                                </Box>
+                                            )
+                                        })}
+                                    </Box>
+                                }>
+                                <Box>
+                                    <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
+                                </Box>
+                            </Tooltip>
+                        </Box>
+                        {tiers.map((tier, index) => (
+                            <Box key={index} gap={3} display='flex'>
+                                <Input
+                                    disabled
+                                    disableUnderline
+                                    type='text'
+                                    sx={styles.tierInput}
+                                    value={tier}
+                                />
+                                <Input
+                                    disableUnderline
+                                    type='number'
+                                    sx={styles.tierInput}
+                                    value={user.registrationState?.nftTiers[tier]?.qty || ''}
+                                    name={tier}
+                                    onKeyDown={handleKeyDown}
+                                    onPaste={event => { event.preventDefault() }}
+                                    onChange={(e) => handleTierChange(index, e)}
+                                />
+                            </Box>
+                        ))}
+                    </Fragment>}
             </Fragment>
         </Box>
     )

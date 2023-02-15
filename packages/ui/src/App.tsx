@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
-import { SUPPORTED_WALLET } from 'cudosjs'
+import { isExtensionEnabled, SUPPORTED_WALLET } from 'cudosjs'
 import { ThemeProvider } from '@mui/material/styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { CssBaseline } from '@mui/material'
@@ -48,18 +48,21 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    window.addEventListener("keplr_keystorechange",
-      async () => {
-        await connectAccount(LEDGERS.KEPLR)
-        return
-      });
+    if (isExtensionEnabled(SUPPORTED_WALLET.Keplr)) {
+      window.addEventListener("keplr_keystorechange",
+        async () => {
+          await connectAccount(LEDGERS.KEPLR)
+          return
+        });
+    }
 
-    window.cosmostation.cosmos.on("accountChanged",
-      async () => {
-        await connectAccount(LEDGERS.COSMOSTATION)
-        return
-      });
-
+    if (isExtensionEnabled(SUPPORTED_WALLET.Cosmostation)) {
+      window.cosmostation.cosmos.on("accountChanged",
+        async () => {
+          await connectAccount(LEDGERS.COSMOSTATION)
+          return
+        });
+    }
   }, [connectAccount])
 
   useEffect(() => {
