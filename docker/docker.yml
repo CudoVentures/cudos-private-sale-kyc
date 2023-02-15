@@ -1,0 +1,50 @@
+version: "3.1"
+
+networks:
+  shared-cudos-network:
+    name: shared-cudos-network
+
+volumes:
+   cudos-private-sale-ui:
+    driver: local
+
+services:
+  cudos-private-sale-kyc:
+    image: cudos-private-sale-kyc
+    container_name: cudos-private-sale-kyc
+    build:
+      dockerfile: Dockerfile
+      context: ../packages/server
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    ports:
+      - "8883:8883"
+
+  cudos-private-sale-ui:
+    image: cudos-private-sale-ui
+    container_name: cudos-private-sale-ui
+    build:
+      dockerfile: Dockerfile
+      context: ../packages/ui
+    restart: unless-stopped
+    volumes:
+      - "../:/usr/cudos-private-sale-ui"
+    ports:
+      - "5173:5173"
+    networks:
+      - shared-cudos-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "128m"
+        max-file: "1"
+    depends_on:
+      - cudos-private-sale-kyc
+    links:
+    - cudos-private-sale-kyc
