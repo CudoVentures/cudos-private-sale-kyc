@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Dialog from 'components/Dialog'
 import CreationField from 'components/FormField'
 import { FormField } from 'components/FormField/types'
-import { isValidSubmit } from 'components/FormField/validation'
+import { getFieldisValid, isValidSubmit } from 'components/FormField/validation'
 import { RootState } from 'store'
 import { initialRegistrationState, PrivateSaleFields, updateUser } from 'store/user'
 
@@ -27,6 +27,7 @@ const Welcome = () => {
   const userState = useSelector((state: RootState) => state.userState)
   const [loaded, setLoaded] = useState<boolean>(false)
   const [totalSum, setTotalSum] = useState<number>(0)
+  const [isValidTiers, setIsValidTiers] = useState<boolean>(true)
 
   const cleanUp = () => {
     dispatch(updateUser({
@@ -64,7 +65,7 @@ const Welcome = () => {
           lastName: collectedData.lastName,
         }
       )
-    
+
       const kycWorkflowRunRes = await axios.post(
         CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
         {
@@ -90,15 +91,15 @@ const Welcome = () => {
         region: 'US',
         steps: ['welcome', 'document'],
         workflowRunId: kycWorkflowRunRes.data.id,
-        onModalRequestClose: function() {
-          onfido.setOptions({isModalOpen: false})
+        onModalRequestClose: function () {
+          onfido.setOptions({ isModalOpen: false })
           dispatch(updateModalState({
             failure: true,
             message: 'KYC not completed'
           }))
           onfido.tearDown()
         },
-        onError: function(error) {
+        onError: function (error) {
           console.error(error.message)
           dispatch(updateModalState({
             failure: true,
@@ -106,7 +107,7 @@ const Welcome = () => {
           }))
           onfido.tearDown()
         },
-        onUserExit: function() {
+        onUserExit: function () {
           dispatch(updateModalState({
             failure: true,
             message: 'KYC not completed'
@@ -114,8 +115,8 @@ const Welcome = () => {
           onfido.tearDown()
         },
 
-        onComplete: function(data) {
-          onfido.setOptions({isModalOpen: false})
+        onComplete: function (data) {
+          onfido.setOptions({ isModalOpen: false })
           collectedData.kycCompleted = true
           saveData(userState.registrationState?.connectedAddress!, collectedData)
 
@@ -154,7 +155,9 @@ const Welcome = () => {
     Array.from(Object.values(userState.registrationState?.nftTiers!)).forEach((value) => {
       amount += (value.cost * value.qty)
     })
+    const { isValid } = getFieldisValid(FormField.nftTiers, userState.registrationState?.nftTiers!)
     setTotalSum(amount)
+    setIsValidTiers(isValid)
     dispatch(updateUser({
       registrationState: {
         ...userState.registrationState!,
@@ -194,7 +197,7 @@ const Welcome = () => {
             placeholder={'john@doe.com'}
           />
           <CreationField
-            type={FormField.nftCount}
+            type={FormField.nftTiers}
             text={'NFT Count'}
           />
           <CreationField
@@ -202,10 +205,9 @@ const Welcome = () => {
             text={'External Wallet Address'}
             placeholder={'The address you will be paying from'}
           />
-
           <Box
             display={'flex'}
-            visibility={Object.values(userState.registrationState?.nftTiers!).find((value) => value.qty > 0) ? 'visible' : 'hidden'}
+            visibility={isValidTiers ? 'visible' : 'hidden'}
             width={'100%'} flexDirection={'row'}
             justifyContent={'space-between'}
           >
