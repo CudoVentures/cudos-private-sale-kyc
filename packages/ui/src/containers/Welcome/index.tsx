@@ -101,9 +101,9 @@ const Welcome = () => {
           }))
           onfido.tearDown();
         },
-        onComplete: function (data) {
-          onfido.setOptions({ isModalOpen: false })
 
+        onComplete: function(data) {
+          onfido.setOptions({isModalOpen: false})
           collectedData.kycCompleted = true
           saveData(userState.registrationState?.connectedAddress!, collectedData)
 
