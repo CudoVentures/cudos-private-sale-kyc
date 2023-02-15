@@ -1,11 +1,11 @@
-import { Box, Button, Fade } from '@mui/material'
+import { Box, Button, Divider, Fade, Tooltip, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Dialog from 'components/Dialog'
 import CreationField from 'components/FormField'
 import { FormField } from 'components/FormField/types'
-import { isValidSubmit, sanitizeString } from 'components/FormField/validation'
+import { isValidSubmit } from 'components/FormField/validation'
 import { RootState } from 'store'
 import { initialRegistrationState, PrivateSaleFields, updateUser } from 'store/user'
 
@@ -16,6 +16,9 @@ import { APP_DETAILS, CHAIN_DETAILS } from 'utils/constants'
 import { Navigate, useLocation } from 'react-router-dom'
 import * as Onfido from 'onfido-sdk-ui'
 import axios from 'axios'
+import { COLORS_DARK_THEME } from 'theme/colors'
+import { validationStyles } from 'components/FormField/styles'
+import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 
 const Welcome = () => {
 
@@ -23,6 +26,7 @@ const Welcome = () => {
   const dispatch = useDispatch()
   const userState = useSelector((state: RootState) => state.userState)
   const [loaded, setLoaded] = useState<boolean>(false)
+  const [totalSum, setTotalSum] = useState<number>(0)
 
   const cleanUp = () => {
     dispatch(updateUser({
@@ -37,7 +41,7 @@ const Welcome = () => {
     const collectedData: PrivateSaleFields = {
       ...userState.registrationState!,
       amountToSpend: `USD ${userState.registrationState?.amountToSpend!}.00`,
-      nftCount: sanitizeString(userState.registrationState?.nftCount!)
+      nftCount: Object.values(userState.registrationState?.nftTiers!).reduce((acc, { qty }) => acc + qty, 0).toString()
     }
     try {
       dispatch(updateModalState({
@@ -67,15 +71,15 @@ const Welcome = () => {
         loading: false,
         loadingType: false,
       }))
-    
+
       const onfido = Onfido.init({
         token: registerRes.data.token,
         useModal: true,
         isModalOpen: true,
         region: 'US',
         steps: ['welcome', 'document'],
-        onModalRequestClose: function() {
-          onfido.setOptions({isModalOpen: false})
+        onModalRequestClose: function () {
+          onfido.setOptions({ isModalOpen: false })
           dispatch(updateModalState({
             failure: true,
             message: 'KYC not completed'
@@ -97,6 +101,7 @@ const Welcome = () => {
           }))
           onfido.tearDown();
         },
+
         onComplete: function(data) {
           onfido.setOptions({isModalOpen: false})
           collectedData.kycCompleted = true
@@ -140,6 +145,21 @@ const Welcome = () => {
     //eslint-disable-next-line
   }, [])
 
+  useEffect(() => {
+    let amount = 0
+    Array.from(Object.values(userState.registrationState?.nftTiers!)).forEach((value) => {
+      amount += (value.cost * value.qty)
+    })
+    setTotalSum(amount)
+    dispatch(updateUser({
+      registrationState: {
+        ...userState.registrationState!,
+        [FormField.amountToSpend]: amount.toLocaleString()
+      }
+    }))
+    //eslint-disable-next-line
+  }, [userState.registrationState?.nftTiers])
+
   return !userState.address ? <Navigate to="/" state={{ from: location }} replace /> : (
     <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut}>
       <Box style={styles.contentHolder}>
@@ -160,10 +180,10 @@ const Welcome = () => {
             text={'Last Name'}
             placeholder={'Doe'}
           />
-          <CreationField
+          {/* <CreationField
             type={FormField.amountToSpend}
             text={'Amount to be spend'}
-          />
+          /> */}
           <CreationField
             type={FormField.email}
             text={'Email'}
@@ -172,13 +192,58 @@ const Welcome = () => {
           <CreationField
             type={FormField.nftCount}
             text={'NFT Count'}
-            placeholder={'The number of NFTs to be purchased'}
           />
           <CreationField
             type={FormField.externalWallet}
             text={'External Wallet Address'}
             placeholder={'The address you will be paying from'}
           />
+
+          <Box
+            display={'flex'}
+            visibility={Object.values(userState.registrationState?.nftTiers!).find((value) => value.qty > 0) ? 'visible' : 'hidden'}
+            width={'100%'} flexDirection={'row'}
+            justifyContent={'space-between'}
+          >
+            <Typography fontWeight={900}>Amount to be paid</Typography>
+            <Tooltip placement='right-end' followCursor
+              PopperProps={validationStyles.tierTooltipPopper}
+              componentsProps={validationStyles.tierTooltipProps}
+              title={
+                <Box
+                  gap={2} sx={{ display: "flex", flexDirection: 'column' }}
+                >
+                  <Typography color={'text.primary'} fontWeight={900}>
+                    {`Your selection`}
+                  </Typography>
+                  <Divider />
+                  {Array.from(Object.entries(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
+                    return props.qty <= 0 ? null : (
+                      <Box gap={2} key={idx} display='flex' justifyContent={'space-between'} >
+                        <Typography color={'text.primary'} fontWeight={900}>
+                          {name}
+                        </Typography>
+                        <Typography fontWeight={900}>
+                          {`${props.qty} x ${props.cost}`}
+                        </Typography>
+                      </Box>
+                    )
+                  })}
+                  <Typography alignSelf={'flex-end'} color={'text.primary'} fontWeight={900}>
+                    {`Total`}
+                  </Typography>
+                  <Divider />
+                  <Typography alignSelf={'flex-end'} fontWeight={900}>
+                    ${totalSum.toLocaleString()}
+                  </Typography>
+                </Box>
+              }>
+              <Box sx={{ cursor: 'pointer' }} display={'flex'}>
+                <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>${totalSum.toLocaleString()}</Typography>
+                <InfoIcon style={{ marginLeft: '10px' }} />
+              </Box>
+            </Tooltip>
+          </Box>
           <Button
             disabled={!isValidSubmit(userState.registrationState)}
             variant="contained"
