@@ -27,7 +27,7 @@ COPY --from=builder "/usr/src/cudos-private-sale-kyc" ./
 # COPY --from=builder "/usr/src/cudos-allowlist/package.json" ./package.json
 
 
-COPY --from=builder "/usr/src/cudos-private-sale-kyc/config/.env" ./config/.env
+COPY --from=builder "/usr/src/cudos-private-sale-kyc/.env" ./.env
 
 # RUN chown -R node:node ${WORKING_DIR}
 

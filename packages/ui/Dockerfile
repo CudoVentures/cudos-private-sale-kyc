@@ -8,7 +8,7 @@ WORKDIR ${WORKING_DIR}
 
 RUN npm i
 
-RUN npm run build
+RUN NODE_OPTIONS=--max-old-space-size=4096 npm run build
 
 FROM node:16-buster
 
@@ -27,7 +27,7 @@ COPY --from=builder "/usr/src/cudos-private-sale-ui" ./
 # COPY --from=builder "/usr/src/cudos-allowlist/package.json" ./package.json
 
 
-COPY --from=builder "/usr/src/cudos-private-sale-ui/config/.env" ./config/.env
+COPY --from=builder "/usr/src/cudos-private-sale-ui/.env" ./.env
 
 # RUN chown -R node:node ${WORKING_DIR}
 
