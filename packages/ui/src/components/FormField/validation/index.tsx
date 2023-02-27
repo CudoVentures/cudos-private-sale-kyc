@@ -72,9 +72,24 @@ export const isValidExternalWallet = (count: number): { isValid: boolean, toolti
     return { isValid: true, tooltip: '' }
 }
 
+export const getTiersTotalSum = (tiers: Record<string, NftTier>) => {
+    let amount = 0
+    Array.from(Object.values(tiers)).forEach((value) => {
+        amount += (value.cost * value.qty)
+    })
+    return amount
+}
+
+export const isValidTiersTotal = (tiers: Record<string, NftTier>) => {
+    if (getTiersTotalSum(tiers) >= 1275) {
+        return { isValid: true, tooltip: '' }
+    }
+    return { isValid: false, tooltip: FormFieldErrors.invalidTiersTotal }
+}
+
 export const isValidTiers = (tiers: Record<string, NftTier>, nonSubmit?: boolean) => {
     const count = Object.values(tiers!).reduce((acc, { qty }) => acc + qty, 0)
-    if ((!count && nonSubmit) || count && count <= 50) {
+    if ((!count && nonSubmit) || (count && count <= 50)) {
         return { isValid: true, tooltip: '' }
     }
     return { isValid: false, tooltip: FormFieldErrors.invalidTiers }
@@ -97,6 +112,8 @@ export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonS
             return isValidExternalWallet(value)
         case FormField.nftTiers:
             return isValidTiers(value, props?.nonSubmit)
+        case FormField.nftTiersTotal:
+            return isValidTiersTotal(value)
         default:
             return { isValid: true, tooltip: '' }
     }
@@ -104,8 +121,10 @@ export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonS
 
 export const isValidSubmit = (registrationState?: PrivateSaleFields): boolean => {
     const { isValid: validTiers } = isValidTiers(registrationState?.nftTiers!)
+    const { isValid: isValidTotal } = isValidTiersTotal(registrationState?.nftTiers!)
     if (
         validTiers &&
+        isValidTotal &&
         registrationState?.connectedAddress &&
         getFieldisValid(FormField.connectedAddress, registrationState?.connectedAddress) &&
         registrationState.firstName &&
@@ -116,8 +135,6 @@ export const isValidSubmit = (registrationState?: PrivateSaleFields): boolean =>
         getFieldisValid(FormField.amountToSpend, registrationState?.amountToSpend) &&
         registrationState.email &&
         getFieldisValid(FormField.email, registrationState?.email) &&
-        // registrationState.nftTiers &&
-        // getFieldisValid(FormField.nftCount, registrationState?.nftCount) &&
         registrationState.externalWallet &&
         getFieldisValid(FormField.externalWallet, registrationState?.externalWallet)
     ) { return true }
