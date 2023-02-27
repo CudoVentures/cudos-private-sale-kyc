@@ -143,37 +143,40 @@ const CreationField = ({
                         />
                         :
                         <Box>
-                            <Box sx={styles.tierTitle}>
-                                <Typography fontWeight={600} marginTop={-3.5}>Choose tiers of interest</Typography>
-                                <Tooltip placement='right' followCursor
-                                    PopperProps={validationStyles.tierTooltipPopper}
-                                    componentsProps={validationStyles.tierTooltipProps}
-                                    title={
-                                        <Box
-                                            gap={2} sx={{ display: "flex", flexDirection: 'column' }}
-                                        >
-                                            {Object.keys(TIER_PRICES).map((key, idx) => {
-                                                return (
-                                                    <Box key={idx}>
-                                                        <Typography color={'text.primary'} fontWeight={900}>
-                                                            {key}
-                                                        </Typography>
+                            <Box sx={{ ...styles.tierTitle, justifyContent: 'space-between' }}>
+                                <Box sx={styles.tierTitle}>
+                                    <Typography fontWeight={600} marginTop={-3.5}>Choose tiers of interest</Typography>
+                                    <Tooltip placement='right' followCursor
+                                        PopperProps={validationStyles.tierTooltipPopper}
+                                        componentsProps={validationStyles.tierTooltipProps}
+                                        title={
+                                            <Box
+                                                gap={2} sx={{ display: "flex", flexDirection: 'column' }}
+                                            >
+                                                {Object.keys(TIER_PRICES).map((key, idx) => {
+                                                    return (
+                                                        <Box key={idx}>
+                                                            <Typography color={'text.primary'} fontWeight={900}>
+                                                                {key}
+                                                            </Typography>
 
-                                                        <Typography fontWeight={900}>
-                                                            {`Private sale price: $${TIER_PRICES[key].Private.toLocaleString()}`}
-                                                        </Typography>
-                                                        <Typography fontSize={14}>
-                                                            {`Public sale price: $${TIER_PRICES[key].Public.toLocaleString()}`}
-                                                        </Typography>
-                                                    </Box>
-                                                )
-                                            })}
+                                                            <Typography fontWeight={900}>
+                                                                {`Private sale price: $${TIER_PRICES[key].Private.toLocaleString()}`}
+                                                            </Typography>
+                                                            <Typography fontSize={14}>
+                                                                {`Public sale price: $${TIER_PRICES[key].Public.toLocaleString()}`}
+                                                            </Typography>
+                                                        </Box>
+                                                    )
+                                                })}
+                                            </Box>
+                                        }>
+                                        <Box>
+                                            <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
                                         </Box>
-                                    }>
-                                    <Box>
-                                        <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
-                                    </Box>
-                                </Tooltip>
+                                    </Tooltip>
+                                </Box>
+                                <Typography fontWeight={600}>Quantity</Typography>
                             </Box>
                             <Box gap={2} display='flex' marginTop={'10px'} flexDirection={'column'}>
                                 {tiers.map((tier, index) => (
