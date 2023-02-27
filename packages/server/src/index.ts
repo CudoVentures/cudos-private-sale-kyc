@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 8881;
 const ONFIDO_API_TOKEN = process.env.ONFIDO_API_TOKEN || "";
 const ONFIDO_REGION = process.env.ONFIDO_REGION || "EU";
 const ONFIDO_WORKFLOW_ID = process.env.ONFIDO_WORKFLOW_ID || "";
+const ONFIDO_LIGHT_CHECK_AMOUNT_USD = 1000;
 
 const onfido = new Onfido({
     apiToken: ONFIDO_API_TOKEN,
@@ -51,12 +52,14 @@ app.post("/authenticate", async (req: AuthRequest, res: Response) => {
 
 app.post("/create-workflow-run", async (req: WorkflowRunRequest, res: Response) => {
     try {
+        const { amount, address } = req.body
+        const balanceUSD = amount < ONFIDO_LIGHT_CHECK_AMOUNT_USD ? ONFIDO_LIGHT_CHECK_AMOUNT_USD : ONFIDO_LIGHT_CHECK_AMOUNT_USD + 1 
         const workflowRun = await onfido.workflowRun.create({
             applicantId: req.body.applicantId,
             workflowId: ONFIDO_WORKFLOW_ID,
             customData: {
-                address: req.body.address,
-                balance: req.body.amount
+                address: address,
+                balance: balanceUSD 
             },
         });
         return res.status(200).json(workflowRun);
