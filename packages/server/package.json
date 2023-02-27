@@ -3,7 +3,9 @@
     "scripts": {
         "build": "npx tsc -b",
         "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
-        "start": "npm run build && npx pm2 start build/index.js -i 2"
+        "start": "npm run build && node build/index.js",
+        "start:prod": "node build/index.js"
+
     },
     "dependencies": {
         "@onfido/api": "^2.6.0",
