@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Fade, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Fade } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -16,9 +16,7 @@ import { APP_DETAILS, CHAIN_DETAILS } from 'utils/constants'
 import { Navigate, useLocation } from 'react-router-dom'
 import * as Onfido from 'onfido-sdk-ui'
 import axios from 'axios'
-import { COLORS_DARK_THEME } from 'theme/colors'
-import { validationStyles } from 'components/FormField/styles'
-import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
+import AmountDue from 'components/AmountDue'
 
 const Welcome = () => {
 
@@ -26,7 +24,7 @@ const Welcome = () => {
   const dispatch = useDispatch()
   const userState = useSelector((state: RootState) => state.userState)
   const [loaded, setLoaded] = useState<boolean>(false)
-  const [totalSum, setTotalSum] = useState<number>(0)
+
 
   const cleanUp = () => {
     dispatch(updateUser({
@@ -64,7 +62,7 @@ const Welcome = () => {
           lastName: collectedData.lastName,
         }
       )
-    
+
       const kycWorkflowRunRes = await axios.post(
         CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
         {
@@ -90,15 +88,15 @@ const Welcome = () => {
         region: 'US',
         steps: ['welcome', 'document'],
         workflowRunId: kycWorkflowRunRes.data.id,
-        onModalRequestClose: function() {
-          onfido.setOptions({isModalOpen: false})
+        onModalRequestClose: function () {
+          onfido.setOptions({ isModalOpen: false })
           dispatch(updateModalState({
             failure: true,
             message: 'KYC not completed'
           }))
           onfido.tearDown()
         },
-        onError: function(error) {
+        onError: function (error) {
           console.error(error.message)
           dispatch(updateModalState({
             failure: true,
@@ -106,7 +104,7 @@ const Welcome = () => {
           }))
           onfido.tearDown()
         },
-        onUserExit: function() {
+        onUserExit: function () {
           dispatch(updateModalState({
             failure: true,
             message: 'KYC not completed'
@@ -114,8 +112,8 @@ const Welcome = () => {
           onfido.tearDown()
         },
 
-        onComplete: function(data) {
-          onfido.setOptions({isModalOpen: false})
+        onComplete: function (data) {
+          onfido.setOptions({ isModalOpen: false })
           collectedData.kycCompleted = true
           saveData(userState.registrationState?.connectedAddress!, collectedData)
 
@@ -149,21 +147,6 @@ const Welcome = () => {
     //eslint-disable-next-line
   }, [])
 
-  useEffect(() => {
-    let amount = 0
-    Array.from(Object.values(userState.registrationState?.nftTiers!)).forEach((value) => {
-      amount += (value.cost * value.qty)
-    })
-    setTotalSum(amount)
-    dispatch(updateUser({
-      registrationState: {
-        ...userState.registrationState!,
-        [FormField.amountToSpend]: amount.toLocaleString()
-      }
-    }))
-    //eslint-disable-next-line
-  }, [userState.registrationState?.nftTiers])
-
   return !userState.address ? <Navigate to="/" state={{ from: location }} replace /> : (
     <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut}>
       <Box style={styles.contentHolder}>
@@ -184,17 +167,13 @@ const Welcome = () => {
             text={'Last Name'}
             placeholder={'Doe'}
           />
-          {/* <CreationField
-            type={FormField.amountToSpend}
-            text={'Amount to be spend'}
-          /> */}
           <CreationField
             type={FormField.email}
             text={'Email'}
             placeholder={'john@doe.com'}
           />
           <CreationField
-            type={FormField.nftCount}
+            type={FormField.nftTiers}
             text={'NFT Count'}
           />
           <CreationField
@@ -202,52 +181,7 @@ const Welcome = () => {
             text={'External Wallet Address'}
             placeholder={'The address you will be paying from'}
           />
-
-          <Box
-            display={'flex'}
-            visibility={Object.values(userState.registrationState?.nftTiers!).find((value) => value.qty > 0) ? 'visible' : 'hidden'}
-            width={'100%'} flexDirection={'row'}
-            justifyContent={'space-between'}
-          >
-            <Typography fontWeight={900}>Amount to be paid</Typography>
-            <Tooltip placement='right-end' followCursor
-              PopperProps={validationStyles.tierTooltipPopper}
-              componentsProps={validationStyles.tierTooltipProps}
-              title={
-                <Box
-                  gap={2} sx={{ display: "flex", flexDirection: 'column' }}
-                >
-                  <Typography color={'text.primary'} fontWeight={900}>
-                    {`Your selection`}
-                  </Typography>
-                  <Divider />
-                  {Array.from(Object.entries(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
-                    return props.qty <= 0 ? null : (
-                      <Box gap={2} key={idx} display='flex' justifyContent={'space-between'} >
-                        <Typography color={'text.primary'} fontWeight={900}>
-                          {name}
-                        </Typography>
-                        <Typography fontWeight={900}>
-                          {`${props.qty} x ${props.cost}`}
-                        </Typography>
-                      </Box>
-                    )
-                  })}
-                  <Typography alignSelf={'flex-end'} color={'text.primary'} fontWeight={900}>
-                    {`Total`}
-                  </Typography>
-                  <Divider />
-                  <Typography alignSelf={'flex-end'} fontWeight={900}>
-                    ${totalSum.toLocaleString()}
-                  </Typography>
-                </Box>
-              }>
-              <Box sx={{ cursor: 'pointer' }} display={'flex'}>
-                <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>${totalSum.toLocaleString()}</Typography>
-                <InfoIcon style={{ marginLeft: '10px' }} />
-              </Box>
-            </Tooltip>
-          </Box>
+          <AmountDue />
           <Button
             disabled={!isValidSubmit(userState.registrationState)}
             variant="contained"

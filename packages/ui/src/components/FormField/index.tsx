@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Input, InputAdornment, Tooltip, Typography } from '@mui/material'
 
-import { styles, validationStyles } from './styles'
+import { getInvalidInputStyling, styles, validationStyles } from './styles'
 import { RootState } from 'store';
 import { FormField } from './types';
 import { getFieldisValid } from './validation';
@@ -88,30 +88,21 @@ const CreationField = ({
         }
     }
 
-    const handleTierChange = (index: number, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-
-        const newTiers = { ...user.registrationState?.nftTiers! }
-
-        const tier = event.target.name
-        const quantity = event.target.value
-        const price = TIER_PRICES[tier].Private
-        newTiers[tier] = {
-            qty: Number(quantity),
-            cost: price
-        }
-        dispatch(updateUser({
-            registrationState: {
-                ...user.registrationState!,
-                nftTiers: newTiers
-            }
-        }))
-    }
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        let value: any = e.target.value
+        if (type === FormField.nftTiers) {
+            const newTiers = { ...user.registrationState?.nftTiers! }
+            const tier = e.target.name
+            const quantity = e.target.value
+            const price = TIER_PRICES[tier].Private
+            newTiers[tier] = {
+                qty: Number(quantity),
+                cost: price
+            }
+            value = newTiers
+        }
 
-        let value: string | number = e.target.value as string
-
-        const { isValid, tooltip } = getFieldisValid(type, value)
+        const { isValid, tooltip } = getFieldisValid(type, value, { nonSubmit: true })
         setIsValid(isValid)
         setTooltip(tooltip)
         dispatch(updateUser({
@@ -132,14 +123,14 @@ const CreationField = ({
                 {text}
             </Typography>
             <Fragment>
-                {type !== FormField.nftCount ?
-                    <Tooltip
-                        placement='bottom-start'
-                        PopperProps={validationStyles.tooltipPopper}
-                        componentsProps={validationStyles.tooltipProps}
-                        open={!isValid}
-                        title={tooltip}
-                    >
+                <Tooltip
+                    placement='bottom-start'
+                    PopperProps={validationStyles.tooltipPopper}
+                    componentsProps={validationStyles.tooltipProps}
+                    open={!isValid}
+                    title={tooltip}
+                >
+                    {type !== FormField.nftTiers ?
                         <Input
                             disabled={isDisabled}
                             startAdornment={getStartAdornment(type)}
@@ -150,62 +141,68 @@ const CreationField = ({
                             value={user.registrationState![type]}
                             onChange={handleChange}
                         />
-                    </Tooltip> :
-                    <Fragment>
-                        <Box sx={styles.tierTitle}>
-                            <Typography fontWeight={600} marginTop={-3.5}>Choose tiers of interest</Typography>
-                            <Tooltip placement='right' followCursor
-                                PopperProps={validationStyles.tierTooltipPopper}
-                                componentsProps={validationStyles.tierTooltipProps}
-                                title={
-                                    <Box
-                                        gap={2} sx={{ display: "flex", flexDirection: 'column' }}
-                                    >
-                                        {Object.keys(TIER_PRICES).map((key, idx) => {
-                                            return (
-                                                <Box key={idx}>
-                                                    <Typography color={'text.primary'} fontWeight={900}>
-                                                        {key}
-                                                    </Typography>
+                        :
+                        <Box>
+                            <Box sx={{ ...styles.tierTitle, justifyContent: 'space-between' }}>
+                                <Box sx={styles.tierTitle}>
+                                    <Typography fontWeight={600} marginTop={-3.5}>Choose tiers of interest</Typography>
+                                    <Tooltip placement='right' followCursor
+                                        PopperProps={validationStyles.tierTooltipPopper}
+                                        componentsProps={validationStyles.tierTooltipProps}
+                                        title={
+                                            <Box
+                                                gap={2} sx={{ display: "flex", flexDirection: 'column' }}
+                                            >
+                                                {Object.keys(TIER_PRICES).map((key, idx) => {
+                                                    return (
+                                                        <Box key={idx}>
+                                                            <Typography color={'text.primary'} fontWeight={900}>
+                                                                {key}
+                                                            </Typography>
 
-                                                    <Typography fontWeight={900}>
-                                                        {`Private sale price: $${TIER_PRICES[key].Private.toLocaleString()}`}
-                                                    </Typography>
-                                                    <Typography fontSize={14}>
-                                                        {`Public sale price: $${TIER_PRICES[key].Public.toLocaleString()}`}
-                                                    </Typography>
-                                                </Box>
-                                            )
-                                        })}
-                                    </Box>
-                                }>
-                                <Box>
-                                    <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
+                                                            <Typography fontWeight={900}>
+                                                                {`Private sale price: $${TIER_PRICES[key].Private.toLocaleString()}`}
+                                                            </Typography>
+                                                            <Typography fontSize={14}>
+                                                                {`Public sale price: $${TIER_PRICES[key].Public.toLocaleString()}`}
+                                                            </Typography>
+                                                        </Box>
+                                                    )
+                                                })}
+                                            </Box>
+                                        }>
+                                        <Box>
+                                            <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
+                                        </Box>
+                                    </Tooltip>
                                 </Box>
-                            </Tooltip>
-                        </Box>
-                        {tiers.map((tier, index) => (
-                            <Box key={index} gap={3} display='flex'>
-                                <Input
-                                    disabled
-                                    disableUnderline
-                                    type='text'
-                                    sx={styles.tierInput}
-                                    value={tier}
-                                />
-                                <Input
-                                    disableUnderline
-                                    type='number'
-                                    sx={styles.tierInput}
-                                    value={user.registrationState?.nftTiers[tier]?.qty || ''}
-                                    name={tier}
-                                    onKeyDown={handleKeyDown}
-                                    onPaste={event => { event.preventDefault() }}
-                                    onChange={(e) => handleTierChange(index, e)}
-                                />
+                                <Typography fontWeight={600}>Quantity</Typography>
                             </Box>
-                        ))}
-                    </Fragment>}
+                            <Box gap={2} display='flex' marginTop={'10px'} flexDirection={'column'}>
+                                {tiers.map((tier, index) => (
+                                    <Box key={index} gap={3} display='flex'>
+                                        <Input
+                                            disabled
+                                            disableUnderline
+                                            type='text'
+                                            sx={isValid ? styles.tierInput : getInvalidInputStyling('text', index)}
+                                            value={tier}
+                                        />
+                                        <Input
+                                            disableUnderline
+                                            type='number'
+                                            sx={isValid ? styles.tierInput : getInvalidInputStyling('number', index)}
+                                            value={user.registrationState?.nftTiers[tier]?.qty || ''}
+                                            name={tier}
+                                            onKeyDown={handleKeyDown}
+                                            onPaste={event => { event.preventDefault() }}
+                                            onChange={handleChange}
+                                        />
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>}
+                </Tooltip>
             </Fragment>
         </Box>
     )

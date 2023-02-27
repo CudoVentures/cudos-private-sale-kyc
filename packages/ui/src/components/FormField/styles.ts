@@ -29,12 +29,46 @@ export const styles = {
   },
   tierInput: {
     border: '0.1px solid transparent',
-    marginTop: '10px',
     padding: '16px 20px',
     borderRadius: '8px',
     width: '50%',
     background: COLORS_DARK_THEME.PRIMARY_STEEL_GRAY
   }
+}
+
+export const getInvalidInputStyling = (type: 'text' | 'number', index: number) => {
+  if (index === 0) {
+    return {
+      ...styles.tierInput,
+      borderTop: `0.1px solid ${COLORS_DARK_THEME.TESTNET_ORANGE}`,
+      borderLeft: type === 'text' ? `0.1px solid ${COLORS_DARK_THEME.TESTNET_ORANGE}` : undefined,
+      borderRight: type === 'number' ? `0.1px solid ${COLORS_DARK_THEME.TESTNET_ORANGE}` : undefined
+    }
+  }
+
+  if (index === 4) {
+    return {
+      ...styles.tierInput,
+      borderBottom: `0.1px solid ${COLORS_DARK_THEME.TESTNET_ORANGE}`,
+      borderLeft: type === 'text' ? `0.1px solid ${COLORS_DARK_THEME.TESTNET_ORANGE}` : undefined,
+      borderRight: type === 'number' ? `0.1px solid ${COLORS_DARK_THEME.TESTNET_ORANGE}` : undefined
+    }
+  }
+
+  if (type === 'text') {
+    return {
+      ...styles.tierInput,
+      borderLeft: `0.1px solid ${COLORS_DARK_THEME.TESTNET_ORANGE}`,
+    }
+  }
+
+  if (type === 'number') {
+    return {
+      ...styles.tierInput,
+      borderRight: `0.1px solid ${COLORS_DARK_THEME.TESTNET_ORANGE}`,
+    }
+  }
+  return styles.tierInput
 }
 
 export const validationStyles = {
