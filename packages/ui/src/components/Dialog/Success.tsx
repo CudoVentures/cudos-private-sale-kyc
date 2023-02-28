@@ -78,9 +78,22 @@ const Success = () => {
             {message}
           </Typography>
         </Box>
+        {!data || !Object.values(data).length ? null :
+          <Button
+            variant="contained"
+            color="primary"
+            sx={() => ({
+              width: '100%',
+              fontWeight: 700,
+              marginTop: '20px'
+            })}
+            onClick={downloadPDF}
+          >
+            Download PDF
+          </Button>}
         <Button
           variant="contained"
-          color="primary"
+          color="secondary"
           sx={() => ({
             width: '100%',
             fontWeight: 700,
@@ -90,21 +103,6 @@ const Success = () => {
         >
           Close
         </Button>
-        {!data ? null :
-          <Button
-            disabled={isLoading}
-            variant="outlined"
-            color="secondary"
-            sx={() => ({
-              width: '50%',
-              fontWeight: 700,
-              marginTop: '20px'
-            })}
-            onClick={downloadPDF}
-          >
-            Download PDF
-          </Button>
-        }
       </ModalContainer>
     </MuiDialog>
   )

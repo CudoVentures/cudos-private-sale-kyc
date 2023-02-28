@@ -1,11 +1,11 @@
-import { Box, Button, Fade } from '@mui/material'
+import { Box, Button, Collapse, Fade } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Dialog from 'components/Dialog'
 import CreationField from 'components/FormField'
 import { FormField } from 'components/FormField/types'
-import { isValidSubmit } from 'components/FormField/validation'
+import { getFieldisValid, getTiersTotalSum, isValidSubmit } from 'components/FormField/validation'
 import { RootState } from 'store'
 import { initialRegistrationState, PrivateSaleFields, updateUser } from 'store/user'
 
@@ -16,7 +16,9 @@ import { APP_DETAILS, CHAIN_DETAILS } from 'utils/constants'
 import { Navigate, useLocation } from 'react-router-dom'
 import * as Onfido from 'onfido-sdk-ui'
 import axios from 'axios'
-import AmountDue from 'components/AmountDue'
+import TotalInUsd from 'components/TotalInUsd'
+import ConvertedAmount from 'components/ConvertedAmount'
+import { DocumentData, Timestamp } from 'firebase/firestore'
 
 const Welcome = () => {
 
@@ -24,7 +26,7 @@ const Welcome = () => {
   const dispatch = useDispatch()
   const userState = useSelector((state: RootState) => state.userState)
   const [loaded, setLoaded] = useState<boolean>(false)
-
+  const { isValid: validTiers } = getFieldisValid(FormField.nftTiers, userState.registrationState?.nftTiers!)
 
   const cleanUp = () => {
     dispatch(updateUser({
@@ -38,7 +40,7 @@ const Welcome = () => {
   const handleSubmit = async () => {
     const collectedData: PrivateSaleFields = {
       ...userState.registrationState!,
-      amountToSpend: `USD ${userState.registrationState?.amountToSpend!}.00`,
+      amountToSpend: userState.registrationState?.amountToSpend!,
       nftCount: Object.values(userState.registrationState?.nftTiers!).reduce((acc, { qty }) => acc + qty, 0).toString()
     }
     try {
@@ -63,18 +65,24 @@ const Welcome = () => {
         }
       )
 
+
+
       const kycWorkflowRunRes = await axios.post(
         CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
         {
           applicantId: kycRegisterRes.data.applicantId,
           address: collectedData.connectedAddress,
-          amount: Number(userState.registrationState?.amountToSpend!.replace(/,/g, ''))
+          amount: getTiersTotalSum(collectedData.nftTiers)
         }
       )
 
       collectedData.kycApplicantId = kycRegisterRes.data.applicantId as string
       collectedData.kycWorkflowRunId = kycWorkflowRunRes.data.id as string
-      await saveData(userState.registrationState?.connectedAddress!, collectedData)
+      const dataForSaving: DocumentData = {
+        ...collectedData,
+        createdAt: Timestamp.now().toDate()
+      }
+      await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
 
       dispatch(updateModalState({
         loading: false,
@@ -85,6 +93,7 @@ const Welcome = () => {
         token: kycRegisterRes.data.token,
         useModal: true,
         isModalOpen: true,
+        shouldCloseOnOverlayClick: false,
         region: 'US',
         steps: ['welcome', 'document'],
         workflowRunId: kycWorkflowRunRes.data.id,
@@ -114,13 +123,13 @@ const Welcome = () => {
 
         onComplete: function (data) {
           onfido.setOptions({ isModalOpen: false })
-          collectedData.kycCompleted = true
-          saveData(userState.registrationState?.connectedAddress!, collectedData)
+          dataForSaving.kycCompleted = true
+          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
 
           dispatch(updateModalState({
             success: true,
             message: "Entry submitted",
-            data: collectedData
+            data: dataForSaving
           }))
           cleanUp()
 
@@ -148,7 +157,7 @@ const Welcome = () => {
   }, [])
 
   return !userState.address ? <Navigate to="/" state={{ from: location }} replace /> : (
-    <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut}>
+    <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut} children={
       <Box style={styles.contentHolder}>
         <Dialog />
         <Box gap={4} sx={styles.formHolder}>
@@ -176,12 +185,19 @@ const Welcome = () => {
             type={FormField.nftTiers}
             text={'NFT Count'}
           />
-          <CreationField
-            type={FormField.externalWallet}
-            text={'External Wallet Address'}
-            placeholder={'The address you will be paying from'}
-          />
-          <AmountDue />
+          <Collapse
+            sx={{ width: '100%' }}
+            timeout={'auto'}
+            in={validTiers}
+          >
+            <TotalInUsd />
+            <ConvertedAmount />
+            <CreationField
+              type={FormField.externalWallet}
+              text={'External Wallet Address'}
+              placeholder={'The address you will be paying from'}
+            />
+          </Collapse>
           <Button
             disabled={!isValidSubmit(userState.registrationState)}
             variant="contained"
@@ -193,7 +209,7 @@ const Welcome = () => {
           <div id='onfido-mount'></div>
         </Box>
       </Box>
-    </Fade>
+    } />
   )
 }
 

@@ -1,3 +1,17 @@
+export enum Currencies {
+    ETH = 'ETH',
+    USDC = 'USDC'
+}
+
+export type CURRENCY_RATES = {
+    [key in Currencies]: number
+}
+
+export const defaultCurrencyRates: CURRENCY_RATES = {
+    ETH: 0,
+    USDC: 1
+}
+
 export enum FormFieldErrors {
     invalidCudosAddress = 'Invalid Cudos Address',
     invalidEmail = 'Invalid email format',
