@@ -3,10 +3,8 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc } from 'firebase/firestore/lite';
 import axios from "axios";
-import { PrivateSaleFields } from "store/user";
 import { signArbitrary } from "./helpers";
 import { SUPPORTED_WALLET } from "cudosjs";
-import { DocumentData, Timestamp } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: CHAIN_DETAILS.FIREBASE.API_KEY,
@@ -39,12 +37,8 @@ export const authenticate = async (address: string, collection: string, connecte
     }
 }
 
-export const saveData = async (address: string, data: PrivateSaleFields): Promise<void> => {
+export const saveData = async (address: string, newData: any): Promise<void> => {
     try {
-        const newData: DocumentData = {
-            ...data,
-            createdAt: Timestamp.now().toDate()
-        }
         const dataDoc = doc(firestore, CHAIN_DETAILS.FIREBASE.COLLECTION, address);
         return setDoc(dataDoc, { ...newData }, { merge: true });
     } catch (error) {

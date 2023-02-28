@@ -129,6 +129,26 @@ export const validationStyles = {
       },
     ],
   },
+  totalPopper: {
+    sx: {
+      zIndex: '1'
+    },
+    modifiers: [
+      {
+        name: "offset",
+        options: {
+          offset: [-10, -25]
+        },
+      },
+      {
+        name: 'flip',
+        options: {
+          fallbackPlacements: ['bottom-start'],
+          flipVariations: false, // true by default
+        },
+      },
+    ],
+  },
   tooltipPopper: {
     sx: {
       zIndex: '1'
