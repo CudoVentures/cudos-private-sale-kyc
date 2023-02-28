@@ -15,8 +15,10 @@ import { CopyAndFollowComponent } from 'components/helpers';
 import { HashBasedUserAvatar } from 'components/HashBasedAvatar';
 import { RootState } from 'store';
 import { updateModalState, initialState as initialModalState } from 'store/modals';
+import { initialState as initialRatesState } from 'store/rates';
 import { initialState, updateUser } from 'store/user';
 import { COLORS_DARK_THEME } from 'theme/colors';
+import { updateRates } from 'store/rates';
 
 const Header = () => {
   const location = useLocation()
@@ -38,6 +40,7 @@ const Header = () => {
   const handleDisconnect = async () => {
     sessionStorage.clear()
     localStorage.clear()
+    dispatch(updateRates(initialRatesState))
     dispatch(updateUser(initialState))
     dispatch(updateModalState(initialModalState))
     navigate('/')

@@ -34,21 +34,24 @@ const ConvertedAmount = () => {
     }
 
     useEffect(() => {
-        const usdAmount = getTiersTotalSum(userState.registrationState?.nftTiers!)
-        const convertedAmount = usdAmount * currencyRates![chosenCurrency!]
-        const stringifiedConvertedAmount = stringifyConvertedAmount(convertedAmount)
-        setTotalUsd(usdAmount)
-        setTotalConvertedString(stringifiedConvertedAmount)
-        dispatch(updateUser({
-            registrationState: {
-                ...userState.registrationState!,
-                [FormField.amountToSpend]: `${stringifiedConvertedAmount} ${chosenCurrency} (converted from USD ${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })})`
-            }
-        }))
-        setTimeout(() => {
-            setLoading(false)
-            setOpenSelect(false)
-        }, 300)
+        if (chosenCurrency) {
+            const usdAmount = getTiersTotalSum(userState.registrationState?.nftTiers!)
+            const convertedAmount = usdAmount * currencyRates![chosenCurrency!]
+            const stringifiedConvertedAmount = stringifyConvertedAmount(convertedAmount)
+            setTotalUsd(usdAmount)
+            setTotalConvertedString(stringifiedConvertedAmount)
+            dispatch(updateUser({
+                registrationState: {
+                    ...userState.registrationState!,
+                    [FormField.amountToSpend]: `${stringifiedConvertedAmount} ${chosenCurrency} (converted from USD ${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })})`
+                }
+            }))
+            setTimeout(() => {
+                setLoading(false)
+                setOpenSelect(false)
+            }, 300)
+        }
+
         //eslint-disable-next-line
     }, [userState.registrationState?.nftTiers, chosenCurrency])
 
@@ -70,14 +73,14 @@ const ConvertedAmount = () => {
                                 onClick={() => setOpenSelect(true)}
                                 gap={1} display={'flex'} alignItems={'center'} height={'20px'}
                             >
-                                <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>{totalConvertedString}</Typography>
+                                {chosenCurrency ? <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>{totalConvertedString}</Typography> : null}
                                 <Select
                                     open={openSelect}
                                     native={false}
-                                    renderValue={() => <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>{chosenCurrency}</Typography>}
+                                    renderValue={() => <Typography color={chosenCurrency ? COLORS_DARK_THEME.PRIMARY_BLUE : COLORS_DARK_THEME.TESTNET_ORANGE} fontWeight={900}>{chosenCurrency ? chosenCurrency : 'Select currency'}</Typography>}
                                     variant='standard'
                                     disableUnderline
-                                    value={chosenCurrency}
+                                    value={chosenCurrency ? chosenCurrency : 'Select value'}
                                     onChange={handleSelectChange}
                                 >
                                     {Object.values(Currencies).map((value, i) => {
@@ -86,45 +89,46 @@ const ConvertedAmount = () => {
                                 </Select>
                             </Box>
                         }
-                        <Tooltip placement='right-end' followCursor
-                            PopperProps={validationStyles.tierTooltipPopper}
-                            componentsProps={validationStyles.tierTooltipProps}
-                            title={<Box
-                                gap={2} sx={{ display: "flex", flexDirection: 'column' }}
-                            >
-                                <Typography color={'text.primary'} fontWeight={900}>
-                                    {`Your selection`}
-                                </Typography>
-                                <Divider />
-                                {Array.from(Object.entries(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
-                                    return props.qty <= 0 ? null : (
-                                        <Box gap={2} key={idx} display='flex' justifyContent={'space-between'}>
-                                            <Typography color={'text.primary'} fontWeight={900}>
-                                                {name}
-                                            </Typography>
-                                            <Typography fontWeight={900}>
-                                                {`${props.qty} x $${props.cost}`}
-                                            </Typography>
-                                        </Box>
-                                    )
-                                })}
-                                <Typography alignSelf={'flex-end'} color={'text.primary'} fontWeight={900}>
-                                    {`Total`}
-                                </Typography>
-                                <Divider />
-                                <Typography alignSelf={'flex-end'} fontWeight={900}>
-                                    ${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2 })} x {currencyRates![chosenCurrency!]} = {totalConvertedString} {chosenCurrency}
-                                </Typography>
-                                <Typography color={COLORS_DARK_THEME.TESTNET_ORANGE} fontSize={12} alignSelf={'flex-start'} fontWeight={400}>
-                                    {`Coingecko Rates ${fetchedAt ? `as of ${fetchedAt.toLocaleString()}` : null}`}
-                                </Typography>
-                            </Box>}
-                            children={
-                                <Box display={"flex"}>
-                                    <InfoIcon style={{ cursor: 'pointer', marginLeft: '10px' }} />
-                                </Box>
-                            }
-                        />
+                        {chosenCurrency ?
+                            <Tooltip placement='right-end' followCursor
+                                PopperProps={validationStyles.tierTooltipPopper}
+                                componentsProps={validationStyles.tierTooltipProps}
+                                title={<Box
+                                    gap={2} sx={{ display: "flex", flexDirection: 'column' }}
+                                >
+                                    <Typography color={'text.primary'} fontWeight={900}>
+                                        {`Your selection`}
+                                    </Typography>
+                                    <Divider />
+                                    {Array.from(Object.entries(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
+                                        return props.qty <= 0 ? null : (
+                                            <Box gap={2} key={idx} display='flex' justifyContent={'space-between'}>
+                                                <Typography color={'text.primary'} fontWeight={900}>
+                                                    {name}
+                                                </Typography>
+                                                <Typography fontWeight={900}>
+                                                    {`${props.qty} x $${props.cost}`}
+                                                </Typography>
+                                            </Box>
+                                        )
+                                    })}
+                                    <Typography alignSelf={'flex-end'} color={'text.primary'} fontWeight={900}>
+                                        {`Total`}
+                                    </Typography>
+                                    <Divider />
+                                    <Typography alignSelf={'flex-end'} fontWeight={900}>
+                                        ${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2 })} x {currencyRates![chosenCurrency!]} = {totalConvertedString} {chosenCurrency}
+                                    </Typography>
+                                    <Typography color={COLORS_DARK_THEME.TESTNET_ORANGE} fontSize={12} alignSelf={'flex-start'} fontWeight={400}>
+                                        {`Coingecko Rates ${fetchedAt ? `as of ${fetchedAt.toLocaleString()}` : null}`}
+                                    </Typography>
+                                </Box>}
+                                children={
+                                    <Box display={"flex"}>
+                                        <InfoIcon style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                                    </Box>
+                                }
+                            /> : null}
                     </Box>
                 }
             />
