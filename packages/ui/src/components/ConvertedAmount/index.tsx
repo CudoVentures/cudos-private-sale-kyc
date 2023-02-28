@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "store"
 import { updateUser } from "store/user"
@@ -109,7 +109,9 @@ const ConvertedAmount = () => {
                         </Typography>
                     </Box>}
                     children={
-                        <InfoIcon style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                        <Box display={"flex"}>
+                            <InfoIcon style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                        </Box>
                     }
                 />
             </Box>
