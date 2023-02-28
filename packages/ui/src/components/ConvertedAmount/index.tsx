@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "store"
 import { updateUser } from "store/user"
-import { Box, Typography, Tooltip, Divider, Select, MenuItem } from "@mui/material"
+import { Box, Typography, Tooltip, Divider, Select, MenuItem, SelectChangeEvent } from "@mui/material"
 import { validationStyles } from "components/FormField/styles"
 import { getTiersTotalSum } from "components/FormField/validation"
 import { COLORS_DARK_THEME } from "theme/colors"
@@ -57,52 +57,52 @@ const ConvertedAmount = () => {
                         variant='standard'
                         disableUnderline
                         value={chosenCurrency}
-                        onChange={(e) => dispatch(updateRates({ chosenCurrency: e.target.value as Currencies }))}
+                        onChange={(e: any) => dispatch(updateRates({ chosenCurrency: e.target.value }))}
                     >
                         {Object.values(Currencies).map((value, i) => {
-                            return <MenuItem value={value}>{value}</MenuItem>
+                            return <MenuItem key={i} value={value}>{value}</MenuItem>
                         })}
                     </Select>
                 </Box>
                 <Tooltip placement='right-end' followCursor
                     PopperProps={validationStyles.tierTooltipPopper}
                     componentsProps={validationStyles.tierTooltipProps}
-                    title={
-                        <Box
-                            gap={2} sx={{ display: "flex", flexDirection: 'column' }}
-                        >
-                            <Typography color={'text.primary'} fontWeight={900}>
-                                {`Your selection`}
-                            </Typography>
-                            <Divider />
-                            {Array.from(Object.entries(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
-                                return props.qty <= 0 ? null : (
-                                    <Box gap={2} key={idx} display='flex' justifyContent={'space-between'} >
-                                        <Typography color={'text.primary'} fontWeight={900}>
-                                            {name}
-                                        </Typography>
-                                        <Typography fontWeight={900}>
-                                            {`${props.qty} x $${props.cost}`}
-                                        </Typography>
-                                    </Box>
-                                )
-                            })}
-                            <Typography alignSelf={'flex-end'} color={'text.primary'} fontWeight={900}>
-                                {`Total`}
-                            </Typography>
-                            <Divider />
-                            <Typography alignSelf={'flex-end'} fontWeight={900}>
-                                ${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2 })} x {currencyRates![chosenCurrency!]} = {totalConvertedString} {chosenCurrency}
-                            </Typography>
-                            <Typography color={COLORS_DARK_THEME.TESTNET_ORANGE} fontSize={12} alignSelf={'flex-start'} fontWeight={400}>
-                                {`Coingecko Rates ${fetchedAt ? `as of ${fetchedAt.toLocaleString()}` : null}`}
-                            </Typography>
+                    title={<Box
+                        gap={2} sx={{ display: "flex", flexDirection: 'column' }}
+                    >
+                        <Typography color={'text.primary'} fontWeight={900}>
+                            {`Your selection`}
+                        </Typography>
+                        <Divider />
+                        {Array.from(Object.entries(userState.registrationState?.nftTiers!)).map(([name, props], idx) => {
+                            return props.qty <= 0 ? null : (
+                                <Box gap={2} key={idx} display='flex' justifyContent={'space-between'}>
+                                    <Typography color={'text.primary'} fontWeight={900}>
+                                        {name}
+                                    </Typography>
+                                    <Typography fontWeight={900}>
+                                        {`${props.qty} x $${props.cost}`}
+                                    </Typography>
+                                </Box>
+                            )
+                        })}
+                        <Typography alignSelf={'flex-end'} color={'text.primary'} fontWeight={900}>
+                            {`Total`}
+                        </Typography>
+                        <Divider />
+                        <Typography alignSelf={'flex-end'} fontWeight={900}>
+                            ${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2 })} x {currencyRates![chosenCurrency!]} = {totalConvertedString} {chosenCurrency}
+                        </Typography>
+                        <Typography color={COLORS_DARK_THEME.TESTNET_ORANGE} fontSize={12} alignSelf={'flex-start'} fontWeight={400}>
+                            {`Coingecko Rates ${fetchedAt ? `as of ${fetchedAt.toLocaleString()}` : null}`}
+                        </Typography>
+                    </Box>}
+                    children={
+                        <Box sx={{ cursor: 'pointer' }}>
+                            <InfoIcon style={{ marginLeft: '10px' }} />
                         </Box>
-                    }>
-                    <Box sx={{ cursor: 'pointer' }}>
-                        <InfoIcon style={{ marginLeft: '10px' }} />
-                    </Box>
-                </Tooltip>
+                    }
+                />
             </Box>
         </Box>
     )
