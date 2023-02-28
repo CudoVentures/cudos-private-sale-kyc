@@ -2,7 +2,7 @@ import { bech32 } from "bech32"
 import { NftTier, PrivateSaleFields } from "store/user"
 import isEmail from "validator/lib/isEmail"
 
-import { FormField, FormFieldErrors } from "../types"
+import { Currencies, FormField, FormFieldErrors } from "../types"
 
 export const isZeroLength = (data: any): boolean => !data
 
@@ -119,10 +119,11 @@ export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonS
     }
 }
 
-export const isValidSubmit = (registrationState?: PrivateSaleFields): boolean => {
+export const isValidSubmit = (chosenCurrency?: Currencies, registrationState?: PrivateSaleFields): boolean => {
     const { isValid: validTiers } = isValidTiers(registrationState?.nftTiers!)
     const { isValid: isValidTotal } = isValidTiersTotal(registrationState?.nftTiers!)
     if (
+        chosenCurrency &&
         validTiers &&
         isValidTotal &&
         registrationState?.connectedAddress &&

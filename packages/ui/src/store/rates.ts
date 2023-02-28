@@ -9,7 +9,7 @@ export interface ratesState {
 
 export const initialState: ratesState = {
     fetchedAt: undefined,
-    chosenCurrency: Currencies.USDC,
+    chosenCurrency: undefined,
     currencyRates: defaultCurrencyRates,
 }
 

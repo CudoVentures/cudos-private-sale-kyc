@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import Dialog from 'components/Dialog'
 import CreationField from 'components/FormField'
-import { FormField } from 'components/FormField/types'
+import { Currencies, FormField } from 'components/FormField/types'
 import { getFieldisValid, getTiersTotalSum, isValidSubmit } from 'components/FormField/validation'
 import { RootState } from 'store'
 import { initialRegistrationState, PrivateSaleFields, updateUser } from 'store/user'
@@ -19,14 +19,25 @@ import axios from 'axios'
 import TotalInUsd from 'components/TotalInUsd'
 import ConvertedAmount from 'components/ConvertedAmount'
 import { DocumentData, Timestamp } from 'firebase/firestore'
+import getCurrencyRates from 'api/calls'
+import { updateRates } from 'store/rates'
 
 const Welcome = () => {
 
   const location = useLocation()
   const dispatch = useDispatch()
   const userState = useSelector((state: RootState) => state.userState)
+  const { chosenCurrency } = useSelector((state: RootState) => state.ratesState)
   const [loaded, setLoaded] = useState<boolean>(false)
   const { isValid: validTiers } = getFieldisValid(FormField.nftTiers, userState.registrationState?.nftTiers!)
+
+  const loadRates = async () => {
+    const rates = await getCurrencyRates('USD', Object.values(Currencies))
+    dispatch(updateRates({
+      currencyRates: rates,
+      fetchedAt: new Date()
+    }))
+  }
 
   const cleanUp = () => {
     dispatch(updateUser({
@@ -150,6 +161,7 @@ const Welcome = () => {
 
   // CLEAN-UP
   useEffect(() => {
+    loadRates()
     setLoaded(true)
     cleanUp()
     return () => cleanUp()
@@ -199,7 +211,7 @@ const Welcome = () => {
             />
           </Collapse>
           <Button
-            disabled={!isValidSubmit(userState.registrationState)}
+            disabled={!isValidSubmit(chosenCurrency, userState.registrationState)}
             variant="contained"
             onClick={handleSubmit}
             sx={styles.submitBtn}

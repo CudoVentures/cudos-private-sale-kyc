@@ -12,9 +12,8 @@ import { updateModalState } from 'store/modals'
 import Welcome from 'containers/Welcome'
 import { LEDGERS } from 'utils/constants'
 import { initialState as initialModalState } from 'store/modals'
+import { initialState as initialRatesState } from 'store/rates'
 import ConnectWallet from 'containers/ConnectWallet'
-import getCurrencyRates from 'api/calls'
-import { Currencies } from 'components/FormField/types'
 import { updateRates } from 'store/rates'
 
 import theme from 'theme'
@@ -27,14 +26,6 @@ const App = () => {
   const themeColor = useSelector((state: RootState) => state.settings.theme)
   const { chosenNetwork } = useSelector((state: RootState) => state.userState)
   const dispatch = useDispatch()
-
-  const loadRates = async () => {
-    const rates = await getCurrencyRates('USD', Object.values(Currencies))
-    dispatch(updateRates({
-      currencyRates: rates,
-      fetchedAt: new Date()
-    }))
-  }
 
   const connectAccount = useCallback(async (ledgerType: SUPPORTED_WALLET) => {
 
@@ -79,8 +70,8 @@ const App = () => {
   }, [connectAccount])
 
   useEffect(() => {
+    dispatch(updateRates(initialRatesState))
     dispatch(updateModalState(initialModalState))
-    loadRates()
 
     //eslint-disable-next-line
   }, [])
