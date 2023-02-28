@@ -9,6 +9,7 @@ import { COLORS_DARK_THEME } from "theme/colors"
 import { Currencies, FormField } from "components/FormField/types"
 import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 import { updateRates } from "store/rates"
+import { TailSpin as TailSpinLoader } from 'svg-loaders-react'
 
 const ConvertedAmount = () => {
 
@@ -17,6 +18,12 @@ const ConvertedAmount = () => {
     const { chosenCurrency, currencyRates, fetchedAt } = useSelector((state: RootState) => state.ratesState)
     const [totalUsd, setTotalUsd] = useState<number>(0)
     const [totalConvertedString, setTotalConvertedString] = useState<string>('')
+    const [loading, setLoading] = useState<boolean>(false)
+
+    const handleSelectChange = (e: any) => {
+        setLoading(true)
+        dispatch(updateRates({ chosenCurrency: e.target.value }))
+    }
 
     const stringifyConvertedAmount = (amount: number) => {
         if (chosenCurrency === Currencies.USDC) {
@@ -37,6 +44,9 @@ const ConvertedAmount = () => {
                 [FormField.amountToSpend]: `${stringifiedConvertedAmount} ${chosenCurrency} (converted from USD ${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })})`
             }
         }))
+        setTimeout(() => {
+            setLoading(false)
+        }, 300)
         //eslint-disable-next-line
     }, [userState.registrationState?.nftTiers, chosenCurrency])
 
@@ -50,20 +60,21 @@ const ConvertedAmount = () => {
         >
             <Typography fontWeight={900}>Amount to be sent</Typography>
             <Box display={'flex'} alignItems={'center'}>
-                <Box gap={1} display={'flex'} alignItems={'center'}>
-                    <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>{totalConvertedString}</Typography>
-                    <Select
-                        renderValue={() => <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>{chosenCurrency}</Typography>}
-                        variant='standard'
-                        disableUnderline
-                        value={chosenCurrency}
-                        onChange={(e: any) => dispatch(updateRates({ chosenCurrency: e.target.value }))}
-                    >
-                        {Object.values(Currencies).map((value, i) => {
-                            return <MenuItem key={i} value={value}>{value}</MenuItem>
-                        })}
-                    </Select>
-                </Box>
+                {loading ? <TailSpinLoader style={{ height: '20px' }} /> :
+                    <Box gap={1} display={'flex'} alignItems={'center'} height={'20px'}>
+                        <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>{totalConvertedString}</Typography>
+                        <Select
+                            renderValue={() => <Typography color={COLORS_DARK_THEME.PRIMARY_BLUE} fontWeight={900}>{chosenCurrency}</Typography>}
+                            variant='standard'
+                            disableUnderline
+                            value={chosenCurrency}
+                            onChange={handleSelectChange}
+                        >
+                            {Object.values(Currencies).map((value, i) => {
+                                return <MenuItem key={i} value={value}>{value}</MenuItem>
+                            })}
+                        </Select>
+                    </Box>}
                 <Tooltip placement='right-end' followCursor
                     PopperProps={validationStyles.tierTooltipPopper}
                     componentsProps={validationStyles.tierTooltipProps}
@@ -98,9 +109,7 @@ const ConvertedAmount = () => {
                         </Typography>
                     </Box>}
                     children={
-                        <Box sx={{ cursor: 'pointer' }}>
-                            <InfoIcon style={{ marginLeft: '10px' }} />
-                        </Box>
+                        <InfoIcon style={{ cursor: 'pointer', marginLeft: '10px' }} />
                     }
                 />
             </Box>
