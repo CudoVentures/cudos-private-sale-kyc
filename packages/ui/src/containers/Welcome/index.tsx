@@ -89,7 +89,8 @@ const Welcome = () => {
       collectedData.kycWorkflowRunId = kycWorkflowRunRes.data.id as string
       const dataForSaving: DocumentData = {
         ...collectedData,
-        createdAt: Timestamp.now().toDate()
+        createdAt: Timestamp.now().toDate(),
+        kycLinkToVerificationStatus: `https://dashboard.onfido.com/results/${collectedData.kycWorkflowRunId}`
       }
       dataForSaving.kycStatus = 'Onfido flow started'
       await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
