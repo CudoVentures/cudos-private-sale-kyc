@@ -91,6 +91,7 @@ const Welcome = () => {
         ...collectedData,
         createdAt: Timestamp.now().toDate()
       }
+      dataForSaving.kycStatus = 'Onfido flow started'
       await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
 
       dispatch(updateModalState({
@@ -112,8 +113,10 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
-          dataForSaving.kycStatus = 'Onfido flow terminated by the user'
-          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
+          saveData(
+            userState.registrationState?.connectedAddress!,
+            { kycStatus: 'Onfido flow terminated by the user' }
+          )
           onfido.tearDown()
         },
         onError: function (error) {
@@ -122,8 +125,10 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
-          dataForSaving.kycStatus = `Onfido failed: ${error.message}`
-          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
+          saveData(
+            userState.registrationState?.connectedAddress!,
+            { kycStatus: `Onfido flow failed: ${error.message}` }
+          )
           onfido.tearDown()
         },
         onUserExit: function () {
@@ -131,8 +136,10 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
-          dataForSaving.kycStatus = 'Onfido flow terminated by the user'
-          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
+          saveData(
+            userState.registrationState?.connectedAddress!,
+            { kycStatus: 'Onfido flow terminated by the user' }
+          )
           onfido.tearDown()
         },
 
@@ -143,8 +150,10 @@ const Welcome = () => {
             message: "Entry submitted",
             data: dataForSaving
           }))
-          dataForSaving.kycStatus = `Onfido subbmission successful`
-          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
+          saveData(
+            userState.registrationState?.connectedAddress!,
+            { kycStatus: `Onfido subbmission successful` }
+          )
           cleanUp()
           onfido.tearDown()
         }
