@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import jsPDF from "jspdf"
 import { Box, Button, Typography } from '@mui/material'
 import { Dialog as MuiDialog } from '@mui/material'
@@ -13,7 +12,6 @@ const Success = () => {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
 
   const {
     success,
@@ -33,7 +31,6 @@ const Success = () => {
   }
 
   const downloadPDF = () => {
-    setIsLoading(true)
     const doc = new jsPDF()
     let index = 0;
     for (const [key, value] of Object.entries(data)) {
@@ -48,7 +45,6 @@ const Success = () => {
       index += 1;
     }
     doc.save("my-file.pdf")
-    setIsLoading(false)
   }
 
   return (

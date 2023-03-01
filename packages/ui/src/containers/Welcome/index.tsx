@@ -76,8 +76,6 @@ const Welcome = () => {
         }
       )
 
-
-
       const kycWorkflowRunRes = await axios.post(
         CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
         {
@@ -91,8 +89,10 @@ const Welcome = () => {
       collectedData.kycWorkflowRunId = kycWorkflowRunRes.data.id as string
       const dataForSaving: DocumentData = {
         ...collectedData,
-        createdAt: Timestamp.now().toDate()
+        createdAt: Timestamp.now().toDate(),
+        kycLinkToVerificationStatus: `https://dashboard.onfido.com/results/${collectedData.kycWorkflowRunId}`
       }
+      dataForSaving.kycStatus = 'Onfido flow started'
       await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
 
       dispatch(updateModalState({
@@ -114,6 +114,10 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
+          saveData(
+            userState.registrationState?.connectedAddress!,
+            { kycStatus: 'Onfido flow terminated by the user' }
+          )
           onfido.tearDown()
         },
         onError: function (error) {
@@ -122,6 +126,10 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
+          saveData(
+            userState.registrationState?.connectedAddress!,
+            { kycStatus: `Onfido flow failed: ${error.message}` }
+          )
           onfido.tearDown()
         },
         onUserExit: function () {
@@ -129,21 +137,25 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
+          saveData(
+            userState.registrationState?.connectedAddress!,
+            { kycStatus: 'Onfido flow terminated by the user' }
+          )
           onfido.tearDown()
         },
 
         onComplete: function (data) {
           onfido.setOptions({ isModalOpen: false })
-          dataForSaving.kycCompleted = true
-          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
-
           dispatch(updateModalState({
             success: true,
             message: "Entry submitted",
             data: dataForSaving
           }))
+          saveData(
+            userState.registrationState?.connectedAddress!,
+            { kycStatus: `Onfido subbmission successful` }
+          )
           cleanUp()
-
           onfido.tearDown()
         }
       })
