@@ -76,8 +76,6 @@ const Welcome = () => {
         }
       )
 
-
-
       const kycWorkflowRunRes = await axios.post(
         CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
         {
@@ -114,6 +112,8 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
+          dataForSaving.kycStatus = 'Onfido flow terminated by the user'
+          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
           onfido.tearDown()
         },
         onError: function (error) {
@@ -122,6 +122,8 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
+          dataForSaving.kycStatus = `Onfido failed: ${error.message}`
+          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
           onfido.tearDown()
         },
         onUserExit: function () {
@@ -129,21 +131,21 @@ const Welcome = () => {
             failure: true,
             message: 'KYC not completed'
           }))
+          dataForSaving.kycStatus = 'Onfido flow terminated by the user'
+          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
           onfido.tearDown()
         },
 
         onComplete: function (data) {
           onfido.setOptions({ isModalOpen: false })
-          dataForSaving.kycCompleted = true
-          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
-
           dispatch(updateModalState({
             success: true,
             message: "Entry submitted",
             data: dataForSaving
           }))
+          dataForSaving.kycStatus = `Onfido subbmission successful`
+          saveData(userState.registrationState?.connectedAddress!, dataForSaving)
           cleanUp()
-
           onfido.tearDown()
         }
       })
