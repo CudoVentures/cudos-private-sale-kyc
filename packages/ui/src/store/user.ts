@@ -16,9 +16,10 @@ export const initialRegistrationState: PrivateSaleFields = {
     nftCount: '',
     externalWallet: '',
     nftTiers: {},
-    kycCompleted: false,
-    kycApplicantId: undefined,
-    kycWorkflowRunId: undefined
+    kycWorkflowRunId: undefined,
+    kycToken: undefined,
+    kycStatus: undefined,
+    kycApplicantId: undefined
 }
 export interface PrivateSaleFields {
     connectedAddress: string
@@ -29,9 +30,10 @@ export interface PrivateSaleFields {
     nftCount: string,
     nftTiers: Record<string, NftTier>,
     externalWallet: string,
-    kycCompleted: boolean,
-    kycApplicantId: string | undefined,
-    kycWorkflowRunId: string | undefined
+    kycWorkflowRunId: string | undefined,
+    kycToken: string | undefined,
+    kycStatus: string | undefined,
+    kycApplicantId: string | undefined
 }
 
 export interface userState {

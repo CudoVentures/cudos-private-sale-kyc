@@ -2,6 +2,21 @@ import { StdSignature, SUPPORTED_WALLET } from "cudosjs"
 import { connectLedgerByType } from "./config"
 import { CHAIN_DETAILS } from "./constants"
 import { isValidCudosAddress } from "components/FormField/validation";
+import { NftQuantities, NftTier } from "components/Pricelist";
+import { getData } from "./firebase";
+
+export const getAvailableNftQuantities = async (): Promise<NftQuantities> => {
+  const data = await getData('available-nft-quantities')
+  let result = {}
+  for (const [tier, qty] of Object.entries(data)) {
+    if (tier === 'BlueDiamond') {
+      result[NftTier.BlueDiamond] = qty
+    } else {
+      result[tier] = qty
+    }
+  }
+  return result as NftQuantities
+}
 
 export const signArbitrary = async (
   walletType: SUPPORTED_WALLET,

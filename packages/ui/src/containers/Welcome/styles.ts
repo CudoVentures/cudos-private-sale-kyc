@@ -9,7 +9,8 @@ export const styles = {
     display: 'flex',
     justifyContent: 'center',
     width: '100%',
-    marginBottom: '100px'
+    marginBottom: 80,
+    marginTop: 15
   },
   submitBtn: { 
     height: '48px', 

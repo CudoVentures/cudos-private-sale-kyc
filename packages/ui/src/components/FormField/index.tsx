@@ -9,39 +9,7 @@ import { getFieldisValid } from './validation';
 import { updateUser } from 'store/user';
 import { COLORS_DARK_THEME } from 'theme/colors';
 import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
-
-enum NftTier {
-    Opal = 'Opal',
-    Ruby = 'Ruby',
-    Emerald = 'Emerald',
-    Diamond = 'Diamond',
-    BlueDiamond = 'Blue Diamond'
-}
-
-const tiers = Array.from(Object.values(NftTier))
-
-export const TIER_PRICES = {
-    [NftTier.Opal]: {
-        Private: 127.5,
-        Public: 150
-    },
-    [NftTier.Ruby]: {
-        Private: 255,
-        Public: 300
-    },
-    [NftTier.Emerald]: {
-        Private: 850,
-        Public: 1000
-    },
-    [NftTier.Diamond]: {
-        Private: 2550,
-        Public: 3000
-    },
-    [NftTier.BlueDiamond]: {
-        Private: 4250,
-        Public: 5000
-    }
-}
+import Pricelist, { NftTier, TIER_PRICES } from 'components/Pricelist';
 
 const StartAdornment = ({ text }: { text: string }) => {
     return (
@@ -149,28 +117,7 @@ const CreationField = ({
                                     <Tooltip placement='right' followCursor
                                         PopperProps={validationStyles.tierTooltipPopper}
                                         componentsProps={validationStyles.tierTooltipProps}
-                                        title={
-                                            <Box
-                                                gap={2} sx={{ display: "flex", flexDirection: 'column' }}
-                                            >
-                                                {Object.keys(TIER_PRICES).map((key, idx) => {
-                                                    return (
-                                                        <Box key={idx}>
-                                                            <Typography color={'text.primary'} fontWeight={900}>
-                                                                {key}
-                                                            </Typography>
-
-                                                            <Typography fontWeight={900}>
-                                                                {`Private sale price: $${TIER_PRICES[key].Private.toLocaleString()}`}
-                                                            </Typography>
-                                                            <Typography fontSize={14}>
-                                                                {`Public sale price: $${TIER_PRICES[key].Public.toLocaleString()}`}
-                                                            </Typography>
-                                                        </Box>
-                                                    )
-                                                })}
-                                            </Box>
-                                        }>
+                                        title={<Pricelist />}>
                                         <Box>
                                             <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
                                         </Box>
@@ -179,7 +126,7 @@ const CreationField = ({
                                 <Typography fontWeight={600}>Quantity</Typography>
                             </Box>
                             <Box gap={2} display='flex' marginTop={'10px'} flexDirection={'column'}>
-                                {tiers.map((tier, index) => (
+                                {Array.from(Object.values(NftTier)).map((tier, index) => (
                                     <Box key={index} gap={3} display='flex'>
                                         <Input
                                             disabled

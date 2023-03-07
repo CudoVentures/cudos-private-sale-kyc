@@ -1,7 +1,7 @@
 import { CHAIN_DETAILS } from "./constants";
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore/lite';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore/lite';
 import axios from "axios";
 import { signArbitrary } from "./helpers";
 import { SUPPORTED_WALLET } from "cudosjs";
@@ -44,5 +44,30 @@ export const saveData = async (address: string, newData: any): Promise<void> => 
     } catch (error) {
         console.log(error)
         throw new Error("Error while saving data to Firebase")
+    }
+};
+
+export const getData = async (address: string): Promise<any> => {
+    const dataDoc = doc(firestore, CHAIN_DETAILS.FIREBASE.COLLECTION, address);
+    const docSnap = await getDoc(dataDoc);
+    if (docSnap.exists()) {
+        return docSnap.data();
+    }
+    return undefined
+};
+
+export const deleteData = async (address: string, fieldsToDelete: string[]): Promise<void> => {
+    try {
+        const dataDoc = doc(firestore, CHAIN_DETAILS.FIREBASE.COLLECTION, address);
+        const docSnap = await getDoc(dataDoc);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            fieldsToDelete.forEach(field => delete data[field]);
+            return setDoc(dataDoc, { ...data });
+        }
+        return;
+    } catch (error) {
+        console.log(error)
+        throw new Error("Error while deleting from Firebase")
     }
 };

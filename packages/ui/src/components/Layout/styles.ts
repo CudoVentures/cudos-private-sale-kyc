@@ -138,7 +138,7 @@ export const headerStyles = {
 
 export const layoutStyles = {
   contentWrapper: {
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     position: 'absolute',
     width: '100%',
     overflowWrap: 'break-word',

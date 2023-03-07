@@ -101,6 +101,7 @@ export const validationStyles = {
   tierTooltipProps: {
     tooltip: {
       sx: {
+        width: '250px',
         padding: '15px',
         borderRadius: '15px',
         background: "rgba(16, 18, 26, 0.8)",
