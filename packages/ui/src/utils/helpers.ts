@@ -3,10 +3,10 @@ import { connectLedgerByType } from "./config"
 import { CHAIN_DETAILS } from "./constants"
 import { isValidCudosAddress } from "components/FormField/validation";
 import { NftQuantities, NftTier } from "components/Pricelist";
-import { getData } from "./firebase";
+import { getNftQuantities } from "./firebase";
 
 export const getAvailableNftQuantities = async (): Promise<NftQuantities> => {
-  const data = await getData('available-nft-quantities')
+  const data = await getNftQuantities()
   let result = {}
   for (const [tier, qty] of Object.entries(data)) {
     if (tier === 'BlueDiamond') {

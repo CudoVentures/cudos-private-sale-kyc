@@ -56,6 +56,15 @@ export const getData = async (address: string): Promise<any> => {
     return undefined
 };
 
+export const getNftQuantities = async (): Promise<any> => {
+    const dataDoc = doc(firestore, `${CHAIN_DETAILS.FIREBASE.COLLECTION}-nfts`, 'tiers');
+    const docSnap = await getDoc(dataDoc);
+    if (docSnap.exists()) {
+        return docSnap.data();
+    }
+    return undefined
+};
+
 export const deleteData = async (address: string, fieldsToDelete: string[]): Promise<void> => {
     try {
         const dataDoc = doc(firestore, CHAIN_DETAILS.FIREBASE.COLLECTION, address);
