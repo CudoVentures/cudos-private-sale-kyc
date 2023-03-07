@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import { ReactComponent as ArrowDown } from 'assets/vectors/arrow-down.svg'
 import { ReactComponent as WalletIcon } from 'assets/vectors/wallet-icon.svg'
-import { ReactComponent as LogoHeader } from 'assets/vectors/logo-header.svg'
+import { ReactComponent as AuraPoolLogo } from 'assets/vectors/aura-pool-logo.svg'
 import CachedIcon from '@mui/icons-material/Cached';
 import Dialog from '../Dialog';
 
@@ -243,16 +243,16 @@ const Header = () => {
       <Dialog />
       <Box
         id='leftNavContent'
-        onClick={() => navigate('/')}
-        gap={1}
+        onClick={() => !isConnected ? navigate('/') : null}
+        gap={1.5}
         sx={headerStyles.logoGroup}
       >
-        <LogoHeader style={{ height: '32px' }} />
+        <AuraPoolLogo style={{ height: '50px', marginTop: 4 }} />
         <Divider
           orientation='vertical'
           sx={headerStyles.divider}
         />
-        <Typography fontWeight={700} variant="h6" color="text.primary">
+        <Typography fontWeight={900} variant="h6" color="text.primary">
           Private Sale
         </Typography>
       </Box>

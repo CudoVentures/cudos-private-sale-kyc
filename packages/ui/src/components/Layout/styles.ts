@@ -111,8 +111,9 @@ export const headerStyles = {
   holder: {
     position: 'fixed',
     left: 0,
+    minWidth: '950px',
     width: '100vw',
-    height: '70px',
+    height: '80px',
     padding: '16px 4rem',
     justifyContent: 'space-between',
     alignItems: 'center',
