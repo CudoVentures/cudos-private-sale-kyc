@@ -1,16 +1,18 @@
 import axios from 'axios'
-import { Currencies, CURRENCY_RATES, defaultCurrencyRates } from 'components/FormField/types'
+import { AliasToCurrency, Currencies, CurrencyToAlias, CURRENCY_RATES, defaultCurrencyRates } from 'components/FormField/types'
 import { GET_CURRENCY_RATE_URL } from './endpoints'
 
-const getCurrencyRates = async (fromCurrency: string, toCurrencies: Currencies[]): Promise<CURRENCY_RATES> => {
+const getCurrencyRates = async (fromCurrencies: Currencies[], toCurrency: string): Promise<CURRENCY_RATES> => {
     let rates = { ...defaultCurrencyRates }
     try {
-        const response = await axios.get(`${GET_CURRENCY_RATE_URL(fromCurrency, toCurrencies.join(','))}`)
-        const fetchedRates = response.data[fromCurrency.toLowerCase()]
-        for (const [currency, rate] of Object.entries(fetchedRates)) {
-            if (currency.toUpperCase() !== Currencies.USDC) {
-                rates[currency.toUpperCase()] = Number(rate)
-            }
+        const from = fromCurrencies.map((fromCurrency) => {
+            return CurrencyToAlias[fromCurrency]
+        }).join(',')
+        const response = await axios.get(`${GET_CURRENCY_RATE_URL(from, toCurrency)}`)
+        type RateData = { usd: string }
+        type PriceApiResponse = Record<string, RateData>
+        for (const [alias, rate] of Object.entries<PriceApiResponse>(response.data)) {
+            rates[AliasToCurrency[alias]] = Number(rate.usd)
         }
     } catch (error) {
         console.error((error as Error).message)

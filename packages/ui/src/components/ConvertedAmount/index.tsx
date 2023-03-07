@@ -27,7 +27,7 @@ const ConvertedAmount = () => {
     }
 
     const stringifyConvertedAmount = (amount: number) => {
-        if (chosenCurrency === Currencies.USDC) {
+        if (chosenCurrency === Currencies.USDC || chosenCurrency === Currencies.USDT) {
             return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
         }
         return `${amount.toFixed(8)}`
@@ -36,7 +36,7 @@ const ConvertedAmount = () => {
     useEffect(() => {
         if (chosenCurrency) {
             const usdAmount = getTiersTotalSum(userState.registrationState?.nftTiers!)
-            const convertedAmount = usdAmount * currencyRates![chosenCurrency!]
+            const convertedAmount = usdAmount / currencyRates![chosenCurrency!]
             const stringifiedConvertedAmount = stringifyConvertedAmount(convertedAmount)
             setTotalUsd(usdAmount)
             setTotalConvertedString(stringifiedConvertedAmount)

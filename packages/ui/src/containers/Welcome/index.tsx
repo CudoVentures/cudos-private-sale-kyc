@@ -32,7 +32,7 @@ const Welcome = () => {
   const { isValid: validTiers } = getFieldisValid(FormField.nftTiers, userState.registrationState?.nftTiers!)
 
   const loadRates = async () => {
-    const rates = await getCurrencyRates('USD', Object.values(Currencies))
+    const rates = await getCurrencyRates(Object.values(Currencies), 'USD')
     dispatch(updateRates({
       currencyRates: rates,
       fetchedAt: new Date()

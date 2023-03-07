@@ -1,6 +1,33 @@
 export enum Currencies {
     ETH = 'ETH',
-    USDC = 'USDC'
+    USDC = 'USDC',
+    USDT = 'USDT',
+    SOL = 'SOL',
+    CUDOS = 'CUDOS'
+}
+
+export enum CurrencyAlias {
+    ethereum = 'ethereum',
+    solana = 'solana',
+    tether = 'tether',
+    usdCoin = 'usd-coin',
+    cudos = 'cudos'
+}
+
+export const CurrencyToAlias = {
+    [Currencies.ETH]: CurrencyAlias.ethereum,
+    [Currencies.SOL]: CurrencyAlias.solana,
+    [Currencies.USDT]: CurrencyAlias.tether,
+    [Currencies.USDC]: CurrencyAlias.usdCoin,
+    [Currencies.CUDOS]: CurrencyAlias.cudos
+}
+
+export const AliasToCurrency = {
+    [CurrencyAlias.ethereum]: Currencies.ETH,
+    [CurrencyAlias.solana]: Currencies.SOL,
+    [CurrencyAlias.tether]: Currencies.USDT,
+    [CurrencyAlias.usdCoin]: Currencies.USDC,
+    [CurrencyAlias.cudos]: Currencies.CUDOS
 }
 
 export type CURRENCY_RATES = {
@@ -9,7 +36,10 @@ export type CURRENCY_RATES = {
 
 export const defaultCurrencyRates: CURRENCY_RATES = {
     ETH: 0,
-    USDC: 1
+    USDC: 1,
+    USDT: 1,
+    SOL: 0,
+    CUDOS: 0
 }
 
 export enum FormFieldErrors {
