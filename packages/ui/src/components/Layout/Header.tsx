@@ -112,7 +112,7 @@ const Header = () => {
         onfido.setOptions({ isModalOpen: false })
         dispatch(updateModalState({
           success: true,
-          message: "Entry submitted"
+          message: "You may close your browser and return later to check on your verification status"
         }))
         saveData(
           connectedAddress!,
@@ -138,7 +138,7 @@ const Header = () => {
         'kycApplicantId',
         'kycWorkflowRunId',
         'kycError',
-        'createdAt',
+        'kycStartedAt',
         'resumedAt'
       ]
     )
@@ -195,7 +195,7 @@ const Header = () => {
       kycError: '',
       kycApplicantId: kycRegisterRes.data.applicantId as string,
       kycWorkflowRunId: workflowId,
-      createdAt: Timestamp.now().toDate()
+      kycStartedAt: Timestamp.now().toDate()
     }
     await saveData(connectedAddress!, initialData)
     dispatch(updateModalState({
@@ -217,7 +217,7 @@ const Header = () => {
   useEffect(() => {
     if ((onfidoModalOpen || modalFailure || modalSuccess) && connectedAddress) {
       (async () => {
-        const { applicandId, workflowId, kycToken, kycStatus } = await getFlowStatus(connectedAddress)
+        const { applicandId, workflowId, kycToken, kycStatus, processCompleted } = await getFlowStatus(connectedAddress)
         const updatedUser = {
           ...userState,
           registrationState: {
@@ -225,7 +225,8 @@ const Header = () => {
             kycApplicantId: applicandId,
             kycWorkflowRunId: workflowId,
             kycToken: kycToken,
-            kycStatus: kycStatus as string
+            kycStatus: kycStatus as string,
+            processCompleted: processCompleted
           }
         }
         dispatch(updateUser(updatedUser as userState))
@@ -261,7 +262,7 @@ const Header = () => {
         id='rightNavContent'
         gap={2}
         sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 0, marginRight: '4rem' }}>
-        {isConnected ?
+        {isConnected && !registrationState?.processCompleted ?
           <Box gap={2} display='flex' alignItems={'center'}>
             <Typography>
               Verification

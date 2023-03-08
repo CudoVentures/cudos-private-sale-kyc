@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Input, InputAdornment, Tooltip, Typography } from '@mui/material'
+import { Box, Checkbox, FormControlLabel, Input, InputAdornment, Tooltip, Typography } from '@mui/material'
 
 import { getInvalidInputStyling, styles, validationStyles } from './styles'
 import { RootState } from 'store';
@@ -10,6 +10,7 @@ import { updateUser } from 'store/user';
 import { COLORS_DARK_THEME } from 'theme/colors';
 import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 import Pricelist, { NftTier, TIER_PRICES } from 'components/Pricelist';
+import { updateModalState } from 'store/modals';
 
 const StartAdornment = ({ text }: { text: string }) => {
     return (
@@ -56,7 +57,16 @@ const CreationField = ({
         }
     }
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleAgreement = (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(updateUser({
+            registrationState: {
+                ...user.registrationState!,
+                [type]: e.target.checked
+            }
+        }))
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value: any = e.target.value
         if (type === FormField.nftTiers) {
             const newTiers = { ...user.registrationState?.nftTiers! }
@@ -81,6 +91,12 @@ const CreationField = ({
         }))
     }
 
+    const openTOC = () => {
+        dispatch(updateModalState({
+            openTOC: true
+        }))
+    }
+
     return (
         <Box width='100%'>
             <Typography
@@ -98,57 +114,80 @@ const CreationField = ({
                     open={!isValid}
                     title={tooltip}
                 >
-                    {type !== FormField.nftTiers ?
-                        <Input
-                            disabled={isDisabled}
-                            startAdornment={getStartAdornment(type)}
-                            placeholder={placeholder ? placeholder : undefined}
-                            disableUnderline
-                            type='text'
-                            sx={isValid ? styles.input : validationStyles.invalidInput}
-                            value={user.registrationState![type]}
-                            onChange={handleChange}
-                        />
-                        :
-                        <Box>
-                            <Box sx={{ ...styles.tierTitle, justifyContent: 'space-between' }}>
-                                <Box sx={styles.tierTitle}>
-                                    <Typography fontWeight={600} marginTop={-3.5}>Choose tiers of interest</Typography>
-                                    <Tooltip placement='right' followCursor
-                                        PopperProps={validationStyles.tierTooltipPopper}
-                                        componentsProps={validationStyles.tierTooltipProps}
-                                        title={<Pricelist />}>
-                                        <Box>
-                                            <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
+                    {
+                        type === FormField.tocAgreed ?
+                            <Box>
+                                <FormControlLabel control={<Checkbox onChange={handleAgreement} size='small' />} label="I Agree" />
+                                <Typography fontSize={12}>
+                                    By Clicking "I Agree", you acknowledge that you have read and agree our
+                                    <Typography
+                                        onClick={openTOC}
+                                        component={'span'}
+                                        sx={{
+                                            fontSize: 'inherit',
+                                            cursor: 'pointer',
+                                            margin: '0 5px',
+                                            color: COLORS_DARK_THEME.PRIMARY_BLUE
+                                        }}
+                                    >
+                                        Terms & Conditions
+                                    </Typography>
+                                    of this private sale.
+                                </Typography>
+                            </Box>
+                            :
+                            type === FormField.nftTiers ?
+                                <Box>
+                                    <Box sx={{ ...styles.tierTitle, justifyContent: 'space-between' }}>
+                                        <Box sx={styles.tierTitle}>
+                                            <Typography fontWeight={600} marginTop={-3.5}>Choose tiers of interest</Typography>
+                                            <Tooltip placement='right' followCursor
+                                                PopperProps={validationStyles.tierTooltipPopper}
+                                                componentsProps={validationStyles.tierTooltipProps}
+                                                title={<Pricelist />}>
+                                                <Box>
+                                                    <InfoIcon style={{ marginLeft: '10px', cursor: 'pointer' }} />
+                                                </Box>
+                                            </Tooltip>
                                         </Box>
-                                    </Tooltip>
-                                </Box>
-                                <Typography fontWeight={600}>Quantity</Typography>
-                            </Box>
-                            <Box gap={2} display='flex' marginTop={'10px'} flexDirection={'column'}>
-                                {Array.from(Object.values(NftTier)).map((tier, index) => (
-                                    <Box key={index} gap={3} display='flex'>
-                                        <Input
-                                            disabled
-                                            disableUnderline
-                                            type='text'
-                                            sx={isValid ? styles.tierInput : getInvalidInputStyling('text', index)}
-                                            value={tier}
-                                        />
-                                        <Input
-                                            disableUnderline
-                                            type='number'
-                                            sx={isValid ? styles.tierInput : getInvalidInputStyling('number', index)}
-                                            value={user.registrationState?.nftTiers[tier]?.qty || ''}
-                                            name={tier}
-                                            onKeyDown={handleKeyDown}
-                                            onPaste={event => { event.preventDefault() }}
-                                            onChange={handleChange}
-                                        />
+                                        <Typography fontWeight={600}>Quantity</Typography>
                                     </Box>
-                                ))}
-                            </Box>
-                        </Box>}
+                                    <Box gap={2} display='flex' marginTop={'10px'} flexDirection={'column'}>
+                                        {Array.from(Object.values(NftTier)).map((tier, index) => (
+                                            <Box key={index} gap={3} display='flex'>
+                                                <Input
+                                                    disabled
+                                                    disableUnderline
+                                                    type='text'
+                                                    sx={isValid ? styles.tierInput : getInvalidInputStyling('text', index)}
+                                                    value={tier}
+                                                />
+                                                <Input
+                                                    disableUnderline
+                                                    type='number'
+                                                    sx={isValid ? styles.tierInput : getInvalidInputStyling('number', index)}
+                                                    value={user.registrationState?.nftTiers[tier]?.qty || ''}
+                                                    name={tier}
+                                                    onKeyDown={handleKeyDown}
+                                                    onPaste={event => { event.preventDefault() }}
+                                                    onChange={handleChange}
+                                                />
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+                                :
+                                <Input
+                                    disabled={isDisabled}
+                                    startAdornment={getStartAdornment(type)}
+                                    placeholder={placeholder ? placeholder : undefined}
+                                    disableUnderline
+                                    type='text'
+                                    sx={isValid ? styles.input : validationStyles.invalidInput}
+                                    value={user.registrationState![type]}
+                                    onChange={handleChange}
+                                />
+                    }
                 </Tooltip>
             </Fragment>
         </Box>

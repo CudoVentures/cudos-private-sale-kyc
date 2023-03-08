@@ -22,7 +22,7 @@ export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_W
     if (!success) {
         throw new Error('Failed to authenticate with Firebase')
     }
-    const { applicandId, workflowId, kycToken, kycStatus } = await getFlowStatus(address)
+    const { applicandId, workflowId, kycToken, kycStatus, processCompleted } = await getFlowStatus(address)
     const connectedUser: userState = {
         address: address,
         accountName: accountName,
@@ -34,7 +34,8 @@ export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_W
             kycApplicantId: applicandId,
             kycWorkflowRunId: workflowId,
             kycToken: kycToken,
-            kycStatus: kycStatus
+            kycStatus: kycStatus,
+            processCompleted: processCompleted
         }
     }
 

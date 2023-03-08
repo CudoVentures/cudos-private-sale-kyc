@@ -123,6 +123,7 @@ export const isValidSubmit = (chosenCurrency?: Currencies, registrationState?: P
     const { isValid: validTiers } = isValidTiers(registrationState?.nftTiers!)
     const { isValid: isValidTotal } = isValidTiersTotal(registrationState?.nftTiers!)
     if (
+        registrationState?.tocAgreed &&
         chosenCurrency &&
         validTiers &&
         isValidTotal &&

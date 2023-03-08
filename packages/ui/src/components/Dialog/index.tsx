@@ -4,6 +4,7 @@ import Success from './Success'
 import { RootState } from 'store'
 import { useSelector } from 'react-redux'
 import WalletSelector from './WalletSelector'
+import TOC from './TOC'
 
 const Dialog = () => {
 
@@ -11,10 +12,13 @@ const Dialog = () => {
         success,
         loading,
         failure,
-        selectWallet
+        selectWallet,
+        openTOC
     } = useSelector((state: RootState) => state.modalState)
 
     switch (true) {
+        case openTOC:
+            return <TOC />
         case failure:
             return <Failure />
         case loading:

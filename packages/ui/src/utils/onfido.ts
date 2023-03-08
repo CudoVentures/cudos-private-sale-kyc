@@ -41,13 +41,15 @@ export const getFlowStatus = async (address: string):
         applicandId: string,
         workflowId: string,
         kycToken: string,
-        kycStatus: kycStatus
+        kycStatus: kycStatus,
+        processCompleted: boolean
     }> => {
     const data = await getData(address)
     return {
         applicandId: data.kycApplicantId,
         workflowId: data.kycWorkflowRunId,
         kycToken: data.kycToken,
-        kycStatus: data.kycStatus
+        kycStatus: data.kycStatus,
+        processCompleted: data.processCompleted
     }
 }

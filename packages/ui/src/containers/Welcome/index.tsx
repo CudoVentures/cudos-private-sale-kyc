@@ -21,6 +21,7 @@ import getCurrencyRates from 'api/calls'
 import { updateRates } from 'store/rates'
 import Pricelist from 'components/Pricelist'
 import { kycStatus } from 'utils/onfido'
+import CompletedProcess from 'components/CompletedProcess'
 
 const Welcome = () => {
 
@@ -47,7 +48,8 @@ const Welcome = () => {
         kycApplicantId: userState.registrationState?.kycApplicantId || '',
         kycWorkflowRunId: userState.registrationState?.kycWorkflowRunId || '',
         kycToken: userState.registrationState?.kycToken || '',
-        kycStatus: userState.registrationState?.kycStatus || ''
+        kycStatus: userState.registrationState?.kycStatus || '',
+        processCompleted: userState.registrationState?.processCompleted || false
       }
     }))
   }
@@ -74,18 +76,32 @@ const Welcome = () => {
 
       const dataForSaving: DocumentData = {
         ...collectedData,
-        createdAt: Timestamp.now().toDate(),
-        kycLinkToVerificationStatus: `https://dashboard.onfido.com/results/${collectedData.kycWorkflowRunId}`
+        formSubmittedAt: Timestamp.now().toDate(),
+        processCompleted: true
       }
-      dataForSaving.kycStatus = 'Onfido flow started'
+
       await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
+
+      const dataForUserDownload = {
+        connectedAddress: collectedData.connectedAddress,
+        paymentFrom: collectedData.externalWallet,
+        paymentTo: 'TODO: address to pay to',
+        firstName: collectedData.firstName,
+        lastName: collectedData.lastName,
+        amountToSpend: collectedData.amountToSpend,
+        email: collectedData.email,
+        nftCount: collectedData.nftCount,
+        nftTiers: collectedData.nftTiers,
+        tocAgreed: collectedData.tocAgreed
+      }
 
       dispatch(updateModalState({
         loading: false,
         loadingType: false,
+        success: true,
+        message: "Order submitted. We will get in touch if there are any issues.",
+        data: dataForUserDownload
       }))
-
-
 
     } catch (error) {
       console.error((error as Error).message)
@@ -111,58 +127,70 @@ const Welcome = () => {
     <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut} children={
       <Box style={styles.contentHolder}>
         <Dialog />
-        {!userState.registrationState?.kycStatus || userState.registrationState?.kycStatus !== kycStatus.verificationSuccessful ?
-          <Box gap={5} display={'flex'} flexDirection={'column'} width={'350px'} alignItems={'center'}>
-            <Pricelist />
-          </Box>
-          :
-          <Box gap={4} sx={styles.formHolder}>
-            <CreationField
-              type={FormField.connectedAddress}
-              text={'Connected Address'}
-              isDisabled={true}
-            />
-            <CreationField
-              type={FormField.firstName}
-              text={'First Name'}
-              placeholder={'John'}
-            />
-            <CreationField
-              type={FormField.lastName}
-              text={'Last Name'}
-              placeholder={'Doe'}
-            />
-            <CreationField
-              type={FormField.email}
-              text={'Email'}
-              placeholder={'john@doe.com'}
-            />
-            <CreationField
-              type={FormField.nftTiers}
-              text={'NFT Count'}
-            />
-            <Collapse
-              sx={{ width: '100%' }}
-              timeout={'auto'}
-              in={validTiers}
-            >
-              <TotalInUsd />
-              <ConvertedAmount />
-              <CreationField
-                type={FormField.externalWallet}
-                text={'External Wallet Address'}
-                placeholder={'The address you will be paying from'}
-              />
-            </Collapse>
-            <Button
-              disabled={!isValidSubmit(chosenCurrency, userState.registrationState)}
-              variant="contained"
-              onClick={handleSubmit}
-              sx={styles.submitBtn}
-            >
-              Submit
-            </Button>
-          </Box>}
+        {
+          userState.registrationState?.processCompleted ?
+            <CompletedProcess />
+            :
+            !userState.registrationState?.kycStatus ||
+              userState.registrationState?.kycStatus !== kycStatus.verificationSuccessful
+              ?
+              <Box gap={5} display={'flex'} flexDirection={'column'} width={'350px'} alignItems={'center'}>
+                <Pricelist />
+              </Box>
+              :
+              <Box gap={4} sx={styles.formHolder}>
+                <CreationField
+                  type={FormField.connectedAddress}
+                  text={'Connected Address'}
+                  isDisabled={true}
+                />
+                <CreationField
+                  type={FormField.firstName}
+                  text={'First Name'}
+                  placeholder={'John'}
+                />
+                <CreationField
+                  type={FormField.lastName}
+                  text={'Last Name'}
+                  placeholder={'Doe'}
+                />
+                <CreationField
+                  type={FormField.email}
+                  text={'Email'}
+                  placeholder={'john@doe.com'}
+                />
+                <CreationField
+                  type={FormField.nftTiers}
+                  text={'NFT Count'}
+                />
+                <Collapse
+                  sx={{ width: '100%' }}
+                  timeout={'auto'}
+                  in={validTiers}
+                >
+                  <TotalInUsd />
+                  <ConvertedAmount />
+                  <Box gap={3} sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <CreationField
+                      type={FormField.externalWallet}
+                      text={'External Wallet Address'}
+                      placeholder={'The address you will be paying from'}
+                    />
+                    <CreationField
+                      type={FormField.tocAgreed}
+                      text={'Terms & Conditions'}
+                    />
+                  </Box>
+                </Collapse>
+                <Button
+                  disabled={!isValidSubmit(chosenCurrency, userState.registrationState)}
+                  variant="contained"
+                  onClick={handleSubmit}
+                  sx={styles.submitBtn}
+                >
+                  Submit
+                </Button>
+              </Box>}
       </Box>
     } />
   )

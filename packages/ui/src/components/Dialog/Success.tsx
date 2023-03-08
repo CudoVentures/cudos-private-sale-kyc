@@ -21,7 +21,7 @@ const Success = () => {
 
   const handleModalClose = () => {
     dispatch(updateModalState({ ...initialModalState }))
-    navigate("/welcome")
+    navigate("/")
   }
 
   const closeModal = (event: {}, reason: string) => {
