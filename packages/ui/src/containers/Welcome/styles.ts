@@ -5,6 +5,12 @@ export const styles = {
     alignItems: 'center',
     width: '600px'
   },
+  welcomePricelistHolder: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '350px',
+    alignItems: 'center'
+  },
   contentHolder: {
     display: 'flex',
     justifyContent: 'center',
@@ -12,8 +18,8 @@ export const styles = {
     marginBottom: 80,
     marginTop: 15
   },
-  submitBtn: { 
-    height: '48px', 
-    width: '250px' 
+  submitBtn: {
+    height: '48px',
+    width: '250px'
   },
 } as const

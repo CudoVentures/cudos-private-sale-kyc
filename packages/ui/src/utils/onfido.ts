@@ -1,6 +1,7 @@
 import { getData } from "./firebase"
 
 export enum kycStatus {
+    verificationRejected = 'verificationRejected',
     verificationSuccessful = 'verificationSuccessful',
     submissionCompleted = 'submissionCompleted',
     submissionStarted = 'submissionStarted',
@@ -16,17 +17,20 @@ export const kycStatusMapper = (status: string | undefined) => {
 
     switch (status) {
         case kycStatus.submissionCompleted:
-            return 'Submitted'
+            return 'In review'
 
         case kycStatus.submissionResumed:
         case kycStatus.submissionStarted:
-            return 'Started'
+            return 'In progress'
 
         case kycStatus.submissionUserTerminated:
             return 'Paused'
 
         case kycStatus.submissionErrorTerminated:
             return 'Error'
+
+        case kycStatus.verificationRejected:
+            return 'Rejected'
 
         case kycStatus.verificationSuccessful:
             return 'Completed'

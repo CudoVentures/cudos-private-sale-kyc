@@ -1,11 +1,11 @@
 import { Box, Typography } from "@mui/material"
 
-const CompletedProcess = () => {
+const CompletedProcess = ({ text }: { text: string }) => {
 
     return (
         <Box>
             <Typography variant="h5">
-                We have received your order and will get in touch with you!
+                {text}
             </Typography>
         </Box>
     )

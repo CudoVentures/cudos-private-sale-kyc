@@ -1,5 +1,5 @@
 import { Box, Fade } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Dialog from 'components/Dialog'
@@ -47,6 +47,24 @@ const Welcome = () => {
     }))
   }
 
+  const handleContent = useCallback(() => {
+    if (userState.registrationState?.processCompleted) {
+      return <CompletedProcess text={'We have received your order and will get in touch with you!'} />
+    }
+    if (userState.registrationState?.kycStatus === kycStatus.submissionCompleted) {
+      return <CompletedProcess text={'We have received your documents. Please come back to check on your verification status.'} />
+    }
+    if (userState.registrationState?.kycStatus === kycStatus.verificationSuccessful) {
+      return <SaleForm />
+    }
+
+    return (
+      <Box gap={5} sx={styles.welcomePricelistHolder}>
+        <Pricelist />
+      </Box>
+    )
+  }, [userState.registrationState?.kycStatus, userState.registrationState?.processCompleted])
+
   // CLEAN-UP
   useEffect(() => {
     loadRates()
@@ -60,16 +78,7 @@ const Welcome = () => {
     <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut} children={
       <Box style={styles.contentHolder}>
         <Dialog />
-        {userState.registrationState?.processCompleted ?
-          <CompletedProcess />
-          :
-          !userState.registrationState?.kycStatus ||
-            userState.registrationState?.kycStatus !== kycStatus.verificationSuccessful ?
-            <Box gap={5} display={'flex'} flexDirection={'column'} width={'350px'} alignItems={'center'}>
-              <Pricelist />
-            </Box>
-            :
-            <SaleForm />}
+        {handleContent()}
       </Box>
     } />
   )

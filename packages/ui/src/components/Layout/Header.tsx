@@ -108,16 +108,22 @@ const Header = () => {
         setOnfidoModalOpen(false)
       },
 
-      onComplete: function (data) {
+      onComplete: async function (data) {
         onfido.setOptions({ isModalOpen: false })
         dispatch(updateModalState({
           success: true,
-          message: "You may close your browser and return later to check on your verification status"
+          message: "Documents successfully submitted"
         }))
-        saveData(
+        await saveData(
           connectedAddress!,
           { kycStatus: kycStatus.submissionCompleted }
         )
+        dispatch(updateUser({
+          registrationState: {
+            ...userState.registrationState!,
+            kycStatus: kycStatus.submissionCompleted
+          }
+        }))
 
         onfido.tearDown()
         setOnfidoModalOpen(false)
@@ -268,10 +274,22 @@ const Header = () => {
               Verification
             </Typography>
             {registrationState!.kycStatus ?
-              <Typography color='text.secondary'>
+              <Typography
+                color={
+                  registrationState!.kycStatus === kycStatus.submissionCompleted ||
+                    registrationState!.kycStatus === kycStatus.submissionUserTerminated ?
+                    COLORS_DARK_THEME.TESTNET_ORANGE :
+                    registrationState!.kycStatus === kycStatus.verificationSuccessful ?
+                      COLORS_DARK_THEME.VERIFIED_GREEN :
+                      registrationState!.kycStatus === kycStatus.verificationRejected ||
+                        registrationState!.kycStatus === kycStatus.submissionErrorTerminated ?
+                        COLORS_DARK_THEME.REJECTED_RED :
+                        'text.secondary'
+                }
+              >
                 {kycStatusMapper(registrationState!.kycStatus)}
               </Typography> : null}
-            {
+            {registrationState!.kycStatus !== kycStatus.submissionCompleted ?
               !registrationState!.kycStatus ?
                 <Button
                   variant="outlined"
@@ -281,12 +299,13 @@ const Header = () => {
                 </Button>
                 :
                 <Box gap={1} display={'flex'}>
-                  <Button
-                    variant="outlined"
-                    onClick={resumeOnfido}
-                  >
-                    Resume
-                  </Button>
+                  {registrationState!.kycStatus === kycStatus.verificationRejected ? null :
+                    <Button
+                      variant="outlined"
+                      onClick={resumeOnfido}
+                    >
+                      Resume
+                    </Button>}
                   <Tooltip title='Restart verification process'>
                     <Button
                       variant="outlined"
@@ -296,7 +315,7 @@ const Header = () => {
                     </Button>
                   </Tooltip>
                 </Box>
-            }
+              : null}
           </Box> : null}
         <Box sx={headerStyles.btnHolder}>
           <ClickAwayListener
