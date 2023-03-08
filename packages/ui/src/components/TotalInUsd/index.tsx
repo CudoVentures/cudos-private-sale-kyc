@@ -11,16 +11,13 @@ const TotalInUsd = () => {
 
     const userState = useSelector((state: RootState) => state.userState)
     const [totalSum, setTotalSum] = useState<number>(0)
-    const [isValidTiers, setIsValidTiers] = useState<boolean>(true)
     const [isValidTotal, setIsValidTotal] = useState<boolean>(true)
     const [tooltip, setTooltip] = useState<string>('')
 
     useEffect(() => {
         let amount = getTiersTotalSum(userState.registrationState?.nftTiers!)
-        const { isValid: validTiers } = getFieldisValid(FormField.nftTiers, userState.registrationState?.nftTiers!)
         const { isValid: validAmount, tooltip } = getFieldisValid(FormField.nftTiersTotal, userState.registrationState?.nftTiers!)
         setTotalSum(amount)
-        setIsValidTiers(validTiers)
         setIsValidTotal(validAmount)
         setTooltip(tooltip)
 
@@ -32,7 +29,7 @@ const TotalInUsd = () => {
             placement='bottom-start'
             PopperProps={validationStyles.totalPopper}
             componentsProps={validationStyles.tooltipProps}
-            open={isValidTiers && !isValidTotal}
+            open={!!totalSum && !isValidTotal}
             title={tooltip}
             children={
                 <Box

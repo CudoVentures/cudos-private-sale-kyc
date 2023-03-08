@@ -1,36 +1,29 @@
-import { Box, Button, Collapse, Fade } from '@mui/material'
+import { Box, Fade } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Dialog from 'components/Dialog'
-import CreationField from 'components/FormField'
-import { Currencies, FormField } from 'components/FormField/types'
-import { getFieldisValid, isValidSubmit } from 'components/FormField/validation'
+import { Currencies } from 'components/FormField/types'
 import { RootState } from 'store'
-import { initialRegistrationState, PrivateSaleFields, updateUser } from 'store/user'
+import { initialRegistrationState, updateUser } from 'store/user'
 
 import { styles } from './styles'
-import { updateModalState } from 'store/modals'
-import { authenticateWithFirebase, saveData } from 'utils/firebase'
-import { APP_DETAILS, CHAIN_DETAILS } from 'utils/constants'
+import { APP_DETAILS } from 'utils/constants'
 import { Navigate, useLocation } from 'react-router-dom'
-import TotalInUsd from 'components/TotalInUsd'
-import ConvertedAmount from 'components/ConvertedAmount'
-import { DocumentData, Timestamp } from 'firebase/firestore'
 import getCurrencyRates from 'api/calls'
 import { updateRates } from 'store/rates'
 import Pricelist from 'components/Pricelist'
-import { kycStatus } from 'utils/onfido'
 import CompletedProcess from 'components/CompletedProcess'
+import SaleForm from 'components/SaleForm'
+import { kycStatus } from 'utils/onfido'
 
 const Welcome = () => {
 
   const location = useLocation()
   const dispatch = useDispatch()
   const userState = useSelector((state: RootState) => state.userState)
-  const { chosenCurrency } = useSelector((state: RootState) => state.ratesState)
+
   const [loaded, setLoaded] = useState<boolean>(false)
-  const { isValid: validTiers } = getFieldisValid(FormField.nftTiers, userState.registrationState?.nftTiers!)
 
   const loadRates = async () => {
     const rates = await getCurrencyRates(Object.values(Currencies), 'USD')
@@ -54,66 +47,6 @@ const Welcome = () => {
     }))
   }
 
-  const handleSubmit = async () => {
-    const collectedData: PrivateSaleFields = {
-      ...userState.registrationState!,
-      amountToSpend: userState.registrationState?.amountToSpend!,
-      nftCount: Object.values(userState.registrationState?.nftTiers!).reduce((acc, { qty }) => acc + qty, 0).toString()
-    }
-    try {
-      dispatch(updateModalState({
-        loading: true,
-        loadingType: true,
-      }))
-      const { success } = await authenticateWithFirebase(
-        collectedData.connectedAddress,
-        CHAIN_DETAILS.FIREBASE.COLLECTION,
-        userState.connectedLedger!
-      )
-      if (!success) {
-        throw new Error('Failed to authenticate with Firebase')
-      }
-
-      const dataForSaving: DocumentData = {
-        ...collectedData,
-        formSubmittedAt: Timestamp.now().toDate(),
-        processCompleted: true
-      }
-
-      await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
-
-      const dataForUserDownload = {
-        connectedAddress: collectedData.connectedAddress,
-        paymentFrom: collectedData.externalWallet,
-        paymentTo: 'TODO: address to pay to',
-        firstName: collectedData.firstName,
-        lastName: collectedData.lastName,
-        amountToSpend: collectedData.amountToSpend,
-        email: collectedData.email,
-        nftCount: collectedData.nftCount,
-        nftTiers: collectedData.nftTiers,
-        tocAgreed: collectedData.tocAgreed
-      }
-
-      dispatch(updateModalState({
-        loading: false,
-        loadingType: false,
-        success: true,
-        message: "Order submitted. We will get in touch if there are any issues.",
-        data: dataForUserDownload
-      }))
-
-    } catch (error) {
-      console.error((error as Error).message)
-      dispatch(updateModalState({
-        loading: false,
-        loadingType: false,
-        failure: true,
-        message: 'Something went wrong'
-      }))
-    }
-  }
-
   // CLEAN-UP
   useEffect(() => {
     loadRates()
@@ -127,70 +60,16 @@ const Welcome = () => {
     <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut} children={
       <Box style={styles.contentHolder}>
         <Dialog />
-        {
-          userState.registrationState?.processCompleted ?
-            <CompletedProcess />
+        {userState.registrationState?.processCompleted ?
+          <CompletedProcess />
+          :
+          !userState.registrationState?.kycStatus ||
+            userState.registrationState?.kycStatus !== kycStatus.verificationSuccessful ?
+            <Box gap={5} display={'flex'} flexDirection={'column'} width={'350px'} alignItems={'center'}>
+              <Pricelist />
+            </Box>
             :
-            !userState.registrationState?.kycStatus ||
-              userState.registrationState?.kycStatus !== kycStatus.verificationSuccessful
-              ?
-              <Box gap={5} display={'flex'} flexDirection={'column'} width={'350px'} alignItems={'center'}>
-                <Pricelist />
-              </Box>
-              :
-              <Box gap={4} sx={styles.formHolder}>
-                <CreationField
-                  type={FormField.connectedAddress}
-                  text={'Connected Address'}
-                  isDisabled={true}
-                />
-                <CreationField
-                  type={FormField.firstName}
-                  text={'First Name'}
-                  placeholder={'John'}
-                />
-                <CreationField
-                  type={FormField.lastName}
-                  text={'Last Name'}
-                  placeholder={'Doe'}
-                />
-                <CreationField
-                  type={FormField.email}
-                  text={'Email'}
-                  placeholder={'john@doe.com'}
-                />
-                <CreationField
-                  type={FormField.nftTiers}
-                  text={'NFT Count'}
-                />
-                <Collapse
-                  sx={{ width: '100%' }}
-                  timeout={'auto'}
-                  in={validTiers}
-                >
-                  <TotalInUsd />
-                  <ConvertedAmount />
-                  <Box gap={3} sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <CreationField
-                      type={FormField.externalWallet}
-                      text={'External Wallet Address'}
-                      placeholder={'The address you will be paying from'}
-                    />
-                    <CreationField
-                      type={FormField.tocAgreed}
-                      text={'Terms & Conditions'}
-                    />
-                  </Box>
-                </Collapse>
-                <Button
-                  disabled={!isValidSubmit(chosenCurrency, userState.registrationState)}
-                  variant="contained"
-                  onClick={handleSubmit}
-                  sx={styles.submitBtn}
-                >
-                  Submit
-                </Button>
-              </Box>}
+            <SaleForm />}
       </Box>
     } />
   )

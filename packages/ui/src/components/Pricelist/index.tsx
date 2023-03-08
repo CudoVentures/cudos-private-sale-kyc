@@ -2,57 +2,20 @@ import { Box, Typography } from "@mui/material"
 import { useEffect, useState } from "react"
 import { getAvailableNftQuantities } from "utils/helpers"
 import { TailSpin as TailSpinLoader } from 'svg-loaders-react'
-
-export enum NftTier {
-    Opal = 'Opal',
-    Ruby = 'Ruby',
-    Emerald = 'Emerald',
-    Diamond = 'Diamond',
-    BlueDiamond = 'Blue Diamond'
-}
-
-export const TIER_PRICES = {
-    [NftTier.Opal]: {
-        Private: 127.5,
-        Public: 150
-    },
-    [NftTier.Ruby]: {
-        Private: 255,
-        Public: 300
-    },
-    [NftTier.Emerald]: {
-        Private: 850,
-        Public: 1000
-    },
-    [NftTier.Diamond]: {
-        Private: 2550,
-        Public: 3000
-    },
-    [NftTier.BlueDiamond]: {
-        Private: 4250,
-        Public: 5000
-    }
-}
-
-export type NftQuantities = {
-    [key in NftTier]: number
-}
+import { TIER_PRICES, updateNftTiersState } from "store/nftTiers"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "store"
 
 const Pricelist = () => {
 
+    const dispatch = useDispatch()
     const [loading, setLoading] = useState<boolean>(true)
-    const [available, setAvailable] = useState<NftQuantities>({
-        [NftTier.Opal]: 0,
-        [NftTier.Ruby]: 0,
-        [NftTier.Emerald]: 0,
-        [NftTier.Diamond]: 0,
-        [NftTier.BlueDiamond]: 0
-    })
+    const available = useSelector((state: RootState) => state.nftTiersState)
 
     useEffect(() => {
         (async () => {
-            const quantities = await getAvailableNftQuantities()
-            setAvailable(quantities)
+            const { quantities, limit } = await getAvailableNftQuantities()
+            dispatch(updateNftTiersState({ ...quantities, limit: limit }))
             setTimeout(() => setLoading(false), 300)
         })()
     }, [])

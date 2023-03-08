@@ -3,7 +3,6 @@ import { Box, Button, Typography } from '@mui/material'
 import { Dialog as MuiDialog } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import SuccessIcon from 'assets/vectors/success.svg'
-import { useNavigate } from 'react-router-dom'
 import { CancelRoundedIcon, ModalContainer, styles } from './styles'
 import { initialState as initialModalState, updateModalState } from 'store/modals'
 import { RootState } from 'store'
@@ -11,7 +10,6 @@ import { RootState } from 'store'
 const Success = () => {
 
   const dispatch = useDispatch()
-  const navigate = useNavigate()
 
   const {
     success,
@@ -21,7 +19,6 @@ const Success = () => {
 
   const handleModalClose = () => {
     dispatch(updateModalState({ ...initialModalState }))
-    navigate("/")
   }
 
   const closeModal = (event: {}, reason: string) => {

@@ -1,4 +1,5 @@
 import { bech32 } from "bech32"
+import { nftTiersState } from "store/nftTiers"
 import { NftTier, PrivateSaleFields } from "store/user"
 import isEmail from "validator/lib/isEmail"
 
@@ -87,15 +88,27 @@ export const isValidTiersTotal = (tiers: Record<string, NftTier>) => {
     return { isValid: false, tooltip: FormFieldErrors.invalidTiersTotal }
 }
 
-export const isValidTiers = (tiers: Record<string, NftTier>, nonSubmit?: boolean) => {
+export const isValidTiers = (tiers: Record<string, NftTier>, nonSubmit?: boolean, available?: nftTiersState) => {
     const count = Object.values(tiers!).reduce((acc, { qty }) => acc + qty, 0)
-    if ((!count && nonSubmit) || (count && count <= 50)) {
+    if (count && available) {
+        let totalCount = 0
+        for (const [tierName, { qty }] of Object.entries(tiers)) {
+            totalCount += qty
+            if (totalCount > available?.limit!) {
+                return { isValid: false, tooltip: `Maximum ${available?.limit!} in total` }
+            }
+            if (qty > available![tierName]) {
+                return { isValid: false, tooltip: `Only ${available![tierName]} ${tierName}s are available` }
+            }
+        }
+    }
+    if (!count && nonSubmit || (count && count <= available?.limit!)) {
         return { isValid: true, tooltip: '' }
     }
-    return { isValid: false, tooltip: FormFieldErrors.invalidTiers }
+    return { isValid: false, tooltip: `Maximum ${available?.limit!} in total` }
 }
 
-export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonSubmit: boolean }): { isValid: boolean, tooltip: string } => {
+export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonSubmit: boolean, tierData?: nftTiersState }): { isValid: boolean, tooltip: string } => {
     switch (fieldType) {
         case FormField.connectedAddress:
             return isValidCudosAddress(value)
@@ -111,7 +124,7 @@ export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonS
         case FormField.externalWallet:
             return isValidExternalWallet(value)
         case FormField.nftTiers:
-            return isValidTiers(value, props?.nonSubmit)
+            return isValidTiers(value, props?.nonSubmit, props?.tierData)
         case FormField.nftTiersTotal:
             return isValidTiersTotal(value)
         default:
@@ -119,8 +132,8 @@ export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonS
     }
 }
 
-export const isValidSubmit = (chosenCurrency?: Currencies, registrationState?: PrivateSaleFields): boolean => {
-    const { isValid: validTiers } = isValidTiers(registrationState?.nftTiers!)
+export const isValidSubmit = (chosenCurrency?: Currencies, registrationState?: PrivateSaleFields, tierData?: nftTiersState): boolean => {
+    const { isValid: validTiers } = isValidTiers(registrationState?.nftTiers!, false, tierData)
     const { isValid: isValidTotal } = isValidTiersTotal(registrationState?.nftTiers!)
     if (
         registrationState?.tocAgreed &&

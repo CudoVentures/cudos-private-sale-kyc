@@ -9,8 +9,9 @@ import { getFieldisValid } from './validation';
 import { updateUser } from 'store/user';
 import { COLORS_DARK_THEME } from 'theme/colors';
 import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
-import Pricelist, { NftTier, TIER_PRICES } from 'components/Pricelist';
+import Pricelist from 'components/Pricelist';
 import { updateModalState } from 'store/modals';
+import { NftTier, TIER_PRICES } from 'store/nftTiers';
 
 const StartAdornment = ({ text }: { text: string }) => {
     return (
@@ -50,6 +51,7 @@ const CreationField = ({
     const [isValid, setIsValid] = useState<boolean>(true)
     const [tooltip, setTooltip] = useState<string>('')
     const user = useSelector((state: RootState) => state.userState)
+    const availableNfts = useSelector((state: RootState) => state.nftTiersState)
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         if (['e', 'E', '+', '-', ',', '.'].includes(event.key)) {
@@ -80,7 +82,14 @@ const CreationField = ({
             value = newTiers
         }
 
-        const { isValid, tooltip } = getFieldisValid(type, value, { nonSubmit: true })
+        const { isValid, tooltip } = getFieldisValid(
+            type,
+            value,
+            {
+                nonSubmit: true,
+                tierData: type === FormField.nftTiers ? availableNfts : undefined
+            }
+        )
         setIsValid(isValid)
         setTooltip(tooltip)
         dispatch(updateUser({
