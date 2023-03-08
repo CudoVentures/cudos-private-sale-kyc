@@ -5,6 +5,12 @@ export interface ApplicantRequest extends Request {
     body: OnfidoApplicantRequest;
 }
 
+export interface LoginRequest extends Request {
+    body: {
+        applicantId: string;
+    };
+}
+
 export interface AuthRequest extends Request {
     body: SdkTokenRequest;
 }

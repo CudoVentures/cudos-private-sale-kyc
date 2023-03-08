@@ -2,7 +2,7 @@ import express, { Response } from "express";
 import cors from "cors";
 import compression from "compression";
 import * as dotenv from "dotenv";
-import { ApplicantRequest, AuthRequest, WorkflowRunRequest } from "./types";
+import { ApplicantRequest, AuthRequest, LoginRequest, WorkflowRunRequest } from "./types";
 import { Onfido, Region } from "@onfido/api";
 
 dotenv.config();
@@ -24,6 +24,19 @@ app.use(compression());
 
 app.listen(PORT, () => {
     console.log(`cudos-kyc-poc-server listening on port ${PORT}`);
+});
+
+app.post("/login", async (req: LoginRequest, res: Response) => {
+    try {
+        const token = await onfido.sdkToken.generate({
+            applicantId: req.body.applicantId,
+            referrer: req.headers.referer,
+        });
+        res.status(200).json({ token: token });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json(err);
+    }
 });
 
 app.post("/register-applicant", async (req: ApplicantRequest, res: Response) => {

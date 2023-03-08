@@ -56,17 +56,16 @@ const Header = () => {
     navigate('/')
   }
 
-  const runOnfido = async (user: string, data: DocumentData) => {
-    await saveData(user, data)
+  const runOnfido = async (token: string, workflowRunId: string) => {
     setOnfidoModalOpen(true)
     const onfido = Onfido.init({
-      token: data.kycToken,
+      token: token,
       useModal: true,
       isModalOpen: true,
       shouldCloseOnOverlayClick: false,
       region: 'US',
       steps: ['welcome', 'document'],
-      workflowRunId: data.kycWorkflowRunId,
+      workflowRunId: workflowRunId,
       onModalRequestClose: function () {
         onfido.setOptions({ isModalOpen: false })
         dispatch(updateModalState({
@@ -157,19 +156,20 @@ const Header = () => {
   }
 
   const resumeOnfido = async () => {
-    if (!registrationState?.kycApplicantId || !registrationState.kycToken || !registrationState.kycWorkflowRunId) {
+    if (!registrationState?.kycApplicantId || !registrationState.kycWorkflowRunId) {
       await startOnfido()
       return
     }
+    const tokenResponse = await axios.post(
+      CHAIN_DETAILS.KYC_GET_RESUME_FLOW_TOKEN_URL,
+      { applicantId: registrationState?.kycApplicantId }
+    )
     const resumedData: DocumentData = {
       kycStatus: kycStatus.submissionResumed,
-      kycError: '',
-      kycToken: registrationState.kycToken,
-      kycApplicantId: registrationState?.kycApplicantId,
-      kycWorkflowRunId: registrationState.kycWorkflowRunId,
       resumedAt: Timestamp.now().toDate()
     }
-    await runOnfido(connectedAddress!, resumedData)
+    await saveData(connectedAddress!, resumedData)
+    await runOnfido(tokenResponse.data.token, registrationState.kycWorkflowRunId)
   }
 
   const startOnfido = async () => {
@@ -189,19 +189,20 @@ const Header = () => {
         amount: 1275
       }
     )
+    const workflowId = kycWorkflowRunRes.data.id as string
     const initialData: DocumentData = {
       kycStatus: kycStatus.submissionStarted,
       kycError: '',
-      kycToken: kycRegisterRes.data.token as string,
       kycApplicantId: kycRegisterRes.data.applicantId as string,
-      kycWorkflowRunId: kycWorkflowRunRes.data.id as string,
+      kycWorkflowRunId: workflowId,
       createdAt: Timestamp.now().toDate()
     }
+    await saveData(connectedAddress!, initialData)
     dispatch(updateModalState({
       loading: false,
       loadingType: false,
     }))
-    await runOnfido(connectedAddress!, initialData)
+    await runOnfido(kycRegisterRes.data.token, workflowId)
   }
 
   useEffect(() => {
