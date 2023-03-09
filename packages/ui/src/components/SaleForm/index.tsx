@@ -1,4 +1,5 @@
 import { Box, Button, Collapse } from "@mui/material"
+import axios from "axios"
 import ConvertedAmount from "components/ConvertedAmount"
 import CreationField from "components/FormField"
 import { FormField, CurrencyToInternalWalletMapper, CurrencyToWalletAliasMapper } from "components/FormField/types"
@@ -13,8 +14,9 @@ import { updateModalState } from "store/modals"
 import { updateNftTiersState } from "store/nftTiers"
 import { PrivateSaleFields, updateUser } from "store/user"
 import { CHAIN_DETAILS } from "utils/constants"
-import { authenticateWithFirebase, deleteData, saveData } from "utils/firebase"
+import { authenticateWithFirebase, saveData } from "utils/firebase"
 import { getAvailableNftQuantities } from "utils/helpers"
+import { deleteEverythingButNonce } from '../../utils/firebase';
 
 const SaleForm = () => {
 
@@ -65,20 +67,13 @@ const SaleForm = () => {
 
             await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
 
-            // TODO: Add here NFT quantities deduction
-            // const successfulDbDeduction = await axios.post(
-            //     'DEDUCTION_URL',
-            //     {
-            //         nftTiers: collectedData.nftTiers,
-            //         nftCount: collectedData.nftCount
-            //     }
-            // )
-
-            // if (!successfulDbDeduction) {
-            //     //Rollback
-            //     await deleteData(userState.registrationState?.connectedAddress!, Object.keys(dataForSaving))
-            //     throw new Error('Quantities missmatch. Rollback transaction')
-            // }
+            await axios.post(
+                CHAIN_DETAILS.NFT_DEDUCT_URL,
+                {
+                    nftTiers: collectedData.nftTiers,
+                    nftCount: collectedData.nftCount
+                }
+            )
 
             dispatch(updateModalState({
                 loading: false,
@@ -103,6 +98,10 @@ const SaleForm = () => {
                 failure: true,
                 message: 'Something went wrong'
             }))
+
+            if (((error as any).request.responseURL as string).endsWith("deduct-nfts")) {
+                await deleteEverythingButNonce(userState.registrationState?.connectedAddress!);
+            }
         }
     }
 

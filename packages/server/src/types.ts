@@ -22,3 +22,9 @@ export interface WorkflowRunRequest extends Request {
         amount: number
     }
 }
+export interface NftDeductRequest extends Request {
+    body: {
+        nftTiers: Record<string, { qty: number, cost: number }>
+        nftCount: number
+    }
+}
