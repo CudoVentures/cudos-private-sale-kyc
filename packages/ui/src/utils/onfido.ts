@@ -11,7 +11,10 @@ export enum kycStatus {
     submissionErrorTerminated = 'submissionErrorTerminated'
 }
 
-export const sanitizeKycStatus = (rawStatus: string): kycStatus => {
+export const sanitizeKycStatus = (rawStatus: string): kycStatus | undefined => {
+    if (!rawStatus) {
+        return
+    }
     if (kycStatus[rawStatus]) {
         return rawStatus as kycStatus
     }
@@ -62,7 +65,10 @@ export const getFlowStatus = async (address: string):
         workflowId: string,
         kycToken: string,
         kycStatus: kycStatus,
-        processCompleted: boolean
+        processCompleted: boolean,
+        email: string,
+        firstName: string,
+        lastName: string
     }> => {
     const data = await getData(address)
     return {
@@ -70,6 +76,9 @@ export const getFlowStatus = async (address: string):
         workflowId: data.kycWorkflowRunId,
         kycToken: data.kycToken,
         kycStatus: data.kycStatus,
-        processCompleted: data.processCompleted
+        processCompleted: data.processCompleted,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName
     }
 }

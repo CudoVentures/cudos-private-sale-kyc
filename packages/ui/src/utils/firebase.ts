@@ -96,7 +96,7 @@ export const deleteEverythingButNonce = async (address: string): Promise<void> =
         const docSnap = await getDoc(dataDoc);
         if (docSnap.exists()) {
             const newData = {}
-            Object.entries(docSnap.data()).map(([key, value]) => {
+            Object.entries(docSnap.data()).forEach(([key, value]) => {
                 if (key === 'nonce') {
                     newData['nonce'] = value
                 }

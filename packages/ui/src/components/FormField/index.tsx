@@ -100,7 +100,7 @@ const CreationField = ({
                     placement='bottom-start'
                     PopperProps={validationStyles.tooltipPopper}
                     componentsProps={type === FormField.internalWallet && isValid ? validationStyles.connectedTooltipProps : validationStyles.tooltipProps}
-                    open={!isValid || (type === FormField.internalWallet && isValid)}
+                    open={!isValid || (type === FormField.internalWallet && isValid && !!chosenCurrency)}
                     title={type === FormField.internalWallet && isValid ? 'This is the address to submit your payment to' : tooltip}
                 >
                     {

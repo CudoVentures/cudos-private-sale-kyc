@@ -7,7 +7,7 @@ import { initialRegistrationState, userState } from "store/user"
 import { CHAIN_DETAILS, LEDGERS } from "./constants"
 import { authenticateWithFirebase } from "./firebase"
 import { getConnectedUserAddressAndName } from "./helpers"
-import { getFlowStatus, kycStatus, sanitizeKycStatus } from "./onfido"
+import { getFlowStatus, sanitizeKycStatus } from "./onfido"
 
 export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_WALLET): Promise<userState> => {
 
