@@ -6,7 +6,7 @@ import { Box, Typography, Tooltip, Divider, Select, MenuItem, ClickAwayListener 
 import { validationStyles } from "components/FormField/styles"
 import { getTiersTotalSum } from "components/FormField/validation"
 import { COLORS_DARK_THEME } from "theme/colors"
-import { Currencies, FormField } from "components/FormField/types"
+import { Currencies } from "components/FormField/types"
 import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 import { updateRates } from "store/rates"
 import { TailSpin as TailSpinLoader } from 'svg-loaders-react'

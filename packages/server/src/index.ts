@@ -66,16 +66,62 @@ app.post("/authenticate", async (req: AuthRequest, res: Response) => {
 app.post("/create-workflow-run", async (req: WorkflowRunRequest, res: Response) => {
     try {
         const { amount, address } = req.body
-        const balanceUSD = amount < ONFIDO_LIGHT_CHECK_AMOUNT_USD ? ONFIDO_LIGHT_CHECK_AMOUNT_USD : ONFIDO_LIGHT_CHECK_AMOUNT_USD + 1 
+        const balanceUSD = amount < ONFIDO_LIGHT_CHECK_AMOUNT_USD ? ONFIDO_LIGHT_CHECK_AMOUNT_USD : ONFIDO_LIGHT_CHECK_AMOUNT_USD + 1
         const workflowRun = await onfido.workflowRun.create({
             applicantId: req.body.applicantId,
             workflowId: ONFIDO_WORKFLOW_ID,
             customData: {
                 address: address,
-                balance: balanceUSD 
+                balance: balanceUSD
             },
         });
         return res.status(200).json(workflowRun);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json(err);
+    }
+});
+
+app.get("/workflow/:workflowRunId/status", async (req, res) => {
+    try {
+        const workflowRunId = req.params.workflowRunId;
+        const run = await onfido.workflowRun.find(workflowRunId);
+        const applicant = await onfido.applicant.find(run.applicantId)
+        if (!run) {
+            return res.status(404).json({ error: "Workflow not found" });
+        }
+        if (!applicant) {
+            return res.status(404).json({ error: "Applicant not found" });
+        }
+
+        let currentStatus = run.status
+        const dataToSaveToDb = {}
+        switch (currentStatus) {
+            case 'error':
+            case 'declined':
+                dataToSaveToDb['kycStatus'] = currentStatus
+                break
+
+            case 'completed':
+                dataToSaveToDb['firstName'] = applicant.firstName
+                dataToSaveToDb['lastName'] = applicant.lastName
+                dataToSaveToDb['email'] = applicant.email
+                dataToSaveToDb['kycStatus'] = currentStatus
+                break
+
+            default:
+                break;
+        }
+
+        if (!!dataToSaveToDb['kycStatus']) {
+            //
+            //TODO: Add DB saving here of the "dataToSaveToDb" object
+            //
+            res.status(200).json({ status: dataToSaveToDb['kycStatus'] });
+        } else {
+            res.status(204).json({ error: "No suitable status" })
+        }
+
     } catch (err) {
         console.error(err);
         res.status(500).json(err);

@@ -89,3 +89,23 @@ export const deleteData = async (address: string, fieldsToDelete: string[]): Pro
         throw new Error("Error while deleting from Firebase")
     }
 };
+
+export const deleteEverythingButNonce = async (address: string): Promise<void> => {
+    try {
+        const dataDoc = doc(firestore, CHAIN_DETAILS.FIREBASE.COLLECTION, address);
+        const docSnap = await getDoc(dataDoc);
+        if (docSnap.exists()) {
+            const newData = {}
+            Object.entries(docSnap.data()).map(([key, value]) => {
+                if (key === 'nonce') {
+                    newData['nonce'] = value
+                }
+            });
+            return setDoc(dataDoc, { ...newData });
+        }
+        return;
+    } catch (error) {
+        console.log(error)
+        throw new Error("Error while deleting from Firebase")
+    }
+};

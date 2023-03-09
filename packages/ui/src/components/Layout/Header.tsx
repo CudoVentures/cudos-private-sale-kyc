@@ -22,10 +22,11 @@ import { initialState as initialRatesState } from 'store/rates';
 import { initialRegistrationState, initialState, updateUser, userState } from 'store/user';
 import { COLORS_DARK_THEME } from 'theme/colors';
 import { updateRates } from 'store/rates';
-import { deleteData, saveData } from 'utils/firebase';
+import { authenticateWithFirebase, deleteEverythingButNonce, saveData } from 'utils/firebase';
 import { CHAIN_DETAILS } from 'utils/constants';
 import { DocumentData, Timestamp } from 'firebase/firestore';
-import { getFlowStatus, kycStatus, kycStatusMapper } from 'utils/onfido';
+import { getFlowStatus, kycStatus, kycStatusMapper, sanitizeKycStatus } from 'utils/onfido';
+import { getLatestWorkflowStatusFromOnfido } from 'api/calls';
 
 const Header = () => {
   const location = useLocation()
@@ -136,18 +137,15 @@ const Header = () => {
       loading: true,
       loadingType: true,
     }))
-    await deleteData(
+    const { success } = await authenticateWithFirebase(
       connectedAddress!,
-      [
-        'kycStatus',
-        'kycToken',
-        'kycApplicantId',
-        'kycWorkflowRunId',
-        'kycError',
-        'kycStartedAt',
-        'resumedAt'
-      ]
+      CHAIN_DETAILS.FIREBASE.COLLECTION,
+      userState.connectedLedger!
     )
+    if (!success) {
+      throw new Error('Failed to authenticate with Firebase')
+    }
+    await deleteEverythingButNonce(connectedAddress!)
     const updatedUser = {
       ...userState,
       registrationState: {
@@ -223,7 +221,14 @@ const Header = () => {
   useEffect(() => {
     if ((onfidoModalOpen || modalFailure || modalSuccess) && connectedAddress) {
       (async () => {
-        const { applicandId, workflowId, kycToken, kycStatus, processCompleted } = await getFlowStatus(connectedAddress)
+        const { applicandId, workflowId, kycToken, kycStatus: DbStatus, processCompleted } = await getFlowStatus(connectedAddress)
+        let latestStatus = DbStatus
+        if (workflowId) {
+          const onfidoStatus = await getLatestWorkflowStatusFromOnfido(workflowId)
+          if (onfidoStatus) {
+            latestStatus = onfidoStatus
+          }
+        }
         const updatedUser = {
           ...userState,
           registrationState: {
@@ -231,7 +236,7 @@ const Header = () => {
             kycApplicantId: applicandId,
             kycWorkflowRunId: workflowId,
             kycToken: kycToken,
-            kycStatus: kycStatus as string,
+            kycStatus: sanitizeKycStatus(latestStatus),
             processCompleted: processCompleted
           }
         }

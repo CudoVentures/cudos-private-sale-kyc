@@ -87,7 +87,7 @@ const CreationField = ({
     }
 
     return (
-        <Box width='100%'>
+        <Box width='100%' marginTop={type === FormField.tocAgreed ? 3 : 0}>
             <Typography
                 display={'flex'}
                 alignItems='center'
@@ -99,9 +99,9 @@ const CreationField = ({
                 <Tooltip
                     placement='bottom-start'
                     PopperProps={validationStyles.tooltipPopper}
-                    componentsProps={validationStyles.tooltipProps}
-                    open={!isValid}
-                    title={tooltip}
+                    componentsProps={type === FormField.internalWallet && isValid ? validationStyles.connectedTooltipProps : validationStyles.tooltipProps}
+                    open={!isValid || (type === FormField.internalWallet && isValid)}
+                    title={type === FormField.internalWallet && isValid ? 'This is the address to submit your payment to' : tooltip}
                 >
                     {
                         type === FormField.tocAgreed ?
@@ -178,7 +178,7 @@ const CreationField = ({
                     }
                 </Tooltip>
             </Fragment>
-        </Box>
+        </Box >
     )
 }
 

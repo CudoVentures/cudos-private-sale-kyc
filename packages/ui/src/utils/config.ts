@@ -1,3 +1,4 @@
+import { getLatestWorkflowStatusFromOnfido } from "api/calls"
 import { SUPPORTED_WALLET } from "cudosjs"
 import { connectCosmostationLedger } from "ledgers/CosmostationLedger"
 import { connectKeplrLedger } from "ledgers/KeplrLedger"
@@ -6,7 +7,7 @@ import { initialRegistrationState, userState } from "store/user"
 import { CHAIN_DETAILS, LEDGERS } from "./constants"
 import { authenticateWithFirebase } from "./firebase"
 import { getConnectedUserAddressAndName } from "./helpers"
-import { getFlowStatus } from "./onfido"
+import { getFlowStatus, kycStatus, sanitizeKycStatus } from "./onfido"
 
 export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_WALLET): Promise<userState> => {
 
@@ -22,7 +23,14 @@ export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_W
     if (!success) {
         throw new Error('Failed to authenticate with Firebase')
     }
-    const { applicandId, workflowId, kycToken, kycStatus, processCompleted } = await getFlowStatus(address)
+    const { applicandId, workflowId, kycToken, kycStatus: DbStatus, processCompleted } = await getFlowStatus(address)
+    let latestStatus = DbStatus
+    if (workflowId) {
+        const onfidoStatus = await getLatestWorkflowStatusFromOnfido(workflowId)
+        if (onfidoStatus) {
+            latestStatus = onfidoStatus
+        }
+    }
     const connectedUser: userState = {
         address: address,
         accountName: accountName,
@@ -34,7 +42,7 @@ export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_W
             kycApplicantId: applicandId,
             kycWorkflowRunId: workflowId,
             kycToken: kycToken,
-            kycStatus: kycStatus,
+            kycStatus: sanitizeKycStatus(latestStatus),
             processCompleted: processCompleted
         }
     }

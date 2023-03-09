@@ -1,6 +1,16 @@
 import axios from 'axios'
 import { AliasToCurrency, Currencies, CurrencyToAlias, CURRENCY_RATES, defaultCurrencyRates } from 'components/FormField/types'
+import { CHAIN_DETAILS } from 'utils/constants'
+import { kycStatus } from 'utils/onfido'
 import { GET_CURRENCY_RATE_URL } from './endpoints'
+
+export const getLatestWorkflowStatusFromOnfido = async (workflowId: string): Promise<kycStatus> => {
+    const response = await axios.get(
+        CHAIN_DETAILS.KYC_GET_WORKFLOW_DETAILS_BASE_URL +
+        `/${workflowId}/status`
+    )
+    return response.data.status
+}
 
 const getCurrencyRates = async (fromCurrencies: Currencies[], toCurrency: string): Promise<CURRENCY_RATES> => {
     let rates = { ...defaultCurrencyRates }
