@@ -26,7 +26,7 @@ export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_W
     const { applicandId, workflowId, kycToken, kycStatus: DbStatus, processCompleted } = await getFlowStatus(address)
     let latestStatus = DbStatus
     if (workflowId) {
-        const onfidoStatus = await getLatestWorkflowStatusFromOnfido(workflowId)
+        const onfidoStatus = await getLatestWorkflowStatusFromOnfido(address, workflowId)
         if (onfidoStatus) {
             latestStatus = onfidoStatus
         }

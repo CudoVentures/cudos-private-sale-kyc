@@ -224,7 +224,7 @@ const Header = () => {
         const { applicandId, workflowId, kycToken, kycStatus: DbStatus, processCompleted } = await getFlowStatus(connectedAddress)
         let latestStatus = DbStatus
         if (workflowId) {
-          const onfidoStatus = await getLatestWorkflowStatusFromOnfido(workflowId)
+          const onfidoStatus = await getLatestWorkflowStatusFromOnfido(connectedAddress, workflowId)
           if (onfidoStatus) {
             latestStatus = onfidoStatus
           }
