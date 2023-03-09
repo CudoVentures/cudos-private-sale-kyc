@@ -1,8 +1,8 @@
 import { Box, Button, Collapse } from "@mui/material"
 import ConvertedAmount from "components/ConvertedAmount"
 import CreationField from "components/FormField"
-import { FormField } from "components/FormField/types"
-import { getFieldisValid, isValidSubmit } from "components/FormField/validation"
+import { FormField, CurrencyToInternalWalletMapper, CurrencyToWalletAliasMapper } from "components/FormField/types"
+import { getFieldisValid, isValidSubmit, isValidTiersTotal } from "components/FormField/validation"
 import TotalInUsd from "components/TotalInUsd"
 import { styles } from "containers/Welcome/styles"
 import { DocumentData, Timestamp } from "firebase/firestore"
@@ -13,7 +13,7 @@ import { updateModalState } from "store/modals"
 import { updateNftTiersState } from "store/nftTiers"
 import { PrivateSaleFields, updateUser } from "store/user"
 import { CHAIN_DETAILS } from "utils/constants"
-import { authenticateWithFirebase, saveData } from "utils/firebase"
+import { authenticateWithFirebase, deleteData, saveData } from "utils/firebase"
 import { getAvailableNftQuantities } from "utils/helpers"
 
 const SaleForm = () => {
@@ -23,11 +23,11 @@ const SaleForm = () => {
     const tierData = useSelector((state: RootState) => state.nftTiersState)
     const { chosenCurrency } = useSelector((state: RootState) => state.ratesState)
     const { isValid: validTiers } = getFieldisValid(FormField.nftTiers, userState.registrationState?.nftTiers!, { nonSubmit: false, tierData: tierData })
+    const { isValid: validTiersTotal } = isValidTiersTotal(userState.registrationState?.nftTiers!)
 
     const handleSubmit = async () => {
         const collectedData: PrivateSaleFields = {
             ...userState.registrationState!,
-            amountToSpend: userState.registrationState?.amountToSpend!,
             nftCount: Object.values(userState.registrationState?.nftTiers!).reduce((acc, { qty }) => acc + qty, 0).toString()
         }
         try {
@@ -50,12 +50,10 @@ const SaleForm = () => {
                 processCompleted: true
             }
 
-            await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
-
             const dataForUserDownload = {
                 connectedAddress: collectedData.connectedAddress,
                 paymentFrom: collectedData.externalWallet,
-                paymentTo: 'TODO: address to pay to',
+                paymentTo: collectedData.internalWallet,
                 firstName: collectedData.firstName,
                 lastName: collectedData.lastName,
                 amountToSpend: collectedData.amountToSpend,
@@ -64,6 +62,23 @@ const SaleForm = () => {
                 nftTiers: collectedData.nftTiers,
                 tocAgreed: collectedData.tocAgreed
             }
+
+            await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
+
+            // TODO: Add here NFT quantities deduction
+            // const successfulDbDeduction = await axios.post(
+            //     'DEDUCTION_URL',
+            //     {
+            //         nftTiers: collectedData.nftTiers,
+            //         nftCount: collectedData.nftCount
+            //     }
+            // )
+
+            // if (!successfulDbDeduction) {
+            //     //Rollback
+            //     await deleteData(userState.registrationState?.connectedAddress!, Object.keys(dataForSaving))
+            //     throw new Error('Quantities missmatch. Rollback transaction')
+            // }
 
             dispatch(updateModalState({
                 loading: false,
@@ -96,7 +111,27 @@ const SaleForm = () => {
             const { quantities, limit } = await getAvailableNftQuantities()
             dispatch(updateNftTiersState({ ...quantities, limit: limit }))
         })()
+        //eslint-disable-next-line
     }, [])
+
+    useEffect(() => {
+        if (chosenCurrency) {
+            dispatch(updateUser({
+                registrationState: {
+                    ...userState.registrationState!,
+                    internalWallet: CurrencyToInternalWalletMapper[chosenCurrency]
+                }
+            }))
+            return
+        }
+        dispatch(updateUser({
+            registrationState: {
+                ...userState.registrationState!,
+                internalWallet: ''
+            }
+        }))
+        //eslint-disable-next-line
+    }, [chosenCurrency])
 
     return (
         <Box gap={4} sx={styles.formHolder}>
@@ -131,11 +166,23 @@ const SaleForm = () => {
             >
                 <TotalInUsd />
                 <ConvertedAmount />
+            </Collapse>
+            <Collapse
+                sx={{ width: '100%' }}
+                timeout={'auto'}
+                in={!!chosenCurrency && validTiersTotal}
+            >
                 <Box gap={3} sx={{ display: 'flex', flexDirection: 'column' }}>
                     <CreationField
                         type={FormField.externalWallet}
                         text={'External Wallet Address'}
-                        placeholder={'The address you will be paying from'}
+                        placeholder={`The ${CurrencyToWalletAliasMapper[chosenCurrency!]?.toUpperCase()} network address you will be paying from`}
+                    />
+                    <CreationField
+                        type={FormField.internalWallet}
+                        text={'Internal Wallet Address'}
+                        placeholder={'The address to pay to. Depends on the selected currency'}
+                        isDisabled={true}
                     />
                     <CreationField
                         type={FormField.tocAgreed}

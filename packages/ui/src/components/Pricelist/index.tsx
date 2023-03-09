@@ -18,6 +18,7 @@ const Pricelist = () => {
             dispatch(updateNftTiersState({ ...quantities, limit: limit }))
             setTimeout(() => setLoading(false), 300)
         })()
+        //eslint-disable-next-line
     }, [])
 
     return (

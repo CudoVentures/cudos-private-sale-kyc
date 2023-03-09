@@ -1,3 +1,5 @@
+import { APP_DETAILS } from "utils/constants"
+
 export enum Currencies {
     ETH = 'ETH',
     USDC = 'USDC',
@@ -12,6 +14,22 @@ export enum CurrencyAlias {
     tether = 'tether',
     usdCoin = 'usd-coin',
     cudos = 'cudos'
+}
+
+export const CurrencyToInternalWalletMapper = {
+    [Currencies.ETH]: APP_DETAILS.internalAddresses.ETHEREUM,
+    [Currencies.SOL]: APP_DETAILS.internalAddresses.SOLANA,
+    [Currencies.USDT]: APP_DETAILS.internalAddresses.ETHEREUM,
+    [Currencies.USDC]: APP_DETAILS.internalAddresses.ETHEREUM,
+    [Currencies.CUDOS]: APP_DETAILS.internalAddresses.CUDOS
+}
+
+export const CurrencyToWalletAliasMapper = {
+    [Currencies.ETH]: CurrencyAlias.ethereum,
+    [Currencies.SOL]: CurrencyAlias.solana,
+    [Currencies.USDT]: CurrencyAlias.ethereum,
+    [Currencies.USDC]: CurrencyAlias.ethereum,
+    [Currencies.CUDOS]: CurrencyAlias.cudos
 }
 
 export const CurrencyToAlias = {
@@ -44,9 +62,10 @@ export const defaultCurrencyRates: CURRENCY_RATES = {
 
 export enum FormFieldErrors {
     invalidCudosAddress = 'Invalid Cudos Address',
+    invalidSolanaAddress = 'Invalid Solana Address',
+    invalidEthereumAddress = 'Invalid Ethereum Address',
     invalidEmail = 'Invalid email format',
     invalidData = 'Invalid Data',
-    shouldBeMoreThan = 'Amount should be more than $1000.00',
     invalidName = 'Invalid Name',
     invalidNftCount = 'Maximum 20',
     invalidTiersTotal = 'Minimum $1,275.00'
@@ -56,10 +75,10 @@ export enum FormField {
     connectedAddress = 'connectedAddress',
     firstName = 'firstName',
     lastName = 'lastName',
-    amountToSpend = 'amountToSpend',
     email = 'email',
     nftCount = 'nftCount',
     externalWallet = 'externalWallet',
+    internalWallet = 'internalWallet',
     tocAgreed = 'tocAgreed',
     nftTiers = 'nftTiers',
     nftTiersTotal = 'nftTiersTotal'

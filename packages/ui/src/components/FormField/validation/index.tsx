@@ -2,6 +2,9 @@ import { bech32 } from "bech32"
 import { nftTiersState } from "store/nftTiers"
 import { NftTier, PrivateSaleFields } from "store/user"
 import isEmail from "validator/lib/isEmail"
+import { APP_DETAILS } from "utils/constants"
+import { kycStatus } from "utils/onfido"
+import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
 
 import { Currencies, FormField, FormFieldErrors } from "../types"
 
@@ -38,22 +41,6 @@ export const isValidName = (name: string): { isValid: boolean, tooltip: string }
     return { isValid: false, tooltip: FormFieldErrors.invalidName }
 }
 
-export const isValidAmountToSpend = (amount: string): { isValid: boolean, tooltip: string } => {
-    let isValid = true
-    let tooltip = ''
-    if (!isZeroLength(amount)) {
-        const parsedAmount = parseFloat(amount)
-        if (!parsedAmount) {
-            isValid = false
-            tooltip = FormFieldErrors.invalidData
-        } else if (parseFloat(amount) < 1000) {
-            isValid = false
-            tooltip = FormFieldErrors.shouldBeMoreThan
-        }
-    }
-    return { isValid, tooltip }
-}
-
 export const isValidEmail = (email: string): { isValid: boolean, tooltip: string } => {
     if (isZeroLength(email) || isEmail(email)) {
         return { isValid: true, tooltip: '' }
@@ -68,9 +55,51 @@ export const isValidNftCount = (count: number): { isValid: boolean, tooltip: str
     return { isValid: false, tooltip: FormFieldErrors.invalidNftCount }
 }
 
-export const isValidExternalWallet = (count: number): { isValid: boolean, tooltip: string } => {
-    //TODO: Any validation for this?
-    return { isValid: true, tooltip: '' }
+export const isValidEthereumAddress = (address: string) => {
+    const regex = /^0x[a-fA-F0-9]{40}$/;
+    if (regex.test(address)) {
+        return { isValid: true, tooltip: '' }
+    }
+    return { isValid: false, tooltip: FormFieldErrors.invalidEthereumAddress }
+}
+
+export const isValidSolanaAddress = (address: string) => {
+    try {
+        const publicKey = new SolanaPublicKey(address)
+        if (publicKey.toBase58() === address) {
+            return { isValid: true, tooltip: '' }
+        } else {
+            throw new Error('Invalid checksum')
+        }
+    } catch (error) {
+        return { isValid: false, tooltip: FormFieldErrors.invalidSolanaAddress }
+    }
+}
+
+export const isValidExternalWallet = (externalWallet: string, chosenCurrency: Currencies): { isValid: boolean, tooltip: string } => {
+    if (isZeroLength(externalWallet)) {
+        return { isValid: true, tooltip: '' }
+    }
+    switch (chosenCurrency) {
+        case Currencies.ETH:
+        case Currencies.USDC:
+        case Currencies.USDT:
+            return isValidEthereumAddress(externalWallet)
+        case Currencies.SOL:
+            return isValidSolanaAddress(externalWallet)
+        case Currencies.CUDOS:
+            return isValidCudosAddress(externalWallet)
+        default:
+            return { isValid: true, tooltip: '' }
+    }
+}
+
+export const isValidInternalWallet = (internalWallet: string): { isValid: boolean, tooltip: string } => {
+    const predefinedWallets = Object.values(APP_DETAILS.internalAddresses)
+    if (predefinedWallets.includes(internalWallet)) {
+        return { isValid: true, tooltip: '' }
+    }
+    return { isValid: false, tooltip: 'Invalid Internal Wallet' }
 }
 
 export const getTiersTotalSum = (tiers: Record<string, NftTier>) => {
@@ -102,27 +131,36 @@ export const isValidTiers = (tiers: Record<string, NftTier>, nonSubmit?: boolean
             }
         }
     }
-    if (!count && nonSubmit || (count && count <= available?.limit!)) {
+    if ((!count && nonSubmit) || (count && count <= available?.limit!)) {
         return { isValid: true, tooltip: '' }
     }
     return { isValid: false, tooltip: `Maximum ${available?.limit!} in total` }
 }
 
-export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonSubmit: boolean, tierData?: nftTiersState }): { isValid: boolean, tooltip: string } => {
+export const getFieldisValid = (
+    fieldType: FormField,
+    value: any,
+    props?: {
+        nonSubmit: boolean,
+        tierData?: nftTiersState,
+        chosenCurrency?: Currencies
+    }
+): { isValid: boolean, tooltip: string } => {
+
     switch (fieldType) {
         case FormField.connectedAddress:
             return isValidCudosAddress(value)
         case FormField.firstName:
         case FormField.lastName:
             return isValidName(value)
-        case FormField.amountToSpend:
-            return isValidAmountToSpend(value)
         case FormField.email:
             return isValidEmail(value)
         case FormField.nftCount:
             return isValidNftCount(value)
         case FormField.externalWallet:
-            return isValidExternalWallet(value)
+            return isValidExternalWallet(value, props?.chosenCurrency!)
+        case FormField.internalWallet:
+            return isValidInternalWallet(value)
         case FormField.nftTiers:
             return isValidTiers(value, props?.nonSubmit, props?.tierData)
         case FormField.nftTiersTotal:
@@ -134,24 +172,25 @@ export const getFieldisValid = (fieldType: FormField, value: any, props?: { nonS
 
 export const isValidSubmit = (chosenCurrency?: Currencies, registrationState?: PrivateSaleFields, tierData?: nftTiersState): boolean => {
     const { isValid: validTiers } = isValidTiers(registrationState?.nftTiers!, false, tierData)
-    const { isValid: isValidTotal } = isValidTiersTotal(registrationState?.nftTiers!)
+    const { isValid: validTiersTotal } = isValidTiersTotal(registrationState?.nftTiers!)
+    const { isValid: validInternalWallet } = isValidInternalWallet(registrationState?.internalWallet!)
+    const { isValid: validExternalWallet } = isValidExternalWallet(registrationState?.externalWallet!, chosenCurrency!)
+    const { isValid: validConnectedAddress } = isValidCudosAddress(registrationState?.connectedAddress!)
+    const { isValid: validFirstName } = isValidName(registrationState?.firstName!)
+    const { isValid: validLastName } = isValidName(registrationState?.lastName!)
+    const { isValid: validEmail } = isValidEmail(registrationState?.email!)
     if (
-        registrationState?.tocAgreed &&
+        registrationState?.kycStatus === kycStatus.verificationSuccessful &&
         chosenCurrency &&
         validTiers &&
-        isValidTotal &&
-        registrationState?.connectedAddress &&
-        getFieldisValid(FormField.connectedAddress, registrationState?.connectedAddress) &&
-        registrationState.firstName &&
-        getFieldisValid(FormField.firstName, registrationState?.firstName) &&
-        registrationState.lastName &&
-        getFieldisValid(FormField.lastName, registrationState?.lastName) &&
-        registrationState.amountToSpend &&
-        getFieldisValid(FormField.amountToSpend, registrationState?.amountToSpend) &&
-        registrationState.email &&
-        getFieldisValid(FormField.email, registrationState?.email) &&
-        registrationState.externalWallet &&
-        getFieldisValid(FormField.externalWallet, registrationState?.externalWallet)
+        validTiersTotal &&
+        validInternalWallet &&
+        validConnectedAddress &&
+        registrationState?.tocAgreed &&
+        (registrationState.email && validEmail) &&
+        (registrationState.lastName && validLastName) &&
+        (registrationState.firstName && validFirstName) &&
+        (registrationState.externalWallet && validExternalWallet)
     ) { return true }
     return false
 }

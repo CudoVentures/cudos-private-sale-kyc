@@ -43,7 +43,7 @@ const ConvertedAmount = () => {
             dispatch(updateUser({
                 registrationState: {
                     ...userState.registrationState!,
-                    [FormField.amountToSpend]: `${stringifiedConvertedAmount} ${chosenCurrency} (converted from USD ${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })})`
+                    amountToSpend: `${stringifiedConvertedAmount} ${chosenCurrency} (converted from USD ${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })})`
                 }
             }))
             setTimeout(() => {
@@ -57,7 +57,6 @@ const ConvertedAmount = () => {
 
     return (
         <Box
-            marginBottom={3.5}
             alignItems={'center'}
             display={'flex'}
             width={'100%'} flexDirection={'row'}

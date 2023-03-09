@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Checkbox, FormControlLabel, Input, InputAdornment, Tooltip, Typography } from '@mui/material'
+import { Box, Checkbox, FormControlLabel, Input, Tooltip, Typography } from '@mui/material'
 
 import { getInvalidInputStyling, styles, validationStyles } from './styles'
 import { RootState } from 'store';
@@ -12,28 +12,6 @@ import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 import Pricelist from 'components/Pricelist';
 import { updateModalState } from 'store/modals';
 import { NftTier, TIER_PRICES } from 'store/nftTiers';
-
-const StartAdornment = ({ text }: { text: string }) => {
-    return (
-        <InputAdornment position="start">
-            <Typography
-                sx={{ marginRight: '-5px' }}
-                fontWeight={600}
-                variant='subtitle2'
-                color={COLORS_DARK_THEME.PRIMARY_STEEL_GRAY_50}>
-                {text}
-            </Typography>
-        </InputAdornment>
-    )
-}
-const getStartAdornment = (type: FormField): JSX.Element => {
-    switch (type) {
-        case FormField.amountToSpend:
-            return <StartAdornment text='USD' />
-        default:
-            return <div></div>
-    }
-}
 
 const CreationField = ({
     type,
@@ -51,6 +29,7 @@ const CreationField = ({
     const [isValid, setIsValid] = useState<boolean>(true)
     const [tooltip, setTooltip] = useState<string>('')
     const user = useSelector((state: RootState) => state.userState)
+    const { chosenCurrency } = useSelector((state: RootState) => state.ratesState)
     const availableNfts = useSelector((state: RootState) => state.nftTiersState)
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -87,7 +66,8 @@ const CreationField = ({
             value,
             {
                 nonSubmit: true,
-                tierData: type === FormField.nftTiers ? availableNfts : undefined
+                tierData: type === FormField.nftTiers ? availableNfts : undefined,
+                chosenCurrency: type === FormField.externalWallet ? chosenCurrency : undefined
             }
         )
         setIsValid(isValid)
@@ -188,7 +168,6 @@ const CreationField = ({
                                 :
                                 <Input
                                     disabled={isDisabled}
-                                    startAdornment={getStartAdornment(type)}
                                     placeholder={placeholder ? placeholder : undefined}
                                     disableUnderline
                                     type='text'

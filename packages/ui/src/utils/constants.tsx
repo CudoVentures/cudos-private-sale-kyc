@@ -14,7 +14,12 @@ import { FOOTER_LOGO } from "components/FooterLogo"
 
 // CONFIGURATIONS
 export const APP_DETAILS = {
-    fadeTimeOut: 1500
+    fadeTimeOut: 1500,
+    internalAddresses: {
+        SOLANA: import.meta.env.VITE_APP_SOLANA_ADDRESS || process.env.VITE_APP_SOLANA_ADDRESS || "",
+        ETHEREUM: import.meta.env.VITE_APP_ETHEREUM_ADDRESS || process.env.VITE_APP_ETHEREUM_ADDRESS || "",
+        CUDOS: import.meta.env.VITE_APP_CUDOS_ADDRESS || process.env.VITE_APP_CUDOS_ADDRESS || ""
+    }
 }
 
 export const CHAIN_DETAILS = {
