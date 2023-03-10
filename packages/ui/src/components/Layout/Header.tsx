@@ -294,7 +294,8 @@ const Header = () => {
               >
                 {kycStatusMapper(registrationState!.kycStatus)}
               </Typography> : null}
-            {registrationState!.kycStatus !== kycStatus.submissionCompleted ?
+            {(registrationState!.kycStatus !== kycStatus.verificationSuccessful &&
+              registrationState!.kycStatus !== kycStatus.submissionCompleted) ?
               !registrationState!.kycStatus ?
                 <Button
                   variant="outlined"

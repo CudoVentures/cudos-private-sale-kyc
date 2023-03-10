@@ -95,7 +95,9 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
         const userAddress = req.params.userAddress;
         const workflowRunId = req.params.workflowRunId;
         const run = await onfido.workflowRun.find(workflowRunId);
+
         const applicant = await onfido.applicant.find(run.applicantId)
+
         if (!run) {
             return res.status(404).json({ error: "Workflow not found" });
         }
@@ -112,9 +114,9 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
                 break
 
             case 'approved':
-                dataToSaveToDb['firstName'] = applicant.firstName
-                dataToSaveToDb['lastName'] = applicant.lastName
-                dataToSaveToDb['email'] = applicant.email
+                dataToSaveToDb['firstName'] = applicant.firstName !== 'default' ? applicant.firstName : undefined
+                dataToSaveToDb['lastName'] = applicant.lastName !== 'default' ? applicant.lastName : undefined
+                dataToSaveToDb['email'] = applicant.email !== 'default' ? applicant.email : undefined
                 dataToSaveToDb['kycStatus'] = currentStatus
                 break
 
