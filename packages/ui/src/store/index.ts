@@ -7,12 +7,14 @@ import userStateReducer from './user'
 import settingsReducer from './settings'
 import modalStateReducer from './modals'
 import ratesStateReducer from './rates'
+import nftTiersStateReducer from './nftTiers'
 
 const rootReducer = combineReducers({
   userState: userStateReducer,
   settings: settingsReducer,
   modalState: modalStateReducer,
-  ratesState: ratesStateReducer
+  ratesState: ratesStateReducer,
+  nftTiersState: nftTiersStateReducer
 })
 
 const persistConfig = {

@@ -6,7 +6,7 @@ import { Box, Typography, Tooltip, Divider, Select, MenuItem, ClickAwayListener 
 import { validationStyles } from "components/FormField/styles"
 import { getTiersTotalSum } from "components/FormField/validation"
 import { COLORS_DARK_THEME } from "theme/colors"
-import { Currencies, FormField } from "components/FormField/types"
+import { Currencies } from "components/FormField/types"
 import { ReactComponent as InfoIcon } from 'assets/vectors/info-icon.svg'
 import { updateRates } from "store/rates"
 import { TailSpin as TailSpinLoader } from 'svg-loaders-react'
@@ -27,7 +27,7 @@ const ConvertedAmount = () => {
     }
 
     const stringifyConvertedAmount = (amount: number) => {
-        if (chosenCurrency === Currencies.USDC) {
+        if (chosenCurrency === Currencies.USDC || chosenCurrency === Currencies.USDT) {
             return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
         }
         return `${amount.toFixed(8)}`
@@ -36,14 +36,14 @@ const ConvertedAmount = () => {
     useEffect(() => {
         if (chosenCurrency) {
             const usdAmount = getTiersTotalSum(userState.registrationState?.nftTiers!)
-            const convertedAmount = usdAmount * currencyRates![chosenCurrency!]
+            const convertedAmount = usdAmount / currencyRates![chosenCurrency!]
             const stringifiedConvertedAmount = stringifyConvertedAmount(convertedAmount)
             setTotalUsd(usdAmount)
             setTotalConvertedString(stringifiedConvertedAmount)
             dispatch(updateUser({
                 registrationState: {
                     ...userState.registrationState!,
-                    [FormField.amountToSpend]: `${stringifiedConvertedAmount} ${chosenCurrency} (converted from USD ${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })})`
+                    amountToSpend: `${stringifiedConvertedAmount} ${chosenCurrency} (converted from USD ${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })})`
                 }
             }))
             setTimeout(() => {
@@ -57,7 +57,6 @@ const ConvertedAmount = () => {
 
     return (
         <Box
-            marginBottom={3.5}
             alignItems={'center'}
             display={'flex'}
             width={'100%'} flexDirection={'row'}

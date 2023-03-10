@@ -175,7 +175,7 @@ const WalletSelector = () => {
                         Connect Wallet
                     </Typography>
                     <Typography marginBottom={3} variant="subtitle1" color="text.secondary">
-                        Connect your wallet in order to create an Allowlist
+                        Connect your wallet in order to participate in the Private Sale
                     </Typography>
                     <Box gap={3} style={walletSelectorStyles.btnsHolder}>
 

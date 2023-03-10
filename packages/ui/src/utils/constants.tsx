@@ -14,7 +14,12 @@ import { FOOTER_LOGO } from "components/FooterLogo"
 
 // CONFIGURATIONS
 export const APP_DETAILS = {
-    fadeTimeOut: 1500
+    fadeTimeOut: 1500,
+    internalAddresses: {
+        SOLANA: import.meta.env.VITE_APP_SOLANA_ADDRESS || process.env.VITE_APP_SOLANA_ADDRESS || "",
+        ETHEREUM: import.meta.env.VITE_APP_ETHEREUM_ADDRESS || process.env.VITE_APP_ETHEREUM_ADDRESS || "",
+        CUDOS: import.meta.env.VITE_APP_CUDOS_ADDRESS || process.env.VITE_APP_CUDOS_ADDRESS || ""
+    }
 }
 
 export const CHAIN_DETAILS = {
@@ -25,6 +30,9 @@ export const CHAIN_DETAILS = {
     GAS_PRICE: import.meta.env.VITE_APP_GAS_PRICE || process.env.VITE_APP_GAS_PRICE || "",
     KYC_REGISTER_APPLICANT_URL: import.meta.env.VITE_APP_KYC_REGISTER_APPLICANT_URL || process.env.VITE_APP_KYC_REGISTER_APPLICANT_URL || "",
     KYC_CREATE_WORKFLOW_RUN_URL: import.meta.env.VITE_APP_KYC_CREATE_WORKFLOW_RUN_URL || process.env.VITE_APP_KYC_CREATE_WORKFLOW_RUN_URL || "",
+    KYC_GET_RESUME_FLOW_TOKEN_URL: import.meta.env.VITE_APP_KYC_GET_RESUME_FLOW_TOKEN_URL || process.env.VITE_APP_KYC_GET_RESUME_FLOW_TOKEN_URL || "",
+    KYC_GET_WORKFLOW_DETAILS_BASE_URL: import.meta.env.VITE_APP_KYC_GET_WORKFLOW_DETAILS_BASE_URL || process.env.VITE_APP_KYC_GET_WORKFLOW_DETAILS_BASE_URL || "",
+    NFT_DEDUCT_URL: import.meta.env.VITE_APP_NFT_DEDUCT_URL || process.env.VITE_APP_NFT_DEDUCT_URL || "",
     FIREBASE: {
         AUTH_VERIFY_URL: import.meta.env.VITE_APP_FIREBASE_AUTH_VERIFY_URL || process.env.VITE_APP_FIREBASE_AUTH_VERIFY_URL || "",
         AUTH_NONCE_URL: import.meta.env.VITE_APP_FIREBASE_AUTH_NONCE_URL || process.env.VITE_APP_FIREBASE_AUTH_NONCE_URL || "",

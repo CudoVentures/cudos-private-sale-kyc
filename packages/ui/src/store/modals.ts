@@ -7,6 +7,7 @@ export interface modalState {
   loadingType?: boolean
   success?: boolean
   failure?: boolean
+  openTOC?: boolean
   data?: any
   selectWallet?: boolean,
 
@@ -19,6 +20,7 @@ export const initialState: modalState = {
   success: false,
   loadingType: false,
   failure: false,
+  openTOC: false,
   data: undefined,
   selectWallet: false,
 }

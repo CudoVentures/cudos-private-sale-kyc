@@ -37,6 +37,18 @@ export const styles = {
             borderRadius: '25px',
         },
     },
+    TOCPaperProps: {
+        sx: {
+            boxShadow: 'none',
+            width: 'max-content',
+            minWidth: '500px',
+            background: COLORS_DARK_THEME.PRIMARY_DARK_BLUE_80,
+            overflow: 'hidden',
+            borderRadius: '25px',
+            height: '100%',
+            maxHeight: '1080px'
+        },
+    },
     defaultPaperProps: {
         sx: {
             boxShadow: 'none',
