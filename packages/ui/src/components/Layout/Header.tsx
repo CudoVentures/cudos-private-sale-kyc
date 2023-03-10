@@ -219,7 +219,7 @@ const Header = () => {
   }, [connectedAddress])
 
   useEffect(() => {
-    if ((onfidoModalOpen || modalFailure || modalSuccess) && connectedAddress) {
+    if (connectedAddress) {
       (async () => {
         const { applicandId, workflowId, kycToken, kycStatus: DbStatus, processCompleted } = await getFlowStatus(connectedAddress)
         let latestStatus = DbStatus

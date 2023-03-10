@@ -22,7 +22,7 @@ const onfido = new Onfido({
 // https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
 var serviceAccount = require(FIREBASE_SERVICE_KEY_PATH);
 const firebase = firebaseadmin.initializeApp({
-  credential: firebaseadmin.credential.cert(serviceAccount)
+    credential: firebaseadmin.credential.cert(serviceAccount)
 });
 
 const app = express();
@@ -123,7 +123,7 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
         }
 
         if (!!dataToSaveToDb['kycStatus']) {
-            await firebase.firestore().collection("cudos-kyc-presale").doc(userAddress).set(dataToSaveToDb);
+            await firebase.firestore().collection("cudos-kyc-presale").doc(userAddress).set({ ...dataToSaveToDb }, { merge: true });
             res.status(200).json({ status: dataToSaveToDb['kycStatus'] });
         } else {
             res.status(204).json({ error: "No suitable status" })
@@ -140,33 +140,33 @@ app.post("/deduct-nfts", async (req: NftDeductRequest, res: Response) => {
         const tiersDoc = await firebase.firestore().collection("cudos-kyc-presale-nfts").doc("tiers").get();
         const limitDoc = await firebase.firestore().collection("cudos-kyc-presale-nfts").doc("limit").get();
         const limit = limitDoc.data()?.total as number
-        
+
         const tiersFromDb = tiersDoc.data()!;
         const tiersFromRequest = req.body
 
-        if (req.body.nftCount > limit) { 
+        if (req.body.nftCount > limit) {
             throw new Error("invalid nft count");
         }
 
         for (const [userTier, { qty }] of Object.entries(tiersFromRequest.nftTiers)) {
             let customTier = userTier
-            if(customTier === 'Blue Diamond') {
+            if (customTier === 'Blue Diamond') {
                 customTier = 'BlueDiamond'
             }
 
             if (
                 tiersFromDb[customTier] &&
                 tiersFromDb[customTier] >= qty
-                ) {
-                    tiersFromDb[customTier] -= qty
+            ) {
+                tiersFromDb[customTier] -= qty
             } else {
-                res.status(500).json({msg:`${userTier} does not exist`});
+                res.status(500).json({ msg: `${userTier} does not exist` });
                 return;
             }
         }
 
         await firebase.firestore().collection("cudos-kyc-presale-nfts").doc("tiers").set(tiersFromDb);
-        
+
     } catch (err) {
         console.error(err);
         res.status(500).json(err);
