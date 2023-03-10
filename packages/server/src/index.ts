@@ -114,9 +114,9 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
                 break
 
             case 'approved':
-                dataToSaveToDb['firstName'] = applicant.firstName !== 'default' ? applicant.firstName : undefined
-                dataToSaveToDb['lastName'] = applicant.lastName !== 'default' ? applicant.lastName : undefined
-                dataToSaveToDb['email'] = applicant.email !== 'default' ? applicant.email : undefined
+                dataToSaveToDb['firstName'] = applicant.firstName !== 'default' ? applicant.firstName : ''
+                dataToSaveToDb['lastName'] = applicant.lastName !== 'default' ? applicant.lastName : ''
+                dataToSaveToDb['email'] = applicant.email !== 'default' ? applicant.email : ''
                 dataToSaveToDb['kycStatus'] = currentStatus
                 break
 
