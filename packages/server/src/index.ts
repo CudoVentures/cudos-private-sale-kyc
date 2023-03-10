@@ -110,13 +110,7 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
         switch (currentStatus) {
             case 'error':
             case 'declined':
-                dataToSaveToDb['kycStatus'] = currentStatus
-                break
-
             case 'approved':
-                dataToSaveToDb['firstName'] = applicant.firstName !== 'default' ? applicant.firstName : ''
-                dataToSaveToDb['lastName'] = applicant.lastName !== 'default' ? applicant.lastName : ''
-                dataToSaveToDb['email'] = applicant.email !== 'default' ? applicant.email : ''
                 dataToSaveToDb['kycStatus'] = currentStatus
                 break
 
@@ -168,7 +162,7 @@ app.post("/deduct-nfts", async (req: NftDeductRequest, res: Response) => {
         }
 
         await firebase.firestore().collection("cudos-kyc-presale-nfts").doc("tiers").set(tiersFromDb);
-
+        res.status(200).json('success');
     } catch (err) {
         console.error(err);
         res.status(500).json(err);

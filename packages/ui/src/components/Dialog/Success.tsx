@@ -6,9 +6,11 @@ import SuccessIcon from 'assets/vectors/success.svg'
 import { CancelRoundedIcon, ModalContainer, styles } from './styles'
 import { initialState as initialModalState, updateModalState } from 'store/modals'
 import { RootState } from 'store'
+import { useNavigate } from "react-router-dom"
 
 const Success = () => {
 
+  const navigate = useNavigate()
   const dispatch = useDispatch()
 
   const {
@@ -19,6 +21,7 @@ const Success = () => {
 
   const handleModalClose = () => {
     dispatch(updateModalState({ ...initialModalState }))
+    navigate('/')
   }
 
   const closeModal = (event: {}, reason: string) => {

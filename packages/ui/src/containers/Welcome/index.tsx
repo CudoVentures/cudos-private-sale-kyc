@@ -15,7 +15,7 @@ import { updateRates } from 'store/rates'
 import Pricelist from 'components/Pricelist'
 import CompletedProcess from 'components/CompletedProcess'
 import SaleForm from 'components/SaleForm'
-import { kycStatus } from 'utils/onfido'
+import { getFlowStatus, kycStatus } from 'utils/onfido'
 
 const Welcome = () => {
 
@@ -24,6 +24,7 @@ const Welcome = () => {
   const userState = useSelector((state: RootState) => state.userState)
 
   const [loaded, setLoaded] = useState<boolean>(false)
+  const [processCompleted, setProcessCompleted] = useState<boolean>(false)
 
   const loadRates = async () => {
     const rates = await getCurrencyRates(Object.values(Currencies), 'USD')
@@ -34,43 +35,55 @@ const Welcome = () => {
   }
 
   const cleanUp = () => {
-    dispatch(updateUser({
-      registrationState: {
-        ...initialRegistrationState,
-        connectedAddress: userState.address || '',
-        kycApplicantId: userState.registrationState?.kycApplicantId || '',
-        kycWorkflowRunId: userState.registrationState?.kycWorkflowRunId || '',
-        kycToken: userState.registrationState?.kycToken || '',
-        kycStatus: userState.registrationState?.kycStatus || '',
-        processCompleted: userState.registrationState?.processCompleted || false
-      }
-    }))
+    // dispatch(updateUser({
+    //   registrationState: {
+    //     ...initialRegistrationState,
+    //     connectedAddress: userState.address || '',
+    //     kycApplicantId: userState.registrationState?.kycApplicantId || '',
+    //     kycWorkflowRunId: userState.registrationState?.kycWorkflowRunId || '',
+    //     kycStatus: userState.registrationState?.kycStatus || '',
+    //     processCompleted: userState.registrationState?.processCompleted || false
+    //   }
+    // }))
   }
 
   const handleContent = useCallback(() => {
-    if (userState.registrationState?.processCompleted) {
-      return <CompletedProcess text={'We have received your order and will get in touch with you!'} />
-    }
-    if (userState.registrationState?.kycStatus === kycStatus.submissionCompleted) {
-      return <CompletedProcess text={'We have received your documents. Please come back to check on your verification status.'} />
-    }
-    if (userState.registrationState?.kycStatus === kycStatus.verificationSuccessful) {
-      return <SaleForm />
+    if (loaded) {
+      if (processCompleted) {
+        return <CompletedProcess text={'We have received your order and will get in touch with you!'} />
+      }
+      if (userState.registrationState?.kycStatus === kycStatus.submissionCompleted) {
+        return <CompletedProcess text={'We have received your documents. Please come back to check on your verification status.'} />
+      }
+      if (userState.registrationState?.kycStatus === kycStatus.verificationSuccessful) {
+        return <SaleForm />
+      }
+
+      return (
+        <Box gap={5} sx={styles.welcomePricelistHolder}>
+          <Pricelist />
+        </Box>
+      )
     }
 
-    return (
-      <Box gap={5} sx={styles.welcomePricelistHolder}>
-        <Pricelist />
-      </Box>
-    )
-  }, [userState.registrationState?.kycStatus, userState.registrationState?.processCompleted])
+    return <></>
+
+  }, [
+    loaded,
+    userState.registrationState?.kycStatus,
+    userState.registrationState?.processCompleted,
+  ])
 
   // CLEAN-UP
   useEffect(() => {
-    loadRates()
-    setLoaded(true)
-    cleanUp()
-    return () => cleanUp()
+    (async () => {
+      const { processCompleted } = await getFlowStatus(userState.address!)
+      setProcessCompleted(processCompleted)
+      await loadRates()
+      setLoaded(true)
+      cleanUp()
+      return () => cleanUp()
+    })()
     //eslint-disable-next-line
   }, [])
 

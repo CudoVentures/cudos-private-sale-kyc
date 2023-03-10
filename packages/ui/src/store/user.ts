@@ -19,7 +19,6 @@ export const initialRegistrationState: PrivateSaleFields = {
     nftTiers: {},
     tocAgreed: false,
     kycWorkflowRunId: undefined,
-    kycToken: undefined,
     kycStatus: undefined,
     kycApplicantId: undefined,
     processCompleted: false
@@ -36,7 +35,6 @@ export interface PrivateSaleFields {
     internalWallet: string,
     tocAgreed: boolean,
     kycWorkflowRunId: string | undefined,
-    kycToken: string | undefined,
     kycStatus: string | undefined,
     kycApplicantId: string | undefined,
     processCompleted: boolean

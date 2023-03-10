@@ -43,6 +43,7 @@ const SaleForm = () => {
                 loading: true,
                 loadingType: true,
             }))
+
             const { success } = await authenticateWithFirebase(
                 collectedData.connectedAddress,
                 CHAIN_DETAILS.FIREBASE.COLLECTION,
@@ -105,7 +106,7 @@ const SaleForm = () => {
                 message: 'Something went wrong'
             }))
 
-            if (((error as any).request.responseURL as string).endsWith("deduct-nfts")) {
+            if (((error as any).request?.responseURL as string)?.endsWith("deduct-nfts")) {
                 await deleteEverythingButNonce(userState.registrationState?.connectedAddress!);
             }
         }

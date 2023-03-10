@@ -37,6 +37,7 @@ const Header = () => {
   const { failure: modalFailure, success: modalSuccess } = useSelector((state: RootState) => state.modalState)
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [openMenu, setOpenMenu] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true)
   const [onfidoModalOpen, setOnfidoModalOpen] = useState<boolean>(false)
 
   const handleClick = () => {
@@ -221,7 +222,7 @@ const Header = () => {
   useEffect(() => {
     if (connectedAddress) {
       (async () => {
-        const { applicandId, workflowId, kycToken, kycStatus: DbStatus, processCompleted } = await getFlowStatus(connectedAddress)
+        const { applicandId, workflowId, kycStatus: DbStatus, processCompleted } = await getFlowStatus(connectedAddress)
         let latestStatus = DbStatus
         if (workflowId) {
           const onfidoStatus = await getLatestWorkflowStatusFromOnfido(connectedAddress, workflowId)
@@ -235,16 +236,17 @@ const Header = () => {
             ...userState.registrationState,
             kycApplicantId: applicandId,
             kycWorkflowRunId: workflowId,
-            kycToken: kycToken,
             kycStatus: sanitizeKycStatus(latestStatus),
             processCompleted: processCompleted
           }
         }
         dispatch(updateUser(updatedUser as userState))
+        setLoading(false)
       })()
     }
+    setLoading(false)
     //eslint-disable-next-line
-  }, [modalFailure, modalSuccess, onfidoModalOpen])
+  }, [loading, modalFailure, modalSuccess, onfidoModalOpen])
 
   return (
     <AppBar
@@ -273,7 +275,7 @@ const Header = () => {
         id='rightNavContent'
         gap={2}
         sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 0, marginRight: '4rem' }}>
-        {isConnected && !registrationState?.processCompleted ?
+        {!connectedAddress || loading || registrationState?.processCompleted ? null :
           <Box gap={2} display='flex' alignItems={'center'}>
             <Typography>
               Verification
@@ -322,7 +324,7 @@ const Header = () => {
                   </Tooltip>
                 </Box>
               : null}
-          </Box> : null}
+          </Box>}
         <Box sx={headerStyles.btnHolder}>
           <ClickAwayListener
             onClickAway={() => setOpenMenu(false)}

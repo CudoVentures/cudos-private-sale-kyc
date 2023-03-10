@@ -63,7 +63,6 @@ export const getFlowStatus = async (address: string):
     Promise<{
         applicandId: string,
         workflowId: string,
-        kycToken: string,
         kycStatus: kycStatus,
         processCompleted: boolean,
         email: string,
@@ -74,7 +73,6 @@ export const getFlowStatus = async (address: string):
     return {
         applicandId: data.kycApplicantId,
         workflowId: data.kycWorkflowRunId,
-        kycToken: data.kycToken,
         kycStatus: data.kycStatus,
         processCompleted: data.processCompleted,
         email: data.email,
