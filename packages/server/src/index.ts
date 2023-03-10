@@ -111,7 +111,7 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
                 dataToSaveToDb['kycStatus'] = currentStatus
                 break
 
-            case 'completed':
+            case 'approved':
                 dataToSaveToDb['firstName'] = applicant.firstName
                 dataToSaveToDb['lastName'] = applicant.lastName
                 dataToSaveToDb['email'] = applicant.email

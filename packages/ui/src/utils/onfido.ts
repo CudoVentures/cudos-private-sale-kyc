@@ -23,7 +23,7 @@ export const sanitizeKycStatus = (rawStatus: string): kycStatus | undefined => {
             return kycStatus.verificationRejected
         case 'error':
             return kycStatus.submissionErrorTerminated
-        case 'completed':
+        case 'approved':
             return kycStatus.verificationSuccessful
         default:
             return kycStatus.unknown
