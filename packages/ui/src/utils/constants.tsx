@@ -15,6 +15,7 @@ import { FOOTER_LOGO } from "components/FooterLogo"
 // CONFIGURATIONS
 export const APP_DETAILS = {
     fadeTimeOut: 1500,
+    apiKey: import.meta.env.VITE_APP_API_KEY || process.env.VITE_APP_API_KEY || "",
     internalAddresses: {
         SOLANA: import.meta.env.VITE_APP_SOLANA_ADDRESS || process.env.VITE_APP_SOLANA_ADDRESS || "",
         ETHEREUM: import.meta.env.VITE_APP_ETHEREUM_ADDRESS || process.env.VITE_APP_ETHEREUM_ADDRESS || "",

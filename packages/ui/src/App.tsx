@@ -13,6 +13,7 @@ import Welcome from 'containers/Welcome'
 import { LEDGERS } from 'utils/constants'
 import { initialState as initialModalState } from 'store/modals'
 import { initialState as initialRatesState } from 'store/rates'
+import { initialState as initialUserState } from 'store/user'
 import ConnectWallet from 'containers/ConnectWallet'
 import { updateRates } from 'store/rates'
 
@@ -30,10 +31,15 @@ const App = () => {
   const connectAccount = useCallback(async (ledgerType: SUPPORTED_WALLET) => {
 
     try {
+      sessionStorage.clear()
+      localStorage.clear()
       dispatch(updateModalState({
+        ...initialModalState,
         loading: true,
         loadingType: true
       }))
+
+      dispatch(updateUser(initialUserState))
 
       const connectedUser = await connectUser(chosenNetwork!, ledgerType)
 

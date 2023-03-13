@@ -2,7 +2,7 @@ import { CHAIN_DETAILS } from "./constants";
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore/lite';
-import axios from "axios";
+import axios from "api/axios";
 import { signArbitrary } from "./helpers";
 import { SUPPORTED_WALLET } from "cudosjs";
 
