@@ -12,6 +12,7 @@ const ONFIDO_API_TOKEN = process.env.ONFIDO_API_TOKEN || "";
 const ONFIDO_REGION = process.env.ONFIDO_REGION || "EU";
 const ONFIDO_WORKFLOW_ID = process.env.ONFIDO_WORKFLOW_ID || "";
 const FIREBASE_SERVICE_KEY_PATH = process.env.FIREBASE_SERVICE_KEY_PATH || "";
+const API_KEY = process.env.API_KEY || "";
 const ONFIDO_LIGHT_CHECK_AMOUNT_USD = 1000;
 
 const onfido = new Onfido({
@@ -29,6 +30,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(compression());
+
+function requireApiKey(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+) {
+    const apiKey = req.headers['x-api-key'];
+    if (!apiKey || apiKey !== API_KEY) {
+        return res.status(401).send('Unauthorized');
+    }
+    next();
+}
+app.use(requireApiKey);
 
 app.listen(PORT, () => {
     console.log(`cudos-kyc-poc-server listening on port ${PORT}`);

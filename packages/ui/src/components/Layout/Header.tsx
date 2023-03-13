@@ -3,7 +3,7 @@ import { Box, Button, Collapse, Typography, Paper, Divider, AppBar, Tooltip } fr
 import { ClickAwayListener } from '@mui/base';
 import { useDispatch, useSelector } from 'react-redux'
 import * as Onfido from 'onfido-sdk-ui'
-import axios from 'axios';
+import axios from 'api/axios';
 
 import { ReactComponent as ArrowDown } from 'assets/vectors/arrow-down.svg'
 import { ReactComponent as WalletIcon } from 'assets/vectors/wallet-icon.svg'
@@ -297,7 +297,8 @@ const Header = () => {
                 {kycStatusMapper(registrationState!.kycStatus)}
               </Typography> : null}
             {(registrationState!.kycStatus !== kycStatus.verificationSuccessful &&
-              registrationState!.kycStatus !== kycStatus.submissionCompleted) ?
+              registrationState!.kycStatus !== kycStatus.submissionCompleted &&
+              registrationState!.kycStatus !== kycStatus.unknown) ?
               !registrationState!.kycStatus ?
                 <Button
                   variant="outlined"

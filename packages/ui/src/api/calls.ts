@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from './axios'
 import { AliasToCurrency, Currencies, CurrencyToAlias, CURRENCY_RATES, defaultCurrencyRates } from 'components/FormField/types'
 import { CHAIN_DETAILS } from 'utils/constants'
 import { kycStatus } from 'utils/onfido'

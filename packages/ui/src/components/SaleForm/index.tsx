@@ -1,5 +1,5 @@
 import { Box, Button, Collapse, Fade } from "@mui/material"
-import axios from "axios"
+import axios from "api/axios"
 import ConvertedAmount from "components/ConvertedAmount"
 import CreationField from "components/FormField"
 import { FormField, CurrencyToInternalWalletMapper, CurrencyToWalletAliasMapper } from "components/FormField/types"
