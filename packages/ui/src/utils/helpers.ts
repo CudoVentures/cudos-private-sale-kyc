@@ -1,10 +1,30 @@
 import { StdSignature, SUPPORTED_WALLET } from "cudosjs"
 import { connectLedgerByType } from "./config"
 import { CHAIN_DETAILS } from "./constants"
-import { isValidCudosAddress } from "components/FormField/validation";
-import { NftQuantities, NftTier } from "store/nftTiers";
+import { getTiersTotalSum, isValidCudosAddress } from "components/FormField/validation";
+import { NftQuantities, NftTier as NftTierEnum } from "store/nftTiers";
 import { getNftLimit, getNftQuantities } from "./firebase";
+import { Currencies, CURRENCY_RATES } from "components/FormField/types";
+import { NftTier as NftTierInterface } from "store/user";
 
+export const getTotalAmounts = (
+  nftTiers: Record<string, NftTierInterface>,
+  currencyRates: CURRENCY_RATES,
+  chosenCurrency: Currencies
+): { usdAmount: number, stringifiedConvertedAmount: string } => {
+
+  const stringifyConvertedAmount = (amount: number) => {
+    if (chosenCurrency === Currencies.USDC || chosenCurrency === Currencies.USDT) {
+      return `${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+    }
+    return `${amount.toFixed(8)}`
+  }
+
+  const usdAmount = getTiersTotalSum(nftTiers!)
+  const convertedAmount = usdAmount / currencyRates![chosenCurrency!]
+  const stringifiedConvertedAmount = stringifyConvertedAmount(convertedAmount)
+  return { usdAmount, stringifiedConvertedAmount }
+}
 export const getAvailableNftQuantities = async (): Promise<{ quantities: NftQuantities, limit: number }> => {
   const qtyData = await getNftQuantities()
   const limitData = await getNftLimit()
@@ -12,7 +32,7 @@ export const getAvailableNftQuantities = async (): Promise<{ quantities: NftQuan
   let result = {}
   for (const [tier, qty] of Object.entries(qtyData)) {
     if (tier === 'BlueDiamond') {
-      result[NftTier.BlueDiamond] = qty
+      result[NftTierEnum.BlueDiamond] = qty
     } else {
       result[tier] = qty
     }

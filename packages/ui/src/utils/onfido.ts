@@ -1,3 +1,6 @@
+import { Currencies } from "components/FormField/types"
+import { Timestamp } from "firebase/firestore"
+import { NftTier } from "store/user"
 import { getData } from "./firebase"
 
 export enum kycStatus {
@@ -67,7 +70,12 @@ export const getFlowStatus = async (address: string):
         processCompleted: boolean,
         email: string,
         firstName: string,
-        lastName: string
+        lastName: string,
+        chosenCurrency: Currencies,
+        amountToSpend: string,
+        nftTiers: Record<string, NftTier>,
+        currencyRate: number,
+        currencyRateFetchedAt: Timestamp,
     }> => {
     const data = await getData(address)
     return {
@@ -77,6 +85,11 @@ export const getFlowStatus = async (address: string):
         processCompleted: data.processCompleted,
         email: data.email,
         firstName: data.firstName,
-        lastName: data.lastName
+        lastName: data.lastName,
+        chosenCurrency: data.chosenCurrency,
+        amountToSpend: data.amountToSpend,
+        nftTiers: data.nftTiers,
+        currencyRate: data.currencyRate,
+        currencyRateFetchedAt: data.currencyRateFetchedAt
     }
 }

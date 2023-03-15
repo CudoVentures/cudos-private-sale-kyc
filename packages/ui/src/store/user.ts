@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { Currencies } from 'components/FormField/types'
 import { SUPPORTED_WALLET } from 'cudosjs'
 import { CHAIN_DETAILS } from 'utils/constants'
 
@@ -12,10 +13,11 @@ export const initialRegistrationState: PrivateSaleFields = {
     firstName: '',
     lastName: '',
     amountToSpend: '',
+    amountToSpendUsd: '',
+    chosenCurrency: undefined,
     email: '',
     nftCount: '',
-    externalWallet: '',
-    internalWallet: '',
+    payerWalletAddress: '',
     nftTiers: {},
     tocAgreed: false,
     kycWorkflowRunId: undefined,
@@ -28,11 +30,12 @@ export interface PrivateSaleFields {
     firstName: string,
     lastName: string,
     amountToSpend: string,
+    amountToSpendUsd: string,
+    chosenCurrency: Currencies | undefined,
     email: string,
     nftCount: string,
     nftTiers: Record<string, NftTier>,
-    externalWallet: string,
-    internalWallet: string,
+    payerWalletAddress: string,
     tocAgreed: boolean,
     kycWorkflowRunId: string | undefined,
     kycStatus: string | undefined,

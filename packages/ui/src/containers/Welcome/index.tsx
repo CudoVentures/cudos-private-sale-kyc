@@ -1,11 +1,10 @@
-import { Box, Fade } from '@mui/material'
+import { Box, Fade, Link, Typography } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Dialog from 'components/Dialog'
-import { Currencies } from 'components/FormField/types'
+import { Currencies, CurrencyToInternalWalletMapper, FormField } from 'components/FormField/types'
 import { RootState } from 'store'
-import { initialRegistrationState, updateUser } from 'store/user'
 
 import { styles } from './styles'
 import { APP_DETAILS } from 'utils/constants'
@@ -16,15 +15,27 @@ import Pricelist from 'components/Pricelist'
 import CompletedProcess from 'components/CompletedProcess'
 import SaleForm from 'components/SaleForm'
 import { getFlowStatus, kycStatus } from 'utils/onfido'
+import { COLORS_DARK_THEME } from 'theme/colors'
+import { CopyComponent, PriceListTooltip } from 'components/helpers'
+import CreationField from 'components/FormField'
+import { NftTier } from 'store/user'
+import { getTotalAmounts } from 'utils/helpers'
 
 const Welcome = () => {
 
   const location = useLocation()
   const dispatch = useDispatch()
   const userState = useSelector((state: RootState) => state.userState)
+  const { currencyRates } = useSelector((state: RootState) => state.ratesState)
 
   const [loaded, setLoaded] = useState<boolean>(false)
   const [processCompleted, setProcessCompleted] = useState<boolean>(false)
+  const [payeeWallet, setPayeeWallet] = useState<string>('')
+  const [amountToSpend, setAmountToSpend] = useState<string>('')
+  const [usdAmount, setUsdAmount] = useState<number>(0)
+  const [currencyRate, setCurrencyRate] = useState<number>(0)
+  const [nftTiers, setNftTiers] = useState<Record<string, NftTier> | undefined>(undefined)
+  const [fetchedAt, setFetchedAt] = useState<Date | undefined>(undefined)
 
   const loadRates = async () => {
     const rates = await getCurrencyRates(Object.values(Currencies), 'USD')
@@ -50,10 +61,53 @@ const Welcome = () => {
   const handleContent = useCallback(() => {
     if (loaded) {
       if (processCompleted) {
-        return <CompletedProcess text={'We have received your order and will get in touch with you!'} />
+        return (
+          <Box>
+            <Box gap={4} sx={{ maxWidth: '1024px', display: 'flex', flexDirection: 'column', padding: '0rem 8rem' }}>
+              <Typography sx={{ textAlign: 'justify' }} variant="h6">
+                We have received your order successfully. Please proceed with the payment and we will get in touch with you shortly.
+              </Typography>
+              {payeeWallet ?
+                <CreationField
+                  type={FormField.internalWallet}
+                  text={'Payee Wallet Address'}
+                  value={payeeWallet}
+                  placeholder={'AuraPool’s wallet address where you send money to'}
+                  endAdornment={<CopyComponent textToCopy={payeeWallet} />}
+                  isDisabled={true}
+                /> : null}
+              {amountToSpend ?
+                <Box sx={{ display: 'flex' }}>
+                  <CreationField
+                    type={FormField.freeForm}
+                    text={'Amount due'}
+                    value={amountToSpend}
+                    isDisabled={true}
+                    endAdornment={nftTiers && usdAmount && currencyRate && amountToSpend && fetchedAt ?
+                      <PriceListTooltip
+                        tiers={nftTiers}
+                        usdAmount={usdAmount}
+                        rate={currencyRate}
+                        totalDue={amountToSpend}
+                        fetchedAt={fetchedAt}
+                      /> :
+                      undefined}
+                  />
+                </Box> : null}
+              <Typography component={'span'} variant="h6">
+                {"  In the meantime, if you have any questions please reach out to us at "}
+                < Link href={`mailto:support@aurapool.io`
+                } color={COLORS_DARK_THEME.PRIMARY_BLUE} >
+                  support@aurapool.io
+                </Link >
+              </Typography>
+            </Box>
+          </Box>
+        )
       }
+
       if (userState.registrationState?.kycStatus === kycStatus.submissionCompleted) {
-        return <CompletedProcess text={'We have received your documents. Please come back to check on your verification status.'} />
+        return <CompletedProcess text={'We have received your documents. Please come back later or refresh the page to check on your verification status.'} />
       }
       if (userState.registrationState?.kycStatus === kycStatus.verificationSuccessful) {
         return <SaleForm />
@@ -68,6 +122,7 @@ const Welcome = () => {
 
     return <></>
 
+    //eslint-disable-next-line
   }, [
     loaded,
     userState.registrationState?.kycStatus,
@@ -77,8 +132,32 @@ const Welcome = () => {
   // CLEAN-UP
   useEffect(() => {
     (async () => {
-      const { processCompleted } = await getFlowStatus(userState.address!)
+      const { processCompleted, chosenCurrency, amountToSpend, nftTiers, currencyRate, currencyRateFetchedAt } = await getFlowStatus(userState.address!)
       setProcessCompleted(processCompleted)
+      if (processCompleted && chosenCurrency) {
+        setPayeeWallet(CurrencyToInternalWalletMapper[chosenCurrency!])
+        dispatch(updateRates({
+          chosenCurrency: chosenCurrency
+        }))
+      }
+      if (amountToSpend) {
+        setAmountToSpend(amountToSpend)
+      }
+      if (nftTiers) {
+        setNftTiers(nftTiers)
+      }
+      if (currencyRateFetchedAt) {
+        const timestamp = currencyRateFetchedAt
+        const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+        setFetchedAt(date)
+      }
+      if (currencyRate) {
+        setCurrencyRate(currencyRate)
+      }
+      if (nftTiers && currencyRates && chosenCurrency) {
+        const { usdAmount } = getTotalAmounts(nftTiers, currencyRates, chosenCurrency!)
+        setUsdAmount(usdAmount)
+      }
       await loadRates()
       setLoaded(true)
       cleanUp()

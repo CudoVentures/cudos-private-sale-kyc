@@ -16,13 +16,17 @@ import { NftTier, TIER_PRICES } from 'store/nftTiers';
 const CreationField = ({
     type,
     text,
+    value,
     placeholder,
     isDisabled,
+    endAdornment
 }: {
     type: FormField,
     text: string
+    value?: any,
     placeholder?: string,
     isDisabled?: boolean,
+    endAdornment?: JSX.Element
 }) => {
 
     const dispatch = useDispatch()
@@ -67,7 +71,7 @@ const CreationField = ({
             {
                 nonSubmit: true,
                 tierData: type === FormField.nftTiers ? availableNfts : undefined,
-                chosenCurrency: type === FormField.externalWallet ? chosenCurrency : undefined
+                chosenCurrency: type === FormField.payerWalletAddress ? chosenCurrency : undefined
             }
         )
         setIsValid(isValid)
@@ -87,7 +91,7 @@ const CreationField = ({
     }
 
     return (
-        <Box width='100%' marginTop={type === FormField.tocAgreed ? 3 : 0}>
+        <Box width='100%'>
             <Typography
                 display={'flex'}
                 alignItems='center'
@@ -100,8 +104,8 @@ const CreationField = ({
                     placement='bottom-start'
                     PopperProps={validationStyles.tooltipPopper}
                     componentsProps={type === FormField.internalWallet && isValid ? validationStyles.connectedTooltipProps : validationStyles.tooltipProps}
-                    open={!isValid || (type === FormField.internalWallet && isValid && !!chosenCurrency)}
-                    title={type === FormField.internalWallet && isValid ? 'This is the address to submit your payment to' : tooltip}
+                    open={!isValid || (type === FormField.internalWallet && isValid)}
+                    title={type === FormField.internalWallet && isValid ? 'The AuraPool’s wallet address where you have to send your money to.' : tooltip}
                 >
                     {
                         type === FormField.tocAgreed ?
@@ -169,10 +173,11 @@ const CreationField = ({
                                 <Input
                                     disabled={isDisabled}
                                     placeholder={placeholder ? placeholder : undefined}
+                                    endAdornment={endAdornment}
                                     disableUnderline
                                     type='text'
                                     sx={isValid ? styles.input : validationStyles.invalidInput}
-                                    value={user.registrationState![type]}
+                                    value={value ? value : user.registrationState![type]}
                                     onChange={handleChange}
                                 />
                     }
