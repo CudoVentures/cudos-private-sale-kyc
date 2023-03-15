@@ -76,19 +76,19 @@ export const isValidSolanaAddress = (address: string) => {
     }
 }
 
-export const isValidExternalWallet = (externalWallet: string, chosenCurrency: Currencies): { isValid: boolean, tooltip: string } => {
-    if (isZeroLength(externalWallet)) {
+export const isValidExternalWallet = (payerWalletAddress: string, chosenCurrency: Currencies): { isValid: boolean, tooltip: string } => {
+    if (isZeroLength(payerWalletAddress)) {
         return { isValid: true, tooltip: '' }
     }
     switch (chosenCurrency) {
         case Currencies.ETH:
         case Currencies.USDC:
         case Currencies.USDT:
-            return isValidEthereumAddress(externalWallet)
+            return isValidEthereumAddress(payerWalletAddress)
         case Currencies.SOL:
-            return isValidSolanaAddress(externalWallet)
+            return isValidSolanaAddress(payerWalletAddress)
         case Currencies.CUDOS:
-            return isValidCudosAddress(externalWallet)
+            return isValidCudosAddress(payerWalletAddress)
         default:
             return { isValid: true, tooltip: '' }
     }
@@ -157,10 +157,8 @@ export const getFieldisValid = (
             return isValidEmail(value)
         case FormField.nftCount:
             return isValidNftCount(value)
-        case FormField.externalWallet:
+        case FormField.payerWalletAddress:
             return isValidExternalWallet(value, props?.chosenCurrency!)
-        case FormField.internalWallet:
-            return isValidInternalWallet(value)
         case FormField.nftTiers:
             return isValidTiers(value, props?.nonSubmit, props?.tierData)
         case FormField.nftTiersTotal:
@@ -173,8 +171,7 @@ export const getFieldisValid = (
 export const isValidSubmit = (chosenCurrency?: Currencies, registrationState?: PrivateSaleFields, tierData?: nftTiersState): boolean => {
     const { isValid: validTiers } = isValidTiers(registrationState?.nftTiers!, false, tierData)
     const { isValid: validTiersTotal } = isValidTiersTotal(registrationState?.nftTiers!)
-    const { isValid: validInternalWallet } = isValidInternalWallet(registrationState?.internalWallet!)
-    const { isValid: validExternalWallet } = isValidExternalWallet(registrationState?.externalWallet!, chosenCurrency!)
+    const { isValid: validExternalWallet } = isValidExternalWallet(registrationState?.payerWalletAddress!, chosenCurrency!)
     const { isValid: validConnectedAddress } = isValidCudosAddress(registrationState?.connectedAddress!)
     const { isValid: validFirstName } = isValidName(registrationState?.firstName!)
     const { isValid: validLastName } = isValidName(registrationState?.lastName!)
@@ -184,13 +181,12 @@ export const isValidSubmit = (chosenCurrency?: Currencies, registrationState?: P
         chosenCurrency &&
         validTiers &&
         validTiersTotal &&
-        validInternalWallet &&
         validConnectedAddress &&
         registrationState?.tocAgreed &&
         (registrationState.email && validEmail) &&
         (registrationState.lastName && validLastName) &&
         (registrationState.firstName && validFirstName) &&
-        (registrationState.externalWallet && validExternalWallet)
+        (registrationState.payerWalletAddress && validExternalWallet)
     ) { return true }
     return false
 }

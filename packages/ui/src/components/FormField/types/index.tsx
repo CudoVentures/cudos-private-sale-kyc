@@ -77,8 +77,9 @@ export enum FormField {
     lastName = 'lastName',
     email = 'email',
     nftCount = 'nftCount',
-    externalWallet = 'externalWallet',
+    payerWalletAddress = 'payerWalletAddress',
     internalWallet = 'internalWallet',
+    freeForm = 'freeForm',
     tocAgreed = 'tocAgreed',
     nftTiers = 'nftTiers',
     nftTiersTotal = 'nftTiersTotal'

@@ -1,4 +1,4 @@
-import { Box, Button, Collapse, Fade } from "@mui/material"
+import { Box, Button, Collapse, Fade, Typography } from "@mui/material"
 import axios from "api/axios"
 import ConvertedAmount from "components/ConvertedAmount"
 import CreationField from "components/FormField"
@@ -15,17 +15,18 @@ import { updateNftTiersState } from "store/nftTiers"
 import { PrivateSaleFields, updateUser } from "store/user"
 import { APP_DETAILS, CHAIN_DETAILS } from "utils/constants"
 import { authenticateWithFirebase, saveData } from "utils/firebase"
-import { getAvailableNftQuantities } from "utils/helpers"
+import { getAvailableNftQuantities, getTotalAmounts } from "utils/helpers"
 import { getFlowStatus } from "utils/onfido"
 import { deleteEverythingButNonce } from '../../utils/firebase';
 import { TailSpin as TailSpinLoader } from 'svg-loaders-react'
+import { COLORS_DARK_THEME } from "theme/colors"
 
 const SaleForm = () => {
 
     const dispatch = useDispatch()
     const userState = useSelector((state: RootState) => state.userState)
     const tierData = useSelector((state: RootState) => state.nftTiersState)
-    const { chosenCurrency } = useSelector((state: RootState) => state.ratesState)
+    const { chosenCurrency, currencyRates, fetchedAt } = useSelector((state: RootState) => state.ratesState)
     const { isValid: validTiers } = getFieldisValid(FormField.nftTiers, userState.registrationState?.nftTiers!, { nonSubmit: false, tierData: tierData })
     const { isValid: validTiersTotal } = isValidTiersTotal(userState.registrationState?.nftTiers!)
     const [emailFromDb, setEmailFromDb] = useState<string>('')
@@ -34,21 +35,27 @@ const SaleForm = () => {
     const [loading, setLoading] = useState<boolean>(true)
 
     const handleSubmit = async () => {
-        const collectedData: PrivateSaleFields = {
-            ...userState.registrationState!,
-            nftCount: Object.values(userState.registrationState?.nftTiers!).reduce((acc, { qty }) => acc + qty, 0).toString()
-        }
         try {
             dispatch(updateModalState({
                 loading: true,
                 loadingType: true,
             }))
 
+            const { usdAmount, stringifiedConvertedAmount } = getTotalAmounts(userState.registrationState?.nftTiers!, currencyRates!, chosenCurrency!)
+
+            const collectedData: PrivateSaleFields = {
+                ...userState.registrationState!,
+                amountToSpend: `${stringifiedConvertedAmount} ${chosenCurrency}`,
+                amountToSpendUsd: `$${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+                nftCount: Object.values(userState.registrationState?.nftTiers!).reduce((acc, { qty }) => acc + qty, 0).toString()
+            }
+
             const { success } = await authenticateWithFirebase(
                 collectedData.connectedAddress,
                 CHAIN_DETAILS.FIREBASE.COLLECTION,
                 userState.connectedLedger!
             )
+
             if (!success) {
                 throw new Error('Failed to authenticate with Firebase')
             }
@@ -56,20 +63,24 @@ const SaleForm = () => {
             const dataForSaving: DocumentData = {
                 ...collectedData,
                 formSubmittedAt: Timestamp.now().toDate(),
+                currencyRate: currencyRates![chosenCurrency!],
+                currencyRateFetchedAt: fetchedAt,
                 processCompleted: true
             }
 
+            delete dataForSaving['connectedAddress']
+
             const dataForUserDownload = {
-                connectedAddress: collectedData.connectedAddress,
-                paymentFrom: collectedData.externalWallet,
-                paymentTo: collectedData.internalWallet,
+                UID: collectedData.connectedAddress,
                 firstName: collectedData.firstName,
                 lastName: collectedData.lastName,
-                amountToSpend: collectedData.amountToSpend,
                 email: collectedData.email,
+                paymentFromAddress: collectedData.payerWalletAddress,
+                paymentToAddress: CurrencyToInternalWalletMapper[collectedData.chosenCurrency!],
+                amountToSpend: collectedData.amountToSpend,
+                amountToSpendUSD: collectedData.amountToSpendUsd,
                 nftCount: collectedData.nftCount,
-                nftTiers: collectedData.nftTiers,
-                tocAgreed: collectedData.tocAgreed
+                nftTiers: collectedData.nftTiers
             }
 
             await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
@@ -133,25 +144,6 @@ const SaleForm = () => {
         //eslint-disable-next-line
     }, [])
 
-    useEffect(() => {
-        if (chosenCurrency) {
-            dispatch(updateUser({
-                registrationState: {
-                    ...userState.registrationState!,
-                    internalWallet: CurrencyToInternalWalletMapper[chosenCurrency]
-                }
-            }))
-            return
-        }
-        dispatch(updateUser({
-            registrationState: {
-                ...userState.registrationState!,
-                internalWallet: ''
-            }
-        }))
-        //eslint-disable-next-line
-    }, [chosenCurrency])
-
     return (loading ? <TailSpinLoader /> :
         <Fade in={!loading} timeout={APP_DETAILS.fadeTimeOut}>
             <Box gap={4} sx={styles.formHolder}>
@@ -197,16 +189,13 @@ const SaleForm = () => {
                 >
                     <Box gap={3} sx={{ display: 'flex', flexDirection: 'column' }}>
                         <CreationField
-                            type={FormField.externalWallet}
-                            text={'External Wallet Address'}
-                            placeholder={`The ${CurrencyToWalletAliasMapper[chosenCurrency!]?.toUpperCase()} network address you will be paying from`}
+                            type={FormField.payerWalletAddress}
+                            text={'Payer Wallet Address'}
+                            placeholder={`Your ${CurrencyToWalletAliasMapper[chosenCurrency!]?.toUpperCase()} wallet address where you pay from`}
                         />
-                        <CreationField
-                            type={FormField.internalWallet}
-                            text={'Internal Wallet Address'}
-                            placeholder={'The address to pay to. Depends on the selected currency'}
-                            isDisabled={true}
-                        />
+                        <Typography sx={{ fontSize: '12px', marginTop: 1 }} color={COLORS_DARK_THEME.PRIMARY_BLUE}>
+                            We will inform you of the AuraPool’s wallet address after we successfully receive your order!
+                        </Typography>
                         <CreationField
                             type={FormField.tocAgreed}
                             text={'Terms & Conditions'}
