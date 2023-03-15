@@ -84,13 +84,15 @@ const Welcome = () => {
                     value={amountToSpend}
                     isDisabled={true}
                     endAdornment={nftTiers && usdAmount && currencyRate && amountToSpend && fetchedAt ?
-                      <PriceListTooltip
-                        tiers={nftTiers}
-                        usdAmount={usdAmount}
-                        rate={currencyRate}
-                        totalDue={amountToSpend}
-                        fetchedAt={fetchedAt}
-                      /> :
+                      <Box padding='12px' color={'black'}>
+                        <PriceListTooltip
+                          tiers={nftTiers}
+                          usdAmount={usdAmount}
+                          rate={currencyRate}
+                          totalDue={amountToSpend}
+                          fetchedAt={fetchedAt}
+                        />
+                      </Box> :
                       undefined}
                   />
                 </Box> : null}
