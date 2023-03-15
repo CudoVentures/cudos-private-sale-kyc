@@ -11,6 +11,9 @@ export default defineConfig({
   define: {
     'process.env': {}
   },
+  server: {
+    port: parseInt(process.env.PORT),
+  },
   build: {
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
