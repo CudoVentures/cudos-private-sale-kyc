@@ -109,8 +109,8 @@ export const LEDGERS = {
 export const FOOTER = {
     LEFT_LINKS: [
         { text: <FOOTER_LOGO />, url: 'https://www.cudos.org' },
-        { text: 'Terms & Conditions', url: 'https://www.cudos.org/terms-and-conditions/' },
-        { text: 'Privacy Policy', url: 'https://www.cudos.org/privacy-policy' },
+        { text: 'Terms & Conditions', url: 'https://www.aurapool.io/terms-and-conditions/' },
+        { text: 'Privacy Policy', url: 'https://www.aurapool.io/privacy-policy/' },
         { text: 'aurapool.io', url: 'https://www.aurapool.io' },
         { text: `License © ${moment().year()}`, url: 'https://www.aurapool.io' },
     ],
