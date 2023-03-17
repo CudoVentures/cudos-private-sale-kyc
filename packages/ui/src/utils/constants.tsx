@@ -2,13 +2,7 @@ import moment from "moment"
 import cudosLogo from 'assets/vectors/cudos-logo.svg'
 import cudosAdminLogo from 'assets/vectors/cudos-admin-logo.svg'
 import { ReactComponent as TwitterIcon } from 'assets/vectors/twitter.svg'
-import { ReactComponent as TelegramIcon } from 'assets/vectors/telegram.svg'
 import { ReactComponent as DiscordIcon } from 'assets/vectors/discord.svg'
-import { ReactComponent as LinkedInIcon } from 'assets/vectors/linkedin.svg'
-import { ReactComponent as MediumIcon } from 'assets/vectors/medium.svg'
-import { ReactComponent as YouTubeIcon } from 'assets/vectors/youtube.svg'
-import { ReactComponent as FacebookIcon } from 'assets/vectors/facebook.svg'
-import { ReactComponent as SpotifyIcon } from 'assets/vectors/spotify.svg'
 import { SUPPORTED_WALLET } from "cudosjs"
 import { FOOTER_LOGO } from "components/FooterLogo"
 
@@ -117,18 +111,12 @@ export const FOOTER = {
         { text: <FOOTER_LOGO />, url: 'https://www.cudos.org' },
         { text: 'Terms & Conditions', url: 'https://www.cudos.org/terms-and-conditions/' },
         { text: 'Privacy Policy', url: 'https://www.cudos.org/privacy-policy' },
-        { text: 'cudos.org', url: 'https://www.cudos.org/' },
-        { text: `License © 2018 - ${moment().year()}`, url: 'https://www.cudos.org/' },
+        { text: 'aurapool.io', url: 'https://www.aurapool.io' },
+        { text: `License © ${moment().year()}`, url: 'https://www.aurapool.io' },
     ],
     RIGHT_LINKS: [
-        { icon: <TwitterIcon />, url: 'https://twitter.com/CUDOS_' },
-        { icon: <TelegramIcon />, url: 'https://t.me/cudostelegram' },
-        { icon: <DiscordIcon />, url: 'https://discord.com/invite/t397SKqf4u' },
-        { icon: <LinkedInIcon />, url: 'https://www.linkedin.com/company/cudos1' },
-        { icon: <MediumIcon />, url: 'https://medium.com/cudos' },
-        { icon: <YouTubeIcon />, url: 'https://www.youtube.com/c/CUDOS' },
-        { icon: <FacebookIcon />, url: 'https://www.facebook.com/cudos.org' },
-        { icon: <SpotifyIcon />, url: 'https://open.spotify.com/show/2lZuBXJ270g7taK06tnK35' },
+        { icon: <TwitterIcon />, url: 'https://twitter.com/AuraPool_' },
+        { icon: <DiscordIcon />, url: 'https://discord.com/invite/aurapool' },
 
     ]
 }
