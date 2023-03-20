@@ -4,12 +4,13 @@ import cudosAdminLogo from 'assets/vectors/cudos-admin-logo.svg'
 import { ReactComponent as TwitterIcon } from 'assets/vectors/twitter.svg'
 import { ReactComponent as DiscordIcon } from 'assets/vectors/discord.svg'
 import { SUPPORTED_WALLET } from "cudosjs"
-import { FOOTER_LOGO } from "components/FooterLogo"
+import { ReactComponent as AuraPoolLogo } from 'assets/vectors/aura-pool-logo.svg'
 
 // CONFIGURATIONS
 export const APP_DETAILS = {
     fadeTimeOut: 1500,
     apiKey: import.meta.env.VITE_APP_API_KEY || process.env.VITE_APP_API_KEY || "",
+    DEPLOYMENT_VERSION: import.meta.env.VITE_APP_DEPLOYMENT_VERSION || process.env.VITE_APP_DEPLOYMENT_VERSION || "",
     internalAddresses: {
         SOLANA: import.meta.env.VITE_APP_SOLANA_ADDRESS || process.env.VITE_APP_SOLANA_ADDRESS || "",
         ETHEREUM: import.meta.env.VITE_APP_ETHEREUM_ADDRESS || process.env.VITE_APP_ETHEREUM_ADDRESS || "",
@@ -108,11 +109,12 @@ export const LEDGERS = {
 
 export const FOOTER = {
     LEFT_LINKS: [
-        { text: <FOOTER_LOGO />, url: 'https://www.aurapool.io' },
-        { text: 'Terms & Conditions', url: 'https://www.aurapool.io/terms-and-conditions/' },
-        { text: 'Privacy Policy', url: 'https://www.aurapool.io/privacy-policy/' },
-        { text: 'aurapool.io', url: 'https://www.aurapool.io' },
-        { text: `License © ${moment().year()}`, url: 'https://www.aurapool.io' },
+        { text: <AuraPoolLogo style={{height: '40px'}} />, url: 'https://www.aurapool.io' },
+        { text: 'Terms & Conditions', url: 'https://www.cudos.org/terms-and-conditions/' },
+        { text: 'Privacy Policy', url: 'https://www.cudos.org/privacy-policy' },
+        { text: 'cudos.org', url: 'https://www.cudos.org/' },
+        { text: `License © 2018 - ${moment().year()}`, url: 'https://www.cudos.org/' },
+        { text: `${APP_DETAILS.DEPLOYMENT_VERSION}`, url: `https://github.com/CudoVentures/cudos-private-sale-kyc/releases/tag/${APP_DETAILS.DEPLOYMENT_VERSION}` }
     ],
     RIGHT_LINKS: [
         { icon: <TwitterIcon />, url: 'https://twitter.com/AuraPool_' },
