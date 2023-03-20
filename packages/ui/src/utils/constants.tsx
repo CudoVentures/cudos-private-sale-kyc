@@ -10,12 +10,13 @@ import { ReactComponent as YouTubeIcon } from 'assets/vectors/youtube.svg'
 import { ReactComponent as FacebookIcon } from 'assets/vectors/facebook.svg'
 import { ReactComponent as SpotifyIcon } from 'assets/vectors/spotify.svg'
 import { SUPPORTED_WALLET } from "cudosjs"
-import { FOOTER_LOGO } from "components/FooterLogo"
+import { ReactComponent as AuraPoolLogo } from 'assets/vectors/aura-pool-logo.svg'
 
 // CONFIGURATIONS
 export const APP_DETAILS = {
     fadeTimeOut: 1500,
     apiKey: import.meta.env.VITE_APP_API_KEY || process.env.VITE_APP_API_KEY || "",
+    DEPLOYMENT_VERSION: import.meta.env.VITE_APP_DEPLOYMENT_VERSION || process.env.VITE_APP_DEPLOYMENT_VERSION || "",
     internalAddresses: {
         SOLANA: import.meta.env.VITE_APP_SOLANA_ADDRESS || process.env.VITE_APP_SOLANA_ADDRESS || "",
         ETHEREUM: import.meta.env.VITE_APP_ETHEREUM_ADDRESS || process.env.VITE_APP_ETHEREUM_ADDRESS || "",
@@ -114,11 +115,12 @@ export const LEDGERS = {
 
 export const FOOTER = {
     LEFT_LINKS: [
-        { text: <FOOTER_LOGO />, url: 'https://www.cudos.org' },
+        { text: <AuraPoolLogo style={{height: '40px'}} />, url: 'https://www.cudos.org' },
         { text: 'Terms & Conditions', url: 'https://www.cudos.org/terms-and-conditions/' },
         { text: 'Privacy Policy', url: 'https://www.cudos.org/privacy-policy' },
         { text: 'cudos.org', url: 'https://www.cudos.org/' },
         { text: `License © 2018 - ${moment().year()}`, url: 'https://www.cudos.org/' },
+        { text: `${APP_DETAILS.DEPLOYMENT_VERSION}`, url: `https://github.com/CudoVentures/cudos-private-sale-kyc/releases/tag/${APP_DETAILS.DEPLOYMENT_VERSION}` }
     ],
     RIGHT_LINKS: [
         { icon: <TwitterIcon />, url: 'https://twitter.com/CUDOS_' },

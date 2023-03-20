@@ -12,7 +12,7 @@ export default defineConfig({
     'process.env': {}
   },
   server: {
-    port: parseInt(process.env.PORT),
+    port: parseInt(process.env.VITE_APP_PORT || "3000"),
   },
   build: {
     sourcemap: false,
