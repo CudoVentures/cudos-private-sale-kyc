@@ -1,0 +1,15 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "strict": true,
+        "lib": ["es5", "es2015"],
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "target": "es5",
+        "typeRoots": ["./node_modules/@types"],
+        "noImplicitAny": false,
+        "isolatedModules": true
+    }
+}
