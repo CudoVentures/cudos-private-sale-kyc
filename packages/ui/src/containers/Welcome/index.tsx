@@ -98,9 +98,9 @@ const Welcome = () => {
                 </Box> : null}
               <Typography component={'span'} variant="h6">
                 {"  In the meantime, if you have any questions please reach out to us at "}
-                < Link href={`mailto:support@aurapool.io`
+                < Link href={`mailto:enquiries@aurapool.io`
                 } color={COLORS_DARK_THEME.PRIMARY_BLUE} >
-                  support@aurapool.io
+                  enquiries@aurapool.io
                 </Link >
               </Typography>
             </Box>
