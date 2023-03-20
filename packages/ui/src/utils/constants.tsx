@@ -110,10 +110,10 @@ export const LEDGERS = {
 export const FOOTER = {
     LEFT_LINKS: [
         { text: <AuraPoolLogo style={{height: '40px'}} />, url: 'https://www.aurapool.io' },
-        { text: 'Terms & Conditions', url: 'https://www.cudos.org/terms-and-conditions/' },
-        { text: 'Privacy Policy', url: 'https://www.cudos.org/privacy-policy' },
-        { text: 'cudos.org', url: 'https://www.cudos.org/' },
-        { text: `License © 2018 - ${moment().year()}`, url: 'https://www.cudos.org/' },
+        { text: 'Terms & Conditions', url: 'https://www.aurapool.io/terms-and-conditions/' },
+        { text: 'Privacy Policy', url: 'https://www.aurapool.io/privacy-policy' },
+        { text: 'aurapool.io', url: 'https://www.aurapool.io' },
+        { text: `License © ${moment().year()}`, url: 'https://www.aurapool.io' },
         { text: `${APP_DETAILS.DEPLOYMENT_VERSION}`, url: `https://github.com/CudoVentures/cudos-private-sale-kyc/releases/tag/${APP_DETAILS.DEPLOYMENT_VERSION}` }
     ],
     RIGHT_LINKS: [
