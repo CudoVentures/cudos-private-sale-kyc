@@ -22,6 +22,9 @@
     "baseUrl": "./src",
     "noImplicitAny": false
   },
+  "globals": {
+    "process": "global"
+  },
   "include": [
     "src",
     "types"
