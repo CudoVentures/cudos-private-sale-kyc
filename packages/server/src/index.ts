@@ -1,35 +1,18 @@
 import express, { Response } from "express";
 import cors from "cors";
 import compression from "compression";
-import * as dotenv from "dotenv";
 import { ApplicantRequest, AuthRequest, LoginRequest, WorkflowRunRequest, NftDeductRequest } from './types';
 import { Onfido, Region } from "@onfido/api";
 import * as firebaseadmin from "firebase-admin";
-
-dotenv.config({ path: `${__dirname}/../../config/.env` });
-const PORT = process.env.PORT || 8881;
-const ONFIDO_API_TOKEN = process.env.ONFIDO_API_TOKEN || "";
-const ONFIDO_REGION = process.env.ONFIDO_REGION || "EU";
-const ONFIDO_WORKFLOW_ID = process.env.ONFIDO_WORKFLOW_ID || "";
-const FIREBASE_SERVICE_KEY_PATH = process.env.FIREBASE_SERVICE_KEY_PATH || "";
-const API_KEY = process.env.API_KEY || "";
-const ONFIDO_LIGHT_CHECK_AMOUNT_USD = 1000;
-const COLLECTION = process.env.VITE_APP_FIREBASE_COLLECTION || "";
-const NFTS_COLLECTION = {
-    NAME: COLLECTION + '-nfts',
-    DOCUMENTS: {
-        limit: 'limit',
-        tiers: 'tiers'
-    }
-}
+import { CONFIG, initializeNftCollection } from "./helpers";
 
 const onfido = new Onfido({
-    apiToken: ONFIDO_API_TOKEN,
-    region: Region[ONFIDO_REGION],
+    apiToken: CONFIG.ONFIDO_API_TOKEN,
+    region: Region[CONFIG.ONFIDO_REGION],
 });
 
 // https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
-var serviceAccount = require(FIREBASE_SERVICE_KEY_PATH);
+var serviceAccount = require(CONFIG.FIREBASE_SERVICE_KEY_PATH);
 const firebase = firebaseadmin.initializeApp({
     credential: firebaseadmin.credential.cert(serviceAccount)
 });
@@ -45,15 +28,16 @@ function requireApiKey(
     next: express.NextFunction
 ) {
     const apiKey = req.headers['x-api-key'];
-    if (!apiKey || apiKey !== API_KEY) {
+    if (!apiKey || apiKey !== CONFIG.API_KEY) {
         return res.status(401).send('Unauthorized');
     }
     next();
 }
 app.use(requireApiKey);
 
-app.listen(PORT, () => {
-    console.log(`cudos-kyc-poc-server listening on port ${PORT}`);
+app.listen(CONFIG.PORT, async () => {
+    await initializeNftCollection();
+    console.log(`cudos-kyc-poc-server listening on port ${CONFIG.PORT}`);
 });
 
 app.post("/login", async (req: LoginRequest, res: Response) => {
@@ -96,10 +80,10 @@ app.post("/authenticate", async (req: AuthRequest, res: Response) => {
 app.post("/create-workflow-run", async (req: WorkflowRunRequest, res: Response) => {
     try {
         const { amount, address } = req.body
-        const balanceUSD = amount < ONFIDO_LIGHT_CHECK_AMOUNT_USD ? ONFIDO_LIGHT_CHECK_AMOUNT_USD : ONFIDO_LIGHT_CHECK_AMOUNT_USD + 1
+        const balanceUSD = amount < CONFIG.ONFIDO_LIGHT_CHECK_AMOUNT_USD ? CONFIG.ONFIDO_LIGHT_CHECK_AMOUNT_USD : CONFIG.ONFIDO_LIGHT_CHECK_AMOUNT_USD + 1
         const workflowRun = await onfido.workflowRun.create({
             applicantId: req.body.applicantId,
-            workflowId: ONFIDO_WORKFLOW_ID,
+            workflowId: CONFIG.ONFIDO_WORKFLOW_ID,
             customData: {
                 address: address,
                 balance: balanceUSD
@@ -141,7 +125,7 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
         }
 
         if (!!dataToSaveToDb['kycStatus']) {
-            await firebase.firestore().collection(COLLECTION).doc(userAddress).set({ ...dataToSaveToDb }, { merge: true });
+            await firebase.firestore().collection(CONFIG.COLLECTION).doc(userAddress).set({ ...dataToSaveToDb }, { merge: true });
             res.status(200).json({ status: dataToSaveToDb['kycStatus'] });
         } else {
             res.status(204).json({ error: "No suitable status" })
@@ -155,8 +139,8 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
 
 app.post("/deduct-nfts", async (req: NftDeductRequest, res: Response) => {
     try {
-        const tiersDoc = await firebase.firestore().collection(NFTS_COLLECTION.NAME).doc(NFTS_COLLECTION.DOCUMENTS.tiers).get();
-        const limitDoc = await firebase.firestore().collection(NFTS_COLLECTION.NAME).doc(NFTS_COLLECTION.DOCUMENTS.limit).get();
+        const tiersDoc = await firebase.firestore().collection(CONFIG.NFTS_COLLECTION.NAME).doc(CONFIG.NFTS_COLLECTION.DOCUMENTS.tiers).get();
+        const limitDoc = await firebase.firestore().collection(CONFIG.NFTS_COLLECTION.NAME).doc(CONFIG.NFTS_COLLECTION.DOCUMENTS.limit).get();
         const limit = limitDoc.data()?.total as number
 
         const tiersFromDb = tiersDoc.data()!;
@@ -183,7 +167,7 @@ app.post("/deduct-nfts", async (req: NftDeductRequest, res: Response) => {
             }
         }
 
-        await firebase.firestore().collection(NFTS_COLLECTION.NAME).doc(NFTS_COLLECTION.DOCUMENTS.tiers).set(tiersFromDb);
+        await firebase.firestore().collection(CONFIG.NFTS_COLLECTION.NAME).doc(CONFIG.NFTS_COLLECTION.DOCUMENTS.tiers).set(tiersFromDb);
         res.status(200).json('success');
     } catch (err) {
         console.error(err);
