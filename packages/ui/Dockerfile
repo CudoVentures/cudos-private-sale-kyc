@@ -27,7 +27,7 @@ COPY --from=builder "/usr/src/cudos-private-sale-ui" ./
 # COPY --from=builder "/usr/src/cudos-allowlist/package.json" ./package.json
 
 
-COPY --from=builder "/usr/src/cudos-private-sale-ui/.env" ./.env
+COPY --from=builder "/usr/src/cudos-private-sale-ui/packages/config/.env" ./.env
 
 # RUN chown -R node:node ${WORKING_DIR}
 
