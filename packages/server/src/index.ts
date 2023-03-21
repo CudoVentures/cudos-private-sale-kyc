@@ -14,6 +14,14 @@ const ONFIDO_WORKFLOW_ID = process.env.ONFIDO_WORKFLOW_ID || "";
 const FIREBASE_SERVICE_KEY_PATH = process.env.FIREBASE_SERVICE_KEY_PATH || "";
 const API_KEY = process.env.API_KEY || "";
 const ONFIDO_LIGHT_CHECK_AMOUNT_USD = 1000;
+const COLLECTION = process.env.VITE_APP_FIREBASE_COLLECTION || "";
+const NFTS_COLLECTION = {
+    NAME: COLLECTION + '-nfts',
+    DOCUMENTS: {
+        limit: 'limit',
+        tiers: 'tiers'
+    }
+}
 
 const onfido = new Onfido({
     apiToken: ONFIDO_API_TOKEN,
@@ -133,7 +141,7 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
         }
 
         if (!!dataToSaveToDb['kycStatus']) {
-            await firebase.firestore().collection("cudos-kyc-presale").doc(userAddress).set({ ...dataToSaveToDb }, { merge: true });
+            await firebase.firestore().collection(COLLECTION).doc(userAddress).set({ ...dataToSaveToDb }, { merge: true });
             res.status(200).json({ status: dataToSaveToDb['kycStatus'] });
         } else {
             res.status(204).json({ error: "No suitable status" })
@@ -147,8 +155,8 @@ app.get("/workflow/:userAddress/:workflowRunId/status", async (req, res) => {
 
 app.post("/deduct-nfts", async (req: NftDeductRequest, res: Response) => {
     try {
-        const tiersDoc = await firebase.firestore().collection("cudos-kyc-presale-nfts").doc("tiers").get();
-        const limitDoc = await firebase.firestore().collection("cudos-kyc-presale-nfts").doc("limit").get();
+        const tiersDoc = await firebase.firestore().collection(NFTS_COLLECTION.NAME).doc(NFTS_COLLECTION.DOCUMENTS.tiers).get();
+        const limitDoc = await firebase.firestore().collection(NFTS_COLLECTION.NAME).doc(NFTS_COLLECTION.DOCUMENTS.limit).get();
         const limit = limitDoc.data()?.total as number
 
         const tiersFromDb = tiersDoc.data()!;
@@ -175,7 +183,7 @@ app.post("/deduct-nfts", async (req: NftDeductRequest, res: Response) => {
             }
         }
 
-        await firebase.firestore().collection("cudos-kyc-presale-nfts").doc("tiers").set(tiersFromDb);
+        await firebase.firestore().collection(NFTS_COLLECTION.NAME).doc(NFTS_COLLECTION.DOCUMENTS.tiers).set(tiersFromDb);
         res.status(200).json('success');
     } catch (err) {
         console.error(err);
