@@ -6,7 +6,7 @@ import { ApplicantRequest, AuthRequest, LoginRequest, WorkflowRunRequest, NftDed
 import { Onfido, Region } from "@onfido/api";
 import * as firebaseadmin from "firebase-admin";
 
-dotenv.config();
+dotenv.config({ path: `${__dirname}/../../config/.env` });
 const PORT = process.env.PORT || 8881;
 const ONFIDO_API_TOKEN = process.env.ONFIDO_API_TOKEN || "";
 const ONFIDO_REGION = process.env.ONFIDO_REGION || "EU";
