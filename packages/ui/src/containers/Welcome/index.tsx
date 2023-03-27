@@ -20,6 +20,7 @@ import { CopyComponent, PriceListTooltip } from 'components/helpers'
 import CreationField from 'components/FormField'
 import { NftTier } from 'store/user'
 import { getTotalAmounts } from 'utils/helpers'
+import { updateModalState } from 'store/modals'
 
 const Welcome = () => {
 
@@ -134,36 +135,63 @@ const Welcome = () => {
   // CLEAN-UP
   useEffect(() => {
     (async () => {
-      const { processCompleted, chosenCurrency, amountToSpend, nftTiers, currencyRate, currencyRateFetchedAt } = await getFlowStatus(userState.address!)
-      setProcessCompleted(processCompleted)
-      if (processCompleted && chosenCurrency) {
-        setPayeeWallet(CurrencyToInternalWalletMapper[chosenCurrency!])
-        dispatch(updateRates({
-          chosenCurrency: chosenCurrency
+      try {
+        dispatch(updateModalState({
+          loading: true,
+          loadingType: true,
         }))
+        const { processCompleted, chosenCurrency, amountToSpend, nftTiers, currencyRate, currencyRateFetchedAt } = await getFlowStatus(userState.address!)
+        setProcessCompleted(processCompleted)
+        if (processCompleted) {
+          // No need to do anything else if all completed
+          setLoaded(true)
+          return
+        }
+        if (chosenCurrency) {
+          setPayeeWallet(CurrencyToInternalWalletMapper[chosenCurrency!])
+          dispatch(updateRates({
+            chosenCurrency: chosenCurrency
+          }))
+        }
+        if (amountToSpend) {
+          setAmountToSpend(amountToSpend)
+        }
+        if (nftTiers) {
+          setNftTiers(nftTiers)
+        }
+        if (currencyRateFetchedAt) {
+          const timestamp = currencyRateFetchedAt
+          const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+          setFetchedAt(date)
+        }
+        if (currencyRate) {
+          setCurrencyRate(currencyRate)
+        }
+        if (nftTiers && currencyRates && chosenCurrency) {
+          const { usdAmount } = getTotalAmounts(nftTiers, currencyRates, chosenCurrency!)
+          setUsdAmount(usdAmount)
+        }
+        await loadRates()
+        setLoaded(true)
+        cleanUp()
+        return () => cleanUp()
+
+      } catch (error) {
+        console.error((error as Error).message)
+        setLoaded(false)
+        dispatch(updateModalState({
+          failure: true,
+          message: 'We cannot log you in at the moment. Please try again later...'
+        }))
+
+      } finally {
+        setTimeout(() => {
+          dispatch(updateModalState({
+            loading: false,
+            loadingType: false,
+          }))
+        }, 300)
       }
-      if (amountToSpend) {
-        setAmountToSpend(amountToSpend)
-      }
-      if (nftTiers) {
-        setNftTiers(nftTiers)
-      }
-      if (currencyRateFetchedAt) {
-        const timestamp = currencyRateFetchedAt
-        const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-        setFetchedAt(date)
-      }
-      if (currencyRate) {
-        setCurrencyRate(currencyRate)
-      }
-      if (nftTiers && currencyRates && chosenCurrency) {
-        const { usdAmount } = getTotalAmounts(nftTiers, currencyRates, chosenCurrency!)
-        setUsdAmount(usdAmount)
-      }
-      await loadRates()
-      setLoaded(true)
-      cleanUp()
-      return () => cleanUp()
     })()
     //eslint-disable-next-line
   }, [])

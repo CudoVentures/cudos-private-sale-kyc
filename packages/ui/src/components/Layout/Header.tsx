@@ -34,7 +34,7 @@ const Header = () => {
   const navigate = useNavigate()
   const { address: connectedAddress, registrationState } = useSelector((state: RootState) => state.userState)
   const userState = useSelector((state: RootState) => state.userState)
-  const { failure: modalFailure, success: modalSuccess } = useSelector((state: RootState) => state.modalState)
+  const { failure: modalFailure, success: modalSuccess, loading: appLevelLoading } = useSelector((state: RootState) => state.modalState)
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [openMenu, setOpenMenu] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
@@ -271,117 +271,118 @@ const Header = () => {
           Private Sale
         </Typography>
       </Box>
-      <Box
-        id='rightNavContent'
-        gap={2}
-        sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 0, marginRight: '4rem' }}>
-        {!connectedAddress || loading || registrationState?.processCompleted ? null :
-          <Box gap={2} display='flex' alignItems={'center'}>
-            <Typography>
-              Verification
-            </Typography>
-            {registrationState!.kycStatus ?
-              <Typography
-                color={
-                  registrationState!.kycStatus === kycStatus.submissionCompleted ||
-                    registrationState!.kycStatus === kycStatus.submissionUserTerminated ?
-                    COLORS_DARK_THEME.TESTNET_ORANGE :
-                    registrationState!.kycStatus === kycStatus.verificationSuccessful ?
-                      COLORS_DARK_THEME.VERIFIED_GREEN :
-                      registrationState!.kycStatus === kycStatus.verificationRejected ||
-                        registrationState!.kycStatus === kycStatus.submissionErrorTerminated ?
-                        COLORS_DARK_THEME.REJECTED_RED :
-                        'text.secondary'
-                }
-              >
-                {kycStatusMapper(registrationState!.kycStatus)}
-              </Typography> : null}
-            {(registrationState!.kycStatus !== kycStatus.verificationSuccessful &&
-              registrationState!.kycStatus !== kycStatus.submissionCompleted &&
-              registrationState!.kycStatus !== kycStatus.unknown) ?
-              !registrationState!.kycStatus ?
-                <Button
-                  variant="outlined"
-                  onClick={startOnfido}
-                >
-                  Start
-                </Button>
-                :
-                <Box gap={1} display={'flex'}>
-                  {registrationState!.kycStatus === kycStatus.verificationRejected ? null :
-                    <Button
-                      variant="outlined"
-                      onClick={resumeOnfido}
-                    >
-                      Resume
-                    </Button>}
-                  <Tooltip title='Restart verification process'>
-                    <Button
-                      variant="outlined"
-                      onClick={restartOnfido}
-                    >
-                      <CachedIcon sx={{ width: '20px' }} />
-                    </Button>
-                  </Tooltip>
-                </Box>
-              : null}
-          </Box>}
-        <Box sx={headerStyles.btnHolder}>
-          <ClickAwayListener
-            onClickAway={() => setOpenMenu(false)}
-            children={<Button
-              variant="contained"
-              style={{ justifyContent: isConnected ? 'space-between' : 'center' }}
-              sx={{
-                ...headerStyles.logInBtn,
-                bgcolor: isConnected ? COLORS_DARK_THEME.PRIMARY_STEEL_GRAY : COLORS_DARK_THEME.PRIMARY_BLUE
-              }}
-              onMouseEnter={() => isConnected ? setOpenMenu(true) : null}
-              onClick={handleClick}
-            >
-              {isConnected ?
-                <HashBasedUserAvatar UID={connectedAddress!} size={25} /> :
-                <WalletIcon style={{ height: '24px', marginRight: '5px' }} />}
-              <Typography fontWeight={700}>
-                {isConnected ?
-                  formatAddress(connectedAddress!, 7) :
-                  "Connect wallet"}
+      {appLevelLoading ? null :
+        <Box
+          id='rightNavContent'
+          gap={2}
+          sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 0, marginRight: '4rem' }}>
+          {!connectedAddress || loading || registrationState?.processCompleted ? null :
+            <Box gap={2} display='flex' alignItems={'center'}>
+              <Typography>
+                Verification
               </Typography>
-              {isConnected ?
-                <ArrowDown
-                  style={{
-                    color: COLORS_DARK_THEME.PRIMARY_BLUE,
-                    transform: openMenu ? 'rotate(180deg)' : 'rotate(360deg)'
-                  }}
-                />
-                : null}
-            </Button>}
-          />
-          <Collapse
-            sx={headerStyles.collapse}
-            onMouseEnter={() => setOpenMenu(true)}
-            onMouseLeave={() => setOpenMenu(false)}
-            in={openMenu}
-          >
-            <Paper elevation={1} sx={headerStyles.dropDownContentHolder}>
-              <Box gap={2} sx={headerStyles.dropDownItemHolder}>
-                <HashBasedUserAvatar UID={connectedAddress!} size={50} />
-                <Typography color={COLORS_DARK_THEME.PRIMARY_STEEL_GRAY_20}>
-                  {formatAddress(connectedAddress!, 10)}
-                </Typography>
-                <CopyAndFollowComponent address={connectedAddress!} />
-                <Button
-                  variant="contained"
-                  sx={headerStyles.disconnectBtn}
-                  onClick={handleDisconnect}
+              {registrationState!.kycStatus ?
+                <Typography
+                  color={
+                    registrationState!.kycStatus === kycStatus.submissionCompleted ||
+                      registrationState!.kycStatus === kycStatus.submissionUserTerminated ?
+                      COLORS_DARK_THEME.TESTNET_ORANGE :
+                      registrationState!.kycStatus === kycStatus.verificationSuccessful ?
+                        COLORS_DARK_THEME.VERIFIED_GREEN :
+                        registrationState!.kycStatus === kycStatus.verificationRejected ||
+                          registrationState!.kycStatus === kycStatus.submissionErrorTerminated ?
+                          COLORS_DARK_THEME.REJECTED_RED :
+                          'text.secondary'
+                  }
                 >
-                  Disconnect
-                </Button>
-              </Box>
-            </Paper>
-          </Collapse>
-        </Box>
-      </Box>
+                  {kycStatusMapper(registrationState!.kycStatus)}
+                </Typography> : null}
+              {(registrationState!.kycStatus !== kycStatus.verificationSuccessful &&
+                registrationState!.kycStatus !== kycStatus.submissionCompleted &&
+                registrationState!.kycStatus !== kycStatus.unknown) ?
+                !registrationState!.kycStatus ?
+                  <Button
+                    variant="outlined"
+                    onClick={startOnfido}
+                  >
+                    Start
+                  </Button>
+                  :
+                  <Box gap={1} display={'flex'}>
+                    {registrationState!.kycStatus === kycStatus.verificationRejected ? null :
+                      <Button
+                        variant="outlined"
+                        onClick={resumeOnfido}
+                      >
+                        Resume
+                      </Button>}
+                    <Tooltip title='Restart verification process'>
+                      <Button
+                        variant="outlined"
+                        onClick={restartOnfido}
+                      >
+                        <CachedIcon sx={{ width: '20px' }} />
+                      </Button>
+                    </Tooltip>
+                  </Box>
+                : null}
+            </Box>}
+          <Box sx={headerStyles.btnHolder}>
+            <ClickAwayListener
+              onClickAway={() => setOpenMenu(false)}
+              children={<Button
+                variant="contained"
+                style={{ justifyContent: isConnected ? 'space-between' : 'center' }}
+                sx={{
+                  ...headerStyles.logInBtn,
+                  bgcolor: isConnected ? COLORS_DARK_THEME.PRIMARY_STEEL_GRAY : COLORS_DARK_THEME.PRIMARY_BLUE
+                }}
+                onMouseEnter={() => isConnected ? setOpenMenu(true) : null}
+                onClick={handleClick}
+              >
+                {isConnected ?
+                  <HashBasedUserAvatar UID={connectedAddress!} size={25} /> :
+                  <WalletIcon style={{ height: '24px', marginRight: '5px' }} />}
+                <Typography fontWeight={700}>
+                  {isConnected ?
+                    formatAddress(connectedAddress!, 7) :
+                    "Connect wallet"}
+                </Typography>
+                {isConnected ?
+                  <ArrowDown
+                    style={{
+                      color: COLORS_DARK_THEME.PRIMARY_BLUE,
+                      transform: openMenu ? 'rotate(180deg)' : 'rotate(360deg)'
+                    }}
+                  />
+                  : null}
+              </Button>}
+            />
+            <Collapse
+              sx={headerStyles.collapse}
+              onMouseEnter={() => setOpenMenu(true)}
+              onMouseLeave={() => setOpenMenu(false)}
+              in={openMenu}
+            >
+              <Paper elevation={1} sx={headerStyles.dropDownContentHolder}>
+                <Box gap={2} sx={headerStyles.dropDownItemHolder}>
+                  <HashBasedUserAvatar UID={connectedAddress!} size={50} />
+                  <Typography color={COLORS_DARK_THEME.PRIMARY_STEEL_GRAY_20}>
+                    {formatAddress(connectedAddress!, 10)}
+                  </Typography>
+                  <CopyAndFollowComponent address={connectedAddress!} />
+                  <Button
+                    variant="contained"
+                    sx={headerStyles.disconnectBtn}
+                    onClick={handleDisconnect}
+                  >
+                    Disconnect
+                  </Button>
+                </Box>
+              </Paper>
+            </Collapse>
+          </Box>
+        </Box>}
       <div id='onfido-mount'></div>
     </AppBar>
   );
