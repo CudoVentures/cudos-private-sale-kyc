@@ -2,9 +2,13 @@ FROM node:16-buster as builder
 
 ARG WORKING_DIR="/usr/src/cudos-private-sale-ui"
 
-COPY ./ ${WORKING_DIR}
-
 WORKDIR ${WORKING_DIR}
+
+COPY ./ui/ ${WORKING_DIR}/src/
+
+COPY ./config/.env ${WORKING_DIR}/config/.env
+
+WORKDIR ${WORKING_DIR}/src
 
 RUN npm i
 
@@ -22,16 +26,10 @@ RUN if [ $USER_NAME != 'root' ]; then \
     fi
 
 WORKDIR ${WORKING_DIR}
+
 COPY --from=builder "/usr/src/cudos-private-sale-ui" ./
 
-# COPY --from=builder "/usr/src/cudos-allowlist/package.json" ./package.json
-
-
-COPY --from=builder "/usr/src/cudos-private-sale-ui/packages/config/.env" ./.env
-
-# RUN chown -R node:node ${WORKING_DIR}
-
-# USER node
+WORKDIR ${WORKING_DIR}/src
 
 RUN npm i --omit=dev
 

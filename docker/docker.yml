@@ -13,8 +13,8 @@ services:
     image: cudos-private-sale-kyc
     container_name: cudos-private-sale-kyc
     build:
-      dockerfile: Dockerfile
-      context: ../packages/server
+      dockerfile: ./server/Dockerfile
+      context: ../packages
     extra_hosts:
       - "host.docker.internal:host-gateway"
     logging:
@@ -28,8 +28,8 @@ services:
     image: cudos-private-sale-ui
     container_name: cudos-private-sale-ui
     build:
-      dockerfile: Dockerfile
-      context: ../packages/ui
+      dockerfile: ./ui/Dockerfile
+      context: ../packages
     restart: unless-stopped
     volumes:
       - "../:/usr/cudos-private-sale-ui"

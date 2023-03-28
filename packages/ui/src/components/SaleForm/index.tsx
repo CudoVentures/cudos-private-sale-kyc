@@ -1,5 +1,5 @@
 import { Box, Button, Collapse, Fade, Typography } from "@mui/material"
-import axios from "api/axios"
+import customAxios from "api/axios"
 import ConvertedAmount from "components/ConvertedAmount"
 import CreationField from "components/FormField"
 import { FormField, CurrencyToInternalWalletMapper, CurrencyToWalletAliasMapper } from "components/FormField/types"
@@ -85,7 +85,7 @@ const SaleForm = () => {
 
             await saveData(userState.registrationState?.connectedAddress!, dataForSaving)
 
-            await axios.post(
+            await customAxios.post(
                 CHAIN_DETAILS.NFT_DEDUCT_URL,
                 {
                     nftTiers: collectedData.nftTiers,
