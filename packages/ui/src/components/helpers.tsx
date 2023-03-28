@@ -45,7 +45,7 @@ export const PriceListTooltip = ({ tiers, usdAmount, rate, totalDue, fetchedAt }
                     ${usdAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} x {rate} = {totalDue}
                 </Typography>
                 <Typography color={COLORS_DARK_THEME.TESTNET_ORANGE} fontSize={12} alignSelf={'flex-start'} fontWeight={400}>
-                    {fetchedAt ? `Coingecko Rates as of ${fetchedAt.toLocaleString()}` : null}
+                    {fetchedAt ? `Cryptocompare Rates as of ${fetchedAt.toLocaleString()}` : null}
                 </Typography>
             </Box>}
             children={

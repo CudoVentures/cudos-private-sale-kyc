@@ -2,7 +2,7 @@ import { CHAIN_DETAILS } from "./constants";
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore/lite';
-import axios from "api/axios";
+import customAxios from "api/axios";
 import { signArbitrary } from "./helpers";
 import { SUPPORTED_WALLET } from "cudosjs";
 
@@ -28,9 +28,9 @@ export const authenticateWithFirebase = async (address: string, collection: stri
 
 export const authenticate = async (address: string, collection: string, connectedWallet: SUPPORTED_WALLET) => {
     try {
-        const nonceRes = await axios.post(CHAIN_DETAILS.FIREBASE.AUTH_NONCE_URL, { address, collection });
+        const nonceRes = await customAxios.post(CHAIN_DETAILS.FIREBASE.AUTH_NONCE_URL, { address, collection });
         const { signature } = await signArbitrary(connectedWallet, address, nonceRes.data.nonce);
-        const verifyRes = await axios.post(CHAIN_DETAILS.FIREBASE.AUTH_VERIFY_URL, { address, signature, collection });
+        const verifyRes = await customAxios.post(CHAIN_DETAILS.FIREBASE.AUTH_VERIFY_URL, { address, signature, collection });
         return verifyRes.data.token;
     } catch (error) {
         throw new Error("Firebase authentication error")

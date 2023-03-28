@@ -1,11 +1,12 @@
-import axios from './axios'
-import { AliasToCurrency, Currencies, CurrencyToAlias, CURRENCY_RATES, defaultCurrencyRates } from 'components/FormField/types'
-import { CHAIN_DETAILS } from 'utils/constants'
+import customAxios from './axios'
+import axios from 'axios'
+import { Currencies, CURRENCY_RATES, defaultCurrencyRates } from 'components/FormField/types'
+import { APP_DETAILS, CHAIN_DETAILS } from 'utils/constants'
 import { kycStatus } from 'utils/onfido'
 import { GET_CURRENCY_RATE_URL } from './endpoints'
 
-export const getLatestWorkflowStatusFromOnfido = async (userAddress:string, workflowId: string): Promise<kycStatus> => {
-    const response = await axios.get(
+export const getLatestWorkflowStatusFromOnfido = async (userAddress: string, workflowId: string): Promise<kycStatus> => {
+    const response = await customAxios.get(
         CHAIN_DETAILS.KYC_GET_WORKFLOW_DETAILS_BASE_URL +
         `/${userAddress}/${workflowId}/status`
     )
@@ -15,14 +16,16 @@ export const getLatestWorkflowStatusFromOnfido = async (userAddress:string, work
 const getCurrencyRates = async (fromCurrencies: Currencies[], toCurrency: string): Promise<CURRENCY_RATES> => {
     let rates = { ...defaultCurrencyRates }
     try {
-        const from = fromCurrencies.map((fromCurrency) => {
-            return CurrencyToAlias[fromCurrency]
-        }).join(',')
-        const response = await axios.get(`${GET_CURRENCY_RATE_URL(from, toCurrency)}`)
-        type RateData = { usd: string }
+        const response = await axios.get(
+            `${GET_CURRENCY_RATE_URL(fromCurrencies.join(','), toCurrency)}`, {
+            headers: {
+                'authorization': `Apikey ${APP_DETAILS.cryptoCompareApiKey}`,
+            }
+        })
+        type RateData = { USD: number }
         type PriceApiResponse = Record<string, RateData>
-        for (const [alias, rate] of Object.entries<PriceApiResponse>(response.data)) {
-            rates[AliasToCurrency[alias]] = Number(rate.usd)
+        for (const [currency, rate] of Object.entries<PriceApiResponse>(response.data)) {
+            rates[currency] = rate.USD
         }
     } catch (error) {
         console.error((error as Error).message)
