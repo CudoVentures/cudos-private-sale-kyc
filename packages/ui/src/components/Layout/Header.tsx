@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Collapse, Typography, Paper, Divider, AppBar, Tooltip } from '@mui/material';
+import { Box, Button, Collapse, Typography, Paper, Divider, AppBar } from '@mui/material';
 import { ClickAwayListener } from '@mui/base';
 import { useDispatch, useSelector } from 'react-redux'
-import * as Onfido from 'onfido-sdk-ui'
-import axios from 'api/axios';
 
 import { ReactComponent as ArrowDown } from 'assets/vectors/arrow-down.svg'
 import { ReactComponent as WalletIcon } from 'assets/vectors/wallet-icon.svg'
 import { ReactComponent as AuraPoolLogo } from 'assets/vectors/aura-pool-logo.svg'
-import CachedIcon from '@mui/icons-material/Cached';
 import Dialog from '../Dialog';
 
 import { headerStyles } from './styles';
@@ -19,14 +16,12 @@ import { HashBasedUserAvatar } from 'components/HashBasedAvatar';
 import { RootState } from 'store';
 import { updateModalState, initialState as initialModalState } from 'store/modals';
 import { initialState as initialRatesState } from 'store/rates';
-import { initialRegistrationState, initialState, updateUser, userState } from 'store/user';
+import { initialState, updateUser, userState } from 'store/user';
 import { COLORS_DARK_THEME } from 'theme/colors';
 import { updateRates } from 'store/rates';
-import { authenticateWithFirebase, deleteEverythingButNonce, saveData } from 'utils/firebase';
-import { CHAIN_DETAILS } from 'utils/constants';
-import { DocumentData, Timestamp } from 'firebase/firestore';
-import { getFlowStatus, kycStatus, kycStatusMapper, sanitizeKycStatus } from 'utils/onfido';
+import { getFlowStatus, sanitizeKycStatus } from 'utils/onfido';
 import { getLatestWorkflowStatusFromOnfido } from 'api/calls';
+import StatusStarter from 'components/StatusStarter';
 
 const Header = () => {
   const location = useLocation()
@@ -34,11 +29,15 @@ const Header = () => {
   const navigate = useNavigate()
   const { address: connectedAddress, registrationState } = useSelector((state: RootState) => state.userState)
   const userState = useSelector((state: RootState) => state.userState)
-  const { failure: modalFailure, success: modalSuccess, loading: appLevelLoading } = useSelector((state: RootState) => state.modalState)
+  const {
+    failure: modalFailure,
+    success: modalSuccess,
+    loading: appLevelLoading,
+    onfidoModalOpen
+  } = useSelector((state: RootState) => state.modalState)
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [openMenu, setOpenMenu] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
-  const [onfidoModalOpen, setOnfidoModalOpen] = useState<boolean>(false)
 
   const handleClick = () => {
     if (isConnected) {
@@ -56,158 +55,6 @@ const Header = () => {
     dispatch(updateUser(initialState))
     dispatch(updateModalState(initialModalState))
     navigate('/')
-  }
-
-  const runOnfido = async (token: string, workflowRunId: string) => {
-    setOnfidoModalOpen(true)
-    const onfido = Onfido.init({
-      token: token,
-      useModal: true,
-      isModalOpen: true,
-      shouldCloseOnOverlayClick: false,
-      region: 'US',
-      steps: ['welcome', 'document'],
-      workflowRunId: workflowRunId,
-      onModalRequestClose: function () {
-        onfido.setOptions({ isModalOpen: false })
-        dispatch(updateModalState({
-          failure: true,
-          message: 'KYC not completed'
-        }))
-        saveData(
-          connectedAddress!,
-          { kycStatus: kycStatus.submissionUserTerminated }
-        )
-        onfido.tearDown()
-        setOnfidoModalOpen(false)
-      },
-      onError: function (error) {
-        console.error(error.message)
-        dispatch(updateModalState({
-          failure: true,
-          message: 'KYC not completed'
-        }))
-        saveData(
-          connectedAddress!,
-          {
-            kycStatus: kycStatus.submissionErrorTerminated,
-            kycError: error.message
-          }
-        )
-        onfido.tearDown()
-        setOnfidoModalOpen(false)
-      },
-      onUserExit: function () {
-        dispatch(updateModalState({
-          failure: true,
-          message: 'KYC not completed'
-        }))
-        saveData(
-          connectedAddress!,
-          { kycStatus: kycStatus.submissionUserTerminated }
-        )
-        onfido.tearDown()
-        setOnfidoModalOpen(false)
-      },
-
-      onComplete: async function (data) {
-        onfido.setOptions({ isModalOpen: false })
-        dispatch(updateModalState({
-          success: true,
-          message: "Documents successfully submitted"
-        }))
-        await saveData(
-          connectedAddress!,
-          { kycStatus: kycStatus.submissionCompleted }
-        )
-        dispatch(updateUser({
-          registrationState: {
-            ...userState.registrationState!,
-            kycStatus: kycStatus.submissionCompleted
-          }
-        }))
-
-        onfido.tearDown()
-        setOnfidoModalOpen(false)
-      }
-    })
-  }
-
-  const restartOnfido = async () => {
-    dispatch(updateModalState({
-      loading: true,
-      loadingType: true,
-    }))
-    const { success } = await authenticateWithFirebase(
-      connectedAddress!,
-      CHAIN_DETAILS.FIREBASE.COLLECTION,
-      userState.connectedLedger!
-    )
-    if (!success) {
-      throw new Error('Failed to authenticate with Firebase')
-    }
-    await deleteEverythingButNonce(connectedAddress!)
-    const updatedUser = {
-      ...userState,
-      registrationState: {
-        ...initialRegistrationState
-      }
-    }
-    dispatch(updateUser(updatedUser as userState))
-    dispatch(updateModalState({
-      loading: false,
-      loadingType: false,
-    }))
-  }
-
-  const resumeOnfido = async () => {
-    if (!registrationState?.kycApplicantId || !registrationState.kycWorkflowRunId) {
-      await startOnfido()
-      return
-    }
-    const tokenResponse = await axios.post(
-      CHAIN_DETAILS.KYC_GET_RESUME_FLOW_TOKEN_URL,
-      { applicantId: registrationState?.kycApplicantId }
-    )
-    const resumedData: DocumentData = {
-      kycStatus: kycStatus.submissionResumed,
-      resumedAt: Timestamp.now().toDate()
-    }
-    await saveData(connectedAddress!, resumedData)
-    await runOnfido(tokenResponse.data.token, registrationState.kycWorkflowRunId)
-  }
-
-  const startOnfido = async () => {
-    dispatch(updateModalState({
-      loading: true,
-      loadingType: true,
-    }))
-    const kycRegisterRes = await axios.post(
-      CHAIN_DETAILS.KYC_REGISTER_APPLICANT_URL,
-      { firstName: 'default', lastName: 'default' }
-    )
-    const kycWorkflowRunRes = await axios.post(
-      CHAIN_DETAILS.KYC_CREATE_WORKFLOW_RUN_URL,
-      {
-        applicantId: kycRegisterRes.data.applicantId,
-        address: connectedAddress,
-        amount: 1275
-      }
-    )
-    const workflowId = kycWorkflowRunRes.data.id as string
-    const initialData: DocumentData = {
-      kycStatus: kycStatus.submissionStarted,
-      kycError: '',
-      kycApplicantId: kycRegisterRes.data.applicantId as string,
-      kycWorkflowRunId: workflowId,
-      kycStartedAt: Timestamp.now().toDate()
-    }
-    await saveData(connectedAddress!, initialData)
-    dispatch(updateModalState({
-      loading: false,
-      loadingType: false,
-    }))
-    await runOnfido(kycRegisterRes.data.token, workflowId)
   }
 
   useEffect(() => {
@@ -274,59 +121,10 @@ const Header = () => {
       {appLevelLoading ? null :
         <Box
           id='rightNavContent'
-          gap={2}
+          gap={1}
           sx={{ display: 'flex', alignItems: 'center', position: 'absolute', right: 0, marginRight: '4rem' }}>
           {!connectedAddress || loading || registrationState?.processCompleted ? null :
-            <Box gap={2} display='flex' alignItems={'center'}>
-              <Typography>
-                Verification
-              </Typography>
-              {registrationState!.kycStatus ?
-                <Typography
-                  color={
-                    registrationState!.kycStatus === kycStatus.submissionCompleted ||
-                      registrationState!.kycStatus === kycStatus.submissionUserTerminated ?
-                      COLORS_DARK_THEME.TESTNET_ORANGE :
-                      registrationState!.kycStatus === kycStatus.verificationSuccessful ?
-                        COLORS_DARK_THEME.VERIFIED_GREEN :
-                        registrationState!.kycStatus === kycStatus.verificationRejected ||
-                          registrationState!.kycStatus === kycStatus.submissionErrorTerminated ?
-                          COLORS_DARK_THEME.REJECTED_RED :
-                          'text.secondary'
-                  }
-                >
-                  {kycStatusMapper(registrationState!.kycStatus)}
-                </Typography> : null}
-              {(registrationState!.kycStatus !== kycStatus.verificationSuccessful &&
-                registrationState!.kycStatus !== kycStatus.submissionCompleted &&
-                registrationState!.kycStatus !== kycStatus.unknown) ?
-                !registrationState!.kycStatus ?
-                  <Button
-                    variant="outlined"
-                    onClick={startOnfido}
-                  >
-                    Start
-                  </Button>
-                  :
-                  <Box gap={1} display={'flex'}>
-                    {registrationState!.kycStatus === kycStatus.verificationRejected ? null :
-                      <Button
-                        variant="outlined"
-                        onClick={resumeOnfido}
-                      >
-                        Resume
-                      </Button>}
-                    <Tooltip title='Restart verification process'>
-                      <Button
-                        variant="outlined"
-                        onClick={restartOnfido}
-                      >
-                        <CachedIcon sx={{ width: '20px' }} />
-                      </Button>
-                    </Tooltip>
-                  </Box>
-                : null}
-            </Box>}
+            <StatusStarter status={registrationState!.kycStatus} outlined={true} />}
           <Box sx={headerStyles.btnHolder}>
             <ClickAwayListener
               onClickAway={() => setOpenMenu(false)}

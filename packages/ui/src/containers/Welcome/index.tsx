@@ -14,13 +14,14 @@ import { updateRates } from 'store/rates'
 import Pricelist from 'components/Pricelist'
 import CompletedProcess from 'components/CompletedProcess'
 import SaleForm from 'components/SaleForm'
-import { getFlowStatus, kycStatus } from 'utils/onfido'
+import { getFlowStatus, kycStatus, sanitizeKycStatus } from 'utils/onfido'
 import { COLORS_DARK_THEME } from 'theme/colors'
 import { CopyComponent, PriceListTooltip } from 'components/helpers'
 import CreationField from 'components/FormField'
 import { NftTier } from 'store/user'
 import { getTotalAmounts } from 'utils/helpers'
 import { updateModalState } from 'store/modals'
+import StatusStarter from 'components/StatusStarter'
 
 const Welcome = () => {
 
@@ -117,8 +118,16 @@ const Welcome = () => {
       }
 
       return (
-        <Box gap={5} sx={styles.welcomePricelistHolder}>
-          <Pricelist />
+        <Box gap={4} sx={{ ...styles.welcomePricelistHolder, width: '500px' }}>
+          {!userState.registrationState?.kycStatus ?
+            <Typography marginTop={4} textAlign={'center'}>
+              Please find below the NFTs that are still available for purchase. The next step to continue with the purchase is KYC, so please click 'Verify' to continue.
+            </Typography> : null}
+          <Box gap={8} sx={styles.welcomePricelistHolder}>
+            {!userState.registrationState?.kycStatus ?
+              <StatusStarter status={userState.registrationState?.kycStatus} customWidth={'100%'} /> : null}
+            <Pricelist />
+          </Box>
         </Box>
       )
     }
@@ -140,40 +149,49 @@ const Welcome = () => {
           loading: true,
           loadingType: true,
         }))
-        const { processCompleted, chosenCurrency, amountToSpend, nftTiers, currencyRate, currencyRateFetchedAt } = await getFlowStatus(userState.address!)
+        const {
+          processCompleted,
+          chosenCurrency,
+          amountToSpend,
+          nftTiers,
+          currencyRate,
+          currencyRateFetchedAt,
+          kycStatus: fetchedStatus
+        } = await getFlowStatus(userState.address!)
+        cleanUp()
+        if (sanitizeKycStatus(fetchedStatus) === kycStatus.verificationSuccessful) {
+          //We should be needing this only if the next step is to submit an order
+          await loadRates()
+        }
         setProcessCompleted(processCompleted)
         if (processCompleted) {
-          // No need to do anything else if all completed
-          setLoaded(true)
-          return
+          //We should be needing the following only if there are no next steps
+          if (chosenCurrency) {
+            setPayeeWallet(CurrencyToInternalWalletMapper[chosenCurrency!])
+            dispatch(updateRates({
+              chosenCurrency: chosenCurrency
+            }))
+          }
+          if (amountToSpend) {
+            setAmountToSpend(amountToSpend)
+          }
+          if (nftTiers) {
+            setNftTiers(nftTiers)
+          }
+          if (currencyRateFetchedAt) {
+            const timestamp = currencyRateFetchedAt
+            const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+            setFetchedAt(date)
+          }
+          if (currencyRate) {
+            setCurrencyRate(currencyRate)
+          }
+          if (nftTiers && currencyRates && chosenCurrency) {
+            const { usdAmount } = getTotalAmounts(nftTiers, currencyRates, chosenCurrency!)
+            setUsdAmount(usdAmount)
+          }
         }
-        if (chosenCurrency) {
-          setPayeeWallet(CurrencyToInternalWalletMapper[chosenCurrency!])
-          dispatch(updateRates({
-            chosenCurrency: chosenCurrency
-          }))
-        }
-        if (amountToSpend) {
-          setAmountToSpend(amountToSpend)
-        }
-        if (nftTiers) {
-          setNftTiers(nftTiers)
-        }
-        if (currencyRateFetchedAt) {
-          const timestamp = currencyRateFetchedAt
-          const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-          setFetchedAt(date)
-        }
-        if (currencyRate) {
-          setCurrencyRate(currencyRate)
-        }
-        if (nftTiers && currencyRates && chosenCurrency) {
-          const { usdAmount } = getTotalAmounts(nftTiers, currencyRates, chosenCurrency!)
-          setUsdAmount(usdAmount)
-        }
-        await loadRates()
         setLoaded(true)
-        cleanUp()
         return () => cleanUp()
 
       } catch (error) {
