@@ -10,6 +10,7 @@ import { ReactComponent as AuraPoolLogo } from 'assets/vectors/aura-pool-logo.sv
 export const APP_DETAILS = {
     fadeTimeOut: 1500,
     apiKey: import.meta.env.VITE_APP_API_KEY || process.env.VITE_APP_API_KEY || "",
+    cryptoCompareApiKey: import.meta.env.VITE_APP_CRYPTOCOMPARE_API_KEY || process.env.VITE_APP_CRYPTOCOMPARE_API_KEY || "",
     DEPLOYMENT_VERSION: import.meta.env.VITE_APP_DEPLOYMENT_VERSION || process.env.VITE_APP_DEPLOYMENT_VERSION || "",
     internalAddresses: {
         SOLANA: import.meta.env.VITE_APP_SOLANA_ADDRESS || process.env.VITE_APP_SOLANA_ADDRESS || "",

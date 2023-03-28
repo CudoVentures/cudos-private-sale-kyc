@@ -4,4 +4,4 @@ export const EXPLORER_ADDRESS_DETAILS = (chosenNetwork: string, accountAddress: 
   `${CHAIN_DETAILS.EXPLORER_URL[chosenNetwork]}/account/${accountAddress}`
 
 export const GET_CURRENCY_RATE_URL = (from: string, to: string) =>
-  `https://api.coingecko.com/api/v3/simple/price?ids=${from}&vs_currencies=${to}`
+  `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${from}&tsyms=${to}`

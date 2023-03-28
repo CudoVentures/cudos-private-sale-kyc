@@ -8,6 +8,7 @@ export interface modalState {
   success?: boolean
   failure?: boolean
   openTOC?: boolean
+  onfidoModalOpen?: boolean,
   data?: any
   selectWallet?: boolean,
 
@@ -21,6 +22,7 @@ export const initialState: modalState = {
   loadingType: false,
   failure: false,
   openTOC: false,
+  onfidoModalOpen: false,
   data: undefined,
   selectWallet: false,
 }
