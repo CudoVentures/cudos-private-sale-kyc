@@ -41,7 +41,6 @@ const Welcome = () => {
 
   const loadRates = async () => {
     const rates = await getCurrencyRates()
-    console.log(rates)
     dispatch(updateRates({
       currencyRates: rates,
       fetchedAt: new Date()
