@@ -3,6 +3,8 @@ import * as dotenv from "dotenv";
 
 dotenv.config({ path: `${__dirname}/../../config/.env` });
 export const CONFIG = {
+  CRYPTOCOMPARE_LIMIT: Number(process.env.CRYPTOCOMPARE_LIMIT) || 600000,
+  CRYPTOCOMPARE_API_KEY: process.env.CRYPTOCOMPARE_API_KEY || '',
   PORT: process.env.PORT || 8881,
   ONFIDO_API_TOKEN: process.env.ONFIDO_API_TOKEN || "",
   ONFIDO_REGION: process.env.ONFIDO_REGION || "EU",

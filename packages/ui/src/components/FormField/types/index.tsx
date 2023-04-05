@@ -1,12 +1,5 @@
 import { APP_DETAILS } from "utils/constants"
-
-export enum Currencies {
-    ETH = 'ETH',
-    USDC = 'USDC',
-    USDT = 'USDT',
-    SOL = 'SOL',
-    CUDOS = 'CUDOS'
-}
+import { Currencies } from "../../../../../common/types"
 
 export enum CurrencyAlias {
     ethereum = 'ethereum',
@@ -46,18 +39,6 @@ export const AliasToCurrency = {
     [CurrencyAlias.tether]: Currencies.USDT,
     [CurrencyAlias.usdCoin]: Currencies.USDC,
     [CurrencyAlias.cudos]: Currencies.CUDOS
-}
-
-export type CURRENCY_RATES = {
-    [key in Currencies]: number
-}
-
-export const defaultCurrencyRates: CURRENCY_RATES = {
-    ETH: 0,
-    USDC: 1,
-    USDT: 1,
-    SOL: 0,
-    CUDOS: 0
 }
 
 export enum FormFieldErrors {

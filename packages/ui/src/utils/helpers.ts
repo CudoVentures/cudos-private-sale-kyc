@@ -4,7 +4,7 @@ import { CHAIN_DETAILS } from "./constants"
 import { getTiersTotalSum, isValidCudosAddress } from "components/FormField/validation";
 import { NftQuantities, NftTier as NftTierEnum } from "store/nftTiers";
 import { getNftLimit, getNftQuantities } from "./firebase";
-import { Currencies, CURRENCY_RATES } from "components/FormField/types";
+import { Currencies, CURRENCY_RATES } from "../../../common/types";
 import { NftTier as NftTierInterface } from "store/user";
 
 export const getTotalAmounts = (

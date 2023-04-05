@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Currencies, CURRENCY_RATES, defaultCurrencyRates } from 'components/FormField/types'
+import { Currencies, CURRENCY_RATES, defaultCurrencyRates } from '../../../common/types'
 
 export interface ratesState {
     fetchedAt?: Date,

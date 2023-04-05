@@ -1,10 +1,19 @@
 import express, { Response } from "express";
+import axios from 'axios';
 import cors from "cors";
 import compression from "compression";
 import { ApplicantRequest, AuthRequest, LoginRequest, WorkflowRunRequest, NftDeductRequest } from './types';
 import { Onfido, Region } from "@onfido/api";
 import * as firebaseadmin from "firebase-admin";
 import { CONFIG, initializeNftCollection } from "./helpers";
+import { AUTH_HEADERS, Currencies, CURRENCY_RATES, defaultCurrencyRates } from "../../common/types";
+
+let currencyRates: CURRENCY_RATES = { ...defaultCurrencyRates }
+let cryptocompareAuthHeaders: AUTH_HEADERS | undefined = {
+    headers: {
+        'authorization': `Apikey ${CONFIG.CRYPTOCOMPARE_API_KEY}`,
+    }
+}
 
 const onfido = new Onfido({
     apiToken: CONFIG.ONFIDO_API_TOKEN,
@@ -38,6 +47,51 @@ app.use(requireApiKey);
 app.listen(CONFIG.PORT, async () => {
     await initializeNftCollection();
     console.log(`cudos-kyc-poc-server listening on port ${CONFIG.PORT}`);
+});
+
+async function setCurrencyRatesFromCryptocompare(fromCurrencies: Currencies[], toCurrency: string): Promise<void> {
+    try {
+        if (!cryptocompareAuthHeaders) {
+            console.error('Using Free Cryptocompare API call')
+        }
+        const response = await axios.get(
+            `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${fromCurrencies.join(',')}&tsyms=${toCurrency}`,
+            { ...cryptocompareAuthHeaders }
+        )
+        type RateData = { USD: number }
+        type PriceApiResponse = Record<string, RateData>
+        for (const [currency, rate] of Object.entries<PriceApiResponse>(response.data)) {
+            currencyRates[currency] = rate.USD
+        }
+
+        if (cryptocompareAuthHeaders) {
+            //There are no limits reported when no auth header
+            const rateLimitRemaining = Number(response.headers['x-ratelimit-remaining']);
+            if (rateLimitRemaining <= CONFIG.CRYPTOCOMPARE_LIMIT) {
+                cryptocompareAuthHeaders = undefined
+                console.error(`Switching to free Cryptocompare calls. Paid limit down to: ${rateLimitRemaining} calls`)
+            }
+        }
+
+    } catch (error) {
+        console.error((error as Error).message)
+    }
+}
+
+async function updateCurrencyRatesData() {
+    await setCurrencyRatesFromCryptocompare(Object.values(Currencies), 'USD');
+}
+
+//ONCE STARTED AND EVERY 5 MINUTES AFTERWARDS
+updateCurrencyRatesData();
+setInterval(updateCurrencyRatesData, 5 * 60 * 1000);
+
+app.get('/currency-rates', (_req, res) => {
+    if (currencyRates) {
+        res.status(200).json({ rates: currencyRates });
+    } else {
+        res.status(500).json('Unable to fetch currency rates');
+    }
 });
 
 app.post("/login", async (req: LoginRequest, res: Response) => {
