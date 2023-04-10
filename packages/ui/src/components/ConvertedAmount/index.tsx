@@ -4,7 +4,7 @@ import { RootState } from "store"
 import { updateUser, userState as userStateInterface } from "store/user"
 import { Box, Typography, Select, MenuItem, ClickAwayListener } from "@mui/material"
 import { COLORS_DARK_THEME } from "theme/colors"
-import { Currencies } from "components/FormField/types"
+import { Currencies } from "../../../../common/types"
 import { updateRates } from "store/rates"
 import { TailSpin as TailSpinLoader } from 'svg-loaders-react'
 import { getTotalAmounts } from "utils/helpers"

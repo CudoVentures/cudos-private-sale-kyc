@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Currencies } from 'components/FormField/types'
+import { Currencies } from '../../../common/types'
 import { SUPPORTED_WALLET } from 'cudosjs'
 import { CHAIN_DETAILS } from 'utils/constants'
 

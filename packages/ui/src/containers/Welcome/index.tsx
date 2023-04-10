@@ -3,13 +3,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Dialog from 'components/Dialog'
-import { Currencies, CurrencyToInternalWalletMapper, FormField } from 'components/FormField/types'
+import { CurrencyToInternalWalletMapper, FormField } from 'components/FormField/types'
 import { RootState } from 'store'
 
 import { styles } from './styles'
 import { APP_DETAILS } from 'utils/constants'
 import { Navigate, useLocation } from 'react-router-dom'
-import getCurrencyRates from 'api/calls'
+import { getCurrencyRates } from 'api/calls'
 import { updateRates } from 'store/rates'
 import Pricelist from 'components/Pricelist'
 import CompletedProcess from 'components/CompletedProcess'
@@ -40,7 +40,7 @@ const Welcome = () => {
   const [fetchedAt, setFetchedAt] = useState<Date | undefined>(undefined)
 
   const loadRates = async () => {
-    const rates = await getCurrencyRates(Object.values(Currencies), 'USD')
+    const rates = await getCurrencyRates()
     dispatch(updateRates({
       currencyRates: rates,
       fetchedAt: new Date()

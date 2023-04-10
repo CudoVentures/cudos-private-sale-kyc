@@ -1,4 +1,4 @@
-import { Currencies } from "components/FormField/types"
+import { Currencies } from "../../../common/types"
 import { Timestamp } from "firebase/firestore"
 import { NftTier } from "store/user"
 import { getData } from "./firebase"

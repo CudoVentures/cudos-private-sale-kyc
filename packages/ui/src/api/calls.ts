@@ -1,9 +1,8 @@
 import customAxios from './axios'
-import axios from 'axios'
-import { Currencies, CURRENCY_RATES, defaultCurrencyRates } from 'components/FormField/types'
+
 import { APP_DETAILS, CHAIN_DETAILS } from 'utils/constants'
 import { kycStatus } from 'utils/onfido'
-import { GET_CURRENCY_RATE_URL } from './endpoints'
+import { CURRENCY_RATES, defaultCurrencyRates } from '../../../common/types'
 
 export const getLatestWorkflowStatusFromOnfido = async (userAddress: string, workflowId: string): Promise<kycStatus> => {
     const response = await customAxios.get(
@@ -13,24 +12,13 @@ export const getLatestWorkflowStatusFromOnfido = async (userAddress: string, wor
     return response.data.status
 }
 
-const getCurrencyRates = async (fromCurrencies: Currencies[], toCurrency: string): Promise<CURRENCY_RATES> => {
+export const getCurrencyRates = async (): Promise<CURRENCY_RATES> => {
     let rates = { ...defaultCurrencyRates }
     try {
-        const response = await axios.get(
-            `${GET_CURRENCY_RATE_URL(fromCurrencies.join(','), toCurrency)}`, {
-            headers: {
-                'authorization': `Apikey ${APP_DETAILS.cryptoCompareApiKey}`,
-            }
-        })
-        type RateData = { USD: number }
-        type PriceApiResponse = Record<string, RateData>
-        for (const [currency, rate] of Object.entries<PriceApiResponse>(response.data)) {
-            rates[currency] = rate.USD
-        }
+        const response = await customAxios.get(APP_DETAILS.GET_CURRENCY_RATES_URL)
+        rates = response.data.rates
     } catch (error) {
         console.error((error as Error).message)
     }
     return rates
 }
-
-export default getCurrencyRates
