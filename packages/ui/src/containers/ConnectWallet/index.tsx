@@ -22,7 +22,7 @@ const ConnectWallet = () => {
   return userState.address ? <Navigate to="welcome" state={{ from: location }} replace /> : (
     <Fade in={loaded} timeout={APP_DETAILS.fadeTimeOut}>
       <Box style={{
-        height: '89vh',
+        height: '88vh',
         width: '99vw',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',

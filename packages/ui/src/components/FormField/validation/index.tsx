@@ -6,7 +6,8 @@ import { APP_DETAILS } from "utils/constants"
 import { kycStatus } from "utils/onfido"
 import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
 
-import { Currencies, FormField, FormFieldErrors } from "../types"
+import { FormField, FormFieldErrors } from "../types"
+import { Currencies } from "../../../../../common/types"
 
 export const isZeroLength = (data: any): boolean => !data
 
