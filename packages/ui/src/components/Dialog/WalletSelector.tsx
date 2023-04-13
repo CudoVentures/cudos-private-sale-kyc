@@ -34,7 +34,6 @@ export const SUPPORTED_WALLET_LOGOS = {
 
 const WalletSelector = () => {
 
-    const { chosenNetwork } = useSelector((state: RootState) => state.userState)
     const { selectWallet } = useSelector((state: RootState) => state.modalState)
     const [userBrowser, setUserBrowser] = useState<SUPPORTED_BROWSER | undefined>(undefined)
     const [loading, setLoading] = useState(new Map())
@@ -50,7 +49,7 @@ const WalletSelector = () => {
 
         try {
             setLoading(new Map(loading.set(walletName, true)))
-            const connectedUser = await connectUser(chosenNetwork!, walletName)
+            const connectedUser = await connectUser(walletName)
             dispatch(updateUser(connectedUser))
             handleModalClose()
 

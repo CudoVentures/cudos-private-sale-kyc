@@ -46,7 +46,7 @@ export const signArbitrary = async (
   message: string
 ):
   Promise<{ signature: StdSignature }> => {
-  const chainId = CHAIN_DETAILS.CHAIN_ID[CHAIN_DETAILS.DEFAULT_NETWORK]
+  const chainId = CHAIN_DETAILS.CHAIN_ID
   let signature: StdSignature = {
     pub_key: { type: '', value: '' },
     signature: ""
@@ -61,9 +61,9 @@ export const signArbitrary = async (
   return { signature }
 }
 
-export const getConnectedUserAddressAndName = async (chosenNetwork: string, ledgerType: string): Promise<{ address: string; accountName: string; }> => {
+export const getConnectedUserAddressAndName = async (ledgerType: string): Promise<{ address: string; accountName: string; }> => {
 
-  const { address, accountName } = await connectLedgerByType(chosenNetwork, ledgerType)
+  const { address, accountName } = await connectLedgerByType(ledgerType)
 
   if (!isValidCudosAddress(address)) {
     throw new Error("Invalid ledger");
@@ -79,17 +79,4 @@ export const formatAddress = (text: string, sliceIndex: number): string => {
     return text
   }
   return `${text.slice(0, sliceIndex)}...${text.slice(len - 4, len)}`
-}
-
-export const handleAvailableNetworks = (defaultNetwork: string): networkToDisplay[] => {
-
-  if (CHAIN_DETAILS.LOCAL.SHORT_NAMES.includes(defaultNetwork.toLowerCase())) {
-    return [CHAIN_DETAILS.LOCAL]
-  }
-
-  if (CHAIN_DETAILS.PRIVATE.SHORT_NAMES.includes(defaultNetwork.toLowerCase())) {
-    return [CHAIN_DETAILS.PRIVATE]
-  }
-
-  return [CHAIN_DETAILS.PUBLIC, CHAIN_DETAILS.MAINNET]
 }

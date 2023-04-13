@@ -207,12 +207,6 @@ export const styles = {
     textDecoration: 'none',
     display: 'flex'
   },
-  networkInfoHolder: {
-    width: 'max-content',
-    marginRight: '20px',
-    display: 'flex',
-    alignItems: 'center'
-  },
   avatarStyling: {
     borderRadius: "0px",
     width: '18px',

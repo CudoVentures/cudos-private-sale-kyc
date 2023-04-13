@@ -47,7 +47,6 @@ export interface userState {
     address?: string
     accountName?: string
     connectedLedger?: SUPPORTED_WALLET
-    chosenNetwork?: string
     registrationState?: PrivateSaleFields
 }
 
@@ -55,7 +54,6 @@ export const initialState: userState = {
     address: '',
     accountName: '',
     connectedLedger: undefined,
-    chosenNetwork: CHAIN_DETAILS.DEFAULT_NETWORK,
     registrationState: initialRegistrationState
 }
 
