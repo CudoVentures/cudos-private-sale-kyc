@@ -2,7 +2,7 @@ import { cosmos, InstallError } from "@cosmostation/extension-client"
 import { AddChainParams } from "@cosmostation/extension-client/types/message"
 import { CHAIN_DETAILS } from "utils/constants"
 
-export const connectCosmostationLedger = async (chosenNetwork: string): Promise<{ address: string; accountName: string; }> => {
+export const connectCosmostationLedger = async (): Promise<{ address: string; accountName: string; }> => {
 
   let userAccountAddress: string = ''
   let userAccountName: string = ''
@@ -11,12 +11,12 @@ export const connectCosmostationLedger = async (chosenNetwork: string): Promise<
     const provider = await cosmos()
     const activatedChains = await provider.getActivatedChainIds()
 
-    if (!activatedChains.includes(CHAIN_DETAILS.CHAIN_ID[chosenNetwork].toLowerCase())) {
+    if (!activatedChains.includes(CHAIN_DETAILS.CHAIN_ID.toLowerCase())) {
 
       const chainToAdd: AddChainParams = {
-        chainId: CHAIN_DETAILS.CHAIN_ID[chosenNetwork],
-        chainName: CHAIN_DETAILS.CHAIN_NAME[chosenNetwork],
-        restURL: CHAIN_DETAILS.API_ADDRESS[chosenNetwork],
+        chainId: CHAIN_DETAILS.CHAIN_ID,
+        chainName: CHAIN_DETAILS.CHAIN_NAME,
+        restURL: CHAIN_DETAILS.API_ADDRESS,
         addressPrefix: CHAIN_DETAILS.CURRENCY_DISPLAY_NAME.toLowerCase(),
         baseDenom: CHAIN_DETAILS.NATIVE_TOKEN_DENOM,
         displayDenom: CHAIN_DETAILS.CURRENCY_DISPLAY_NAME,
@@ -33,7 +33,7 @@ export const connectCosmostationLedger = async (chosenNetwork: string): Promise<
     }
 
     // Although the method suggests CHAIN_NAME as parameter only, it can work with CHAIN_ID too!
-    const acccount = await provider.requestAccount(CHAIN_DETAILS.CHAIN_ID[chosenNetwork])
+    const acccount = await provider.requestAccount(CHAIN_DETAILS.CHAIN_ID)
     userAccountAddress = acccount.address
     userAccountName = acccount.name
 

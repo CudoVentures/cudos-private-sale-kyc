@@ -187,6 +187,7 @@ export const footerStyles = {
     }
   },
   leftItem: {
+    display: 'flex',
     cursor: 'pointer'
   }
 }
@@ -206,12 +207,6 @@ export const styles = {
     alignItems: 'center',
     textDecoration: 'none',
     display: 'flex'
-  },
-  networkInfoHolder: {
-    width: 'max-content',
-    marginRight: '20px',
-    display: 'flex',
-    alignItems: 'center'
   },
   avatarStyling: {
     borderRadius: "0px",

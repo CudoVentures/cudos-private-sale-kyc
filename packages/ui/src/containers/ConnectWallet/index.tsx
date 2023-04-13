@@ -32,7 +32,7 @@ const ConnectWallet = () => {
         <Box>
           <Box sx={styles.connectContainer}>
             <Box>
-              <h1>Welcome to AuraPool Private Sale!</h1>
+              <h1>Welcome to CUDOS Markets Private Sale!</h1>
             </Box>
             <Box sx={styles.subHeaderContainer}>
               {userState.address ?
