@@ -9,9 +9,9 @@ import { authenticateWithFirebase } from "./firebase"
 import { getConnectedUserAddressAndName } from "./helpers"
 import { getFlowStatus, sanitizeKycStatus } from "./onfido"
 
-export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_WALLET): Promise<userState> => {
+export const connectUser = async (ledgerType: SUPPORTED_WALLET): Promise<userState> => {
 
-    const { address, accountName } = await getConnectedUserAddressAndName(chosenNetwork, ledgerType)
+    const { address, accountName } = await getConnectedUserAddressAndName(ledgerType)
     if (!address) {
         throw new Error(`Failed to log in with ${ledgerType}`)
     }
@@ -35,7 +35,6 @@ export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_W
         address: address,
         accountName: accountName,
         connectedLedger: ledgerType,
-        chosenNetwork: chosenNetwork,
         registrationState: {
             ...initialRegistrationState,
             connectedAddress: address,
@@ -49,14 +48,14 @@ export const connectUser = async (chosenNetwork: string, ledgerType: SUPPORTED_W
     return connectedUser
 }
 
-export const connectLedgerByType = async (chosenNetwork: string, ledgerType: string) => {
+export const connectLedgerByType = async (ledgerType: string) => {
 
     if (ledgerType === LEDGERS.KEPLR) {
-        return connectKeplrLedger(chosenNetwork)
+        return connectKeplrLedger()
     }
 
     if (ledgerType === LEDGERS.COSMOSTATION) {
-        return connectCosmostationLedger(chosenNetwork)
+        return connectCosmostationLedger()
     }
 
     return { address: '', accountName: '' }

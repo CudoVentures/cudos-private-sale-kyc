@@ -25,7 +25,6 @@ declare let window: any;
 const App = () => {
   const location = useLocation()
   const themeColor = useSelector((state: RootState) => state.settings.theme)
-  const { chosenNetwork } = useSelector((state: RootState) => state.userState)
   const dispatch = useDispatch()
 
   const connectAccount = useCallback(async (ledgerType: SUPPORTED_WALLET) => {
@@ -41,7 +40,7 @@ const App = () => {
 
       dispatch(updateUser(initialUserState))
 
-      const connectedUser = await connectUser(chosenNetwork!, ledgerType)
+      const connectedUser = await connectUser(ledgerType)
 
       dispatch(updateUser(connectedUser))
 
