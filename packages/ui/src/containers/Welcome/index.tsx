@@ -74,7 +74,7 @@ const Welcome = () => {
                   type={FormField.internalWallet}
                   text={'Payee Wallet Address'}
                   value={payeeWallet}
-                  placeholder={'AuraPool’s wallet address where you send money to'}
+                  placeholder={'CUDOS Market’s wallet address where you send money to'}
                   endAdornment={<CopyComponent textToCopy={payeeWallet} />}
                   isDisabled={true}
                 /> : null}
@@ -100,9 +100,10 @@ const Welcome = () => {
                 </Box> : null}
               <Typography component={'span'} variant="h6">
                 {"  In the meantime, if you have any questions please reach out to us at "}
-                < Link href={`mailto:enquiries@aurapool.io`
+                {/* TODO: Fill the missing when available*/}
+                < Link href={`mailto:""`
                 } color={COLORS_DARK_THEME.PRIMARY_BLUE} >
-                  enquiries@aurapool.io
+                  {''}
                 </Link >
               </Typography>
             </Box>
