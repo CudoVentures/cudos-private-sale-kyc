@@ -4,7 +4,9 @@ import cudosAdminLogo from 'assets/vectors/cudos-admin-logo.svg'
 import { ReactComponent as TwitterIcon } from 'assets/vectors/twitter.svg'
 import { ReactComponent as DiscordIcon } from 'assets/vectors/discord.svg'
 import { SUPPORTED_WALLET } from "cudosjs"
-import { ReactComponent as AuraPoolLogo } from 'assets/vectors/aura-pool-logo.svg'
+import { ReactComponent as CudosMarketsLogo } from 'assets/vectors/cudos-markets-logo.svg'
+import { COLORS_DARK_THEME } from "theme/colors"
+import { Box } from "@mui/material"
 
 // CONFIGURATIONS
 export const APP_DETAILS = {
@@ -108,18 +110,28 @@ export const LEDGERS = {
     COSMOSTATION: SUPPORTED_WALLET.Cosmostation
 }
 
+//TODO: Fill the missing URLs when available
 export const FOOTER = {
     LEFT_LINKS: [
-        { text: <AuraPoolLogo style={{height: '40px'}} />, url: 'https://www.aurapool.io' },
-        { text: 'Terms & Conditions', url: 'https://www.aurapool.io/terms-and-conditions/' },
-        { text: 'Privacy Policy', url: 'https://www.aurapool.io/privacy-policy' },
-        { text: 'aurapool.io', url: 'https://www.aurapool.io' },
-        { text: `License © ${moment().year()}`, url: 'https://www.aurapool.io' },
+        {
+            text: <Box sx={{
+                height: '24px',
+                color: COLORS_DARK_THEME.PRIMARY_STEEL_GRAY_50,
+                "&:hover": {
+                    color: COLORS_DARK_THEME.PRIMARY_BLUE
+                }
+            }}>
+                <CudosMarketsLogo style={{ height: '100%' }} />
+            </Box>, url: ''
+        },
+        { text: 'Terms & Conditions', url: '' },
+        { text: 'Privacy Policy', url: '' },
+        { text: `License © ${moment().year()}`, url: '' },
         { text: `${APP_DETAILS.DEPLOYMENT_VERSION}`, url: `https://github.com/CudoVentures/cudos-private-sale-kyc/releases/tag/${APP_DETAILS.DEPLOYMENT_VERSION}` }
     ],
     RIGHT_LINKS: [
-        { icon: <TwitterIcon />, url: 'https://twitter.com/AuraPool_' },
-        { icon: <DiscordIcon />, url: 'https://discord.com/invite/aurapool' },
+        { icon: <TwitterIcon />, url: '' },
+        { icon: <DiscordIcon />, url: '' },
 
     ]
 }

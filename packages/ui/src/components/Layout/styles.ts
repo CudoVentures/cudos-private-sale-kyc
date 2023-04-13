@@ -187,6 +187,7 @@ export const footerStyles = {
     }
   },
   leftItem: {
+    display: 'flex',
     cursor: 'pointer'
   }
 }

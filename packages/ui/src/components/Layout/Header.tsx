@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as ArrowDown } from 'assets/vectors/arrow-down.svg'
 import { ReactComponent as WalletIcon } from 'assets/vectors/wallet-icon.svg'
-import { ReactComponent as AuraPoolLogo } from 'assets/vectors/aura-pool-logo.svg'
+import { ReactComponent as CudosMarketsLogo } from 'assets/vectors/cudos-markets-logo.svg'
 import Dialog from '../Dialog';
 
 import { headerStyles } from './styles';
@@ -109,7 +109,7 @@ const Header = () => {
         gap={1.5}
         sx={headerStyles.logoGroup}
       >
-        <AuraPoolLogo style={{ height: '50px', marginTop: 4 }} />
+        <CudosMarketsLogo style={{ height: '45px', marginTop: 4 }} />
         <Divider
           orientation='vertical'
           sx={headerStyles.divider}
