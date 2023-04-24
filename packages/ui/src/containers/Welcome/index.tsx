@@ -103,7 +103,7 @@ const Welcome = () => {
                 {/* TODO: Fill the missing when available*/}
                 < Link href={`mailto:""`
                 } color={COLORS_DARK_THEME.PRIMARY_BLUE} >
-                  {''}
+                  {'enquiries@cudosmarkets.com'}
                 </Link >
               </Typography>
             </Box>
