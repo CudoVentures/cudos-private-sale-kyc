@@ -64,14 +64,14 @@ export const FOOTER = {
                 <CudosMarketsLogo style={{ height: '100%' }} />
             </Box>, url: ''
         },
-        { text: 'Terms & Conditions', url: '' },
-        { text: 'Privacy Policy', url: '' },
-        { text: `License © ${moment().year()}`, url: '' },
+        { text: 'Terms & Conditions', url: 'https://cudosmarkets.com/terms-and-conditions' },
+        { text: 'Privacy Policy', url: 'https://cudosmarkets.com/privacy-policy' },
+        { text: `License © ${moment().year()}`, url: 'https://cudosmarkets.com' },
         { text: `${APP_DETAILS.DEPLOYMENT_VERSION}`, url: `https://github.com/CudoVentures/cudos-private-sale-kyc/releases/tag/${APP_DETAILS.DEPLOYMENT_VERSION}` }
     ],
     RIGHT_LINKS: [
-        { icon: <TwitterIcon />, url: '' },
-        { icon: <DiscordIcon />, url: '' },
+        { icon: <TwitterIcon />, url: 'https://twitter.com/CudosMarkets' },
+        { icon: <DiscordIcon />, url: 'https://discord.com/invite/7DPZ45C4ms' },
 
     ]
 }
