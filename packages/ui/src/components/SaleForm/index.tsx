@@ -194,7 +194,7 @@ const SaleForm = () => {
                             placeholder={`Your ${CurrencyToWalletAliasMapper[chosenCurrency!]?.toUpperCase()} wallet address where you pay from`}
                         />
                         <Typography sx={{ fontSize: '12px', marginTop: 1 }} color={COLORS_DARK_THEME.PRIMARY_BLUE}>
-                            We will inform you of the CUDOS Market’s wallet address after we successfully receive your order!
+                            We will inform you of the CUDOS Markets wallet address after we successfully receive your order!
                         </Typography>
                         <CreationField
                             type={FormField.tocAgreed}
