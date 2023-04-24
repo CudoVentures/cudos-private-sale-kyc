@@ -74,7 +74,7 @@ const Welcome = () => {
                   type={FormField.internalWallet}
                   text={'Payee Wallet Address'}
                   value={payeeWallet}
-                  placeholder={'CUDOS Market’s wallet address where you send money to'}
+                  placeholder={'CUDOS Markets’ wallet address where you send money to'}
                   endAdornment={<CopyComponent textToCopy={payeeWallet} />}
                   isDisabled={true}
                 /> : null}
@@ -100,8 +100,7 @@ const Welcome = () => {
                 </Box> : null}
               <Typography component={'span'} variant="h6">
                 {"  In the meantime, if you have any questions please reach out to us at "}
-                {/* TODO: Fill the missing when available*/}
-                < Link href={`mailto:""`
+                < Link href={`mailto:"enquiries@cudosmarkets.com"`
                 } color={COLORS_DARK_THEME.PRIMARY_BLUE} >
                   {'enquiries@cudosmarkets.com'}
                 </Link >

@@ -50,7 +50,6 @@ export const LEDGERS = {
     COSMOSTATION: SUPPORTED_WALLET.Cosmostation
 }
 
-//TODO: Fill the missing URLs when available
 export const FOOTER = {
     LEFT_LINKS: [
         {
@@ -62,7 +61,7 @@ export const FOOTER = {
                 }
             }}>
                 <CudosMarketsLogo style={{ height: '100%' }} />
-            </Box>, url: ''
+            </Box>, url: 'https://cudosmarkets.com'
         },
         { text: 'Terms & Conditions', url: 'https://cudosmarkets.com/terms-and-conditions' },
         { text: 'Privacy Policy', url: 'https://cudosmarkets.com/privacy-policy' },

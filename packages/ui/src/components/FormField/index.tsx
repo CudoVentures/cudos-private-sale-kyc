@@ -105,7 +105,7 @@ const CreationField = ({
                     PopperProps={validationStyles.tooltipPopper}
                     componentsProps={type === FormField.internalWallet && isValid ? validationStyles.connectedTooltipProps : validationStyles.tooltipProps}
                     open={!isValid || (type === FormField.internalWallet && isValid)}
-                    title={type === FormField.internalWallet && isValid ? 'The CUDOS Market’s wallet address where you have to send your money to.' : tooltip}
+                    title={type === FormField.internalWallet && isValid ? 'The CUDOS Markets’ wallet address where you have to send your money to.' : tooltip}
                 >
                     {
                         type === FormField.tocAgreed ?
