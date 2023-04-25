@@ -97,7 +97,7 @@ export const CopyAndFollowComponent = ({ address }: { address: string }): JSX.El
             <Box sx={themeStyles.iconHolder}>
                 <Tooltip title="Check address on explorer">
                     <Link
-                        href={EXPLORER_ADDRESS_DETAILS(connectedLedger!, address)}
+                        href={EXPLORER_ADDRESS_DETAILS(connectedLedger!)}
                         rel="noreferrer"
                         target='Checking address on explorer'
                     >

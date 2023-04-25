@@ -2,9 +2,11 @@ FROM node:16-buster as builder
 
 ARG WORKING_DIR="/usr/src/cudos-private-sale-kyc"
 
-COPY ./server/ ${WORKING_DIR}/src/
+COPY ./packages/server/ ${WORKING_DIR}/src/
 
-COPY ./config/.env ${WORKING_DIR}/config/.env
+COPY ./packages/config/.env ${WORKING_DIR}/config/.env
+
+COPY ./packages/common/ ${WORKING_DIR}/common/
 
 WORKDIR ${WORKING_DIR}/src
 
