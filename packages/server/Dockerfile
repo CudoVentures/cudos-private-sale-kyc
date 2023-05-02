@@ -1,6 +1,6 @@
 FROM node:16-buster as builder
 
-ARG WORKING_DIR="/usr/src/cudos-private-sale-kyc"
+ARG WORKING_DIR="/app"
 
 WORKDIR ${WORKING_DIR}
 
@@ -8,7 +8,7 @@ COPY ./packages/server/ ${WORKING_DIR}/server
 
 COPY ./packages/config/.env ${WORKING_DIR}/server/.env
 
-COPY ./packages/common/ ${WORKING_DIR}/common
+COPY ./packages/common/ ${WORKING_DIR}/common/
 
 WORKDIR ${WORKING_DIR}/server
 
@@ -28,13 +28,13 @@ RUN if [ $USER_NAME != 'root' ]; then \
     fi
 
 WORKDIR ${WORKING_DIR}
-COPY --from=builder "/usr/src/cudos-private-sale-kyc/" ./
+COPY --from=builder "/app/server" ./
 
 RUN chown -R node:node ${WORKING_DIR}
 
 USER node
 
-WORKDIR ${WORKING_DIR}/server
+WORKDIR ${WORKING_DIR}
 
 RUN npm i --omit=dev
 
