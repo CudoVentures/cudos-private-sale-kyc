@@ -4,11 +4,9 @@ ARG WORKING_DIR="/usr/src/cudos-private-sale-kyc"
 
 WORKDIR ${WORKING_DIR}
 
-COPY ./packages/server/ ${WORKING_DIR}/server
+COPY ./packages/server/ ./server
 
-COPY ./packages/config/.env ${WORKING_DIR}/server/.env
-
-COPY ./packages/common/ ${WORKING_DIR}/common
+COPY ./packages/common/ ./common/
 
 WORKDIR ${WORKING_DIR}/server
 
@@ -18,23 +16,17 @@ RUN npm run build
 
 FROM node:16-buster
 
-ARG WORKING_DIR="/usr/local/cudos-private-sale-kyc" 
-
-RUN if [ $USER_NAME != 'root' ]; then \
-        groupmod -g 2000 node; \
-        usermod -u 2000 -g 2000 node; \
-        groupadd --gid ${GROUP_ID} ${GROUP_NAME}; \
-        useradd --no-log-init --create-home --shell /bin/bash --uid ${USER_ID} --gid ${GROUP_ID} ${USER_NAME}; \
-    fi
+ARG WORKING_DIR="/usr/local/app" 
 
 WORKDIR ${WORKING_DIR}
-COPY --from=builder "/usr/src/cudos-private-sale-kyc/" ./
 
-RUN chown -R node:node ${WORKING_DIR}
+COPY --from=builder "/usr/src/cudos-private-sale-kyc/server/build" ./build
 
-USER node
+COPY --from=builder "/usr/src/cudos-private-sale-kyc/server/build/common" ./common
 
-WORKDIR ${WORKING_DIR}/server
+COPY ./packages/config/.env ./build/config/.env
+COPY ./packages/server/package.json ./package.json
+COPY ./packages/server/key.json ./key.json
 
 RUN npm i --omit=dev
 
