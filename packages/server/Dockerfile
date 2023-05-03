@@ -4,13 +4,11 @@ ARG WORKING_DIR="/usr/src/cudos-private-sale-kyc"
 
 WORKDIR ${WORKING_DIR}
 
-COPY ./packages/server/ ${WORKING_DIR}/src/
+COPY ./packages/server/ ./server
 
-COPY ./packages/config/.env ${WORKING_DIR}/src/.env
+COPY ./packages/common/ ./common/
 
-COPY ./packages/common/ ${WORKING_DIR}/common/
-
-WORKDIR ${WORKING_DIR}/src
+WORKDIR ${WORKING_DIR}/server
 
 RUN npm i
 
@@ -22,12 +20,14 @@ ARG WORKING_DIR="/usr/local/app"
 
 WORKDIR ${WORKING_DIR}
 
-COPY --from=builder "/usr/src/cudos-private-sale-kyc/" ./
+COPY --from=builder "/usr/src/cudos-private-sale-kyc/server/build" ./build
 
-WORKDIR ${WORKING_DIR}/src
+COPY --from=builder "/usr/src/cudos-private-sale-kyc/server/build/common" ./common
+
+COPY ./packages/config/.env ./build/config/.env
+COPY ./packages/server/package.json ./package.json
+COPY ./packages/server/key.json ./key.json
 
 RUN npm i --omit=dev
 
 CMD ["npm", "run", "start:prod"] 
-
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
