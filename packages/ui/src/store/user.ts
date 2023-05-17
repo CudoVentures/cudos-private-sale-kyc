@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Currencies } from '../../../common/types'
 import { SUPPORTED_WALLET } from 'cudosjs'
-import { CHAIN_DETAILS } from 'utils/constants'
 
 export interface NftTier {
     qty: number,
