@@ -4,9 +4,11 @@ ARG WORKING_DIR="/usr/src/cudos-private-sale-ui"
 
 WORKDIR ${WORKING_DIR}
 
-COPY ./ui/ ${WORKING_DIR}/src/
+COPY ./packages/ui/ ${WORKING_DIR}/src/
 
-COPY ./config/.env ${WORKING_DIR}/config/.env
+COPY ./packages/config/.env ${WORKING_DIR}/config/.env
+
+COPY ./packages/common/ ${WORKING_DIR}/common/
 
 WORKDIR ${WORKING_DIR}/src
 

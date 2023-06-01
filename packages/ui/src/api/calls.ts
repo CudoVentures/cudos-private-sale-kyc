@@ -18,7 +18,7 @@ export const getCurrencyRates = async (): Promise<CURRENCY_RATES> => {
         const response = await customAxios.get(APP_DETAILS.GET_CURRENCY_RATES_URL)
         rates = response.data.rates
     } catch (error) {
-        console.error((error as Error).message)
+        throw (error)
     }
     return rates
 }

@@ -29,7 +29,10 @@ const Pricelist = () => {
                 return (
                     <Box key={idx}>
                         <Typography color={'text.primary'} fontSize={18} fontWeight={900}>
-                            {key}
+                            {`${key} `}
+                            <Box component='span' fontSize={14}>
+                                {`(${TIER_PRICES[key].HashRate} TH/s)`}
+                            </Box>
                         </Typography>
                         <Box display={'flex'} justifyContent={'space-between'}>
                             <Typography color={'text.secondary'} fontWeight={400}>
