@@ -10,22 +10,27 @@ export enum NftTier {
 
 export const TIER_PRICES = {
     [NftTier.Opal]: {
+        HashRate: 5,
         Private: 140.25,
         Public: 165
     },
     [NftTier.Ruby]: {
+        HashRate: 10,
         Private: 280.5,
         Public: 330
     },
     [NftTier.Emerald]: {
+        HashRate: 33,
         Private: 935,
         Public: 1100
     },
     [NftTier.Diamond]: {
+        HashRate: 100,
         Private: 2805,
         Public: 3300
     },
     [NftTier.BlueDiamond]: {
+        HashRate: 170,
         Private: 4675,
         Public: 5500
     }

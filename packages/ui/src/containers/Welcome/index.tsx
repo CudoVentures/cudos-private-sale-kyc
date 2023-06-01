@@ -31,6 +31,7 @@ const Welcome = () => {
   const { currencyRates } = useSelector((state: RootState) => state.ratesState)
 
   const [loaded, setLoaded] = useState<boolean>(false)
+  const [componentError, setComponentError] = useState<boolean>(false)
   const [processCompleted, setProcessCompleted] = useState<boolean>(false)
   const [payeeWallet, setPayeeWallet] = useState<string>('')
   const [amountToSpend, setAmountToSpend] = useState<string>('')
@@ -40,11 +41,23 @@ const Welcome = () => {
   const [fetchedAt, setFetchedAt] = useState<Date | undefined>(undefined)
 
   const loadRates = async () => {
-    const rates = await getCurrencyRates()
-    dispatch(updateRates({
-      currencyRates: rates,
-      fetchedAt: new Date()
-    }))
+    try {
+      const rates = await getCurrencyRates()
+      if (Object.values(rates).some((value) => value <= 0)) {
+        throw new Error("Invalid Rates");
+      }
+      dispatch(updateRates({
+        currencyRates: rates,
+        fetchedAt: new Date()
+      }))
+    } catch (error) {
+      console.error((error as Error).message)
+      setComponentError(true)
+      dispatch(updateModalState({
+        failure: true,
+        message: 'We cannot process your request at the moment. Please try again later...'
+      }))
+    }
   }
 
   const cleanUp = () => {
@@ -61,7 +74,7 @@ const Welcome = () => {
   }
 
   const handleContent = useCallback(() => {
-    if (loaded) {
+    if (loaded && !componentError) {
       if (processCompleted) {
         return (
           <Box>
