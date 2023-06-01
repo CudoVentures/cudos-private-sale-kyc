@@ -18,8 +18,8 @@ export type CURRENCY_RATES = {
 
 export const defaultCurrencyRates: CURRENCY_RATES = {
     ETH: 0,
-    USDC: 1,
-    USDT: 1,
+    USDC: 0,
+    USDT: 0,
     SOL: 0,
     CUDOS: 0
 }
